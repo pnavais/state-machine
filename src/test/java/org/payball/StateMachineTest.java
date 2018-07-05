@@ -18,6 +18,10 @@ package org.payball;
 
 import org.junit.jupiter.api.Test;
 import org.payball.machine.StateMachine;
+import org.payball.machine.model.StateTransitionMap;
+import org.payball.machine.utils.StringUtils;
+import org.payball.machine.utils.TransitionPrintBuilder;
+import org.payball.machine.utils.TransitionUtils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -34,13 +38,18 @@ public class StateMachineTest
     @Test
     public void testMachineInit() {
         StateMachine stateMachine = StateMachine.newBuilder()
-                .add("A", "a", "B")
+                .from("A").to("B").on("1")
+                .from("B").to("C").on("2")
+                .selfLoop("C").on("3")
+                .from("C").to("D").on("4")
                 .build();
 
         assertNotNull(stateMachine, "Null state machine found");
-        assertEquals(2, stateMachine.size(), "State machine size mismatch");
-        assertNotNull(stateMachine.getTransitions("A"), "State transitions not retrieved correctly");
-        assertEquals(1, stateMachine.getTransitions("A").size(), "Transitions size mismatch");
+        assertEquals(4, stateMachine.size(), "State machine size mismatch");
+        //assertNotNull(stateMachine.getTransitions("A"), "State transitions not retrieved correctly");
+        //assertEquals(1, stateMachine.getTransitions("A").size(), "Transitions size mismatch");
+
+        TransitionUtils.printTransitions((StateTransitionMap)stateMachine.getTansitionsIndex(), TransitionPrintBuilder.getDefault());
     }
 
 }

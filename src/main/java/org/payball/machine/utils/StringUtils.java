@@ -43,12 +43,12 @@ public class StringUtils {
      * @param limit the limit
      */
     public static String ellipsis(String s, int limit) {
-        return (s.length()>limit) ? s.substring(0, limit)+"..." : s;
+        return (s.length()>limit) ? s.substring(0, limit-3)+"..." : s;
     }
 
     /**
-     * Apply a padding to the given string using
-     * the provided characters up to a certain length.
+     * Apply a left padding to the given string using
+     * the provided character up to a certain length.
      *
      * @param s the string to pad
      * @param p the padding character
@@ -56,9 +56,40 @@ public class StringUtils {
      *
      * @return the padded string
      */
-    public static String padd(String s, char p, int n) {
+    public static String padRight(String s, char p, int n) {
         StringBuffer buffer = new StringBuffer(s);
         IntStream.range(0, n-s.length()).forEach( v -> buffer.append(p));
         return buffer.toString();
+    }
+
+    /**
+     * Apply a right padding to the given string using
+     * the provided character up to a certain length.
+     *
+     * @param s the string to pad
+     * @param p the padding character
+     * @param n the limit
+     *
+     * @return the padded string
+     */
+    public static String padLeft(String s, char p, int n) {
+        StringBuffer buffer = new StringBuffer();
+        IntStream.range(0, n-s.length()).forEach( v -> buffer.append(p));
+        return buffer.append(s).toString();
+    }
+
+    /**
+     * Surround the string with the provided
+     * character up to a certain length
+     *
+     * @param s the string to center
+     * @param p the padding character
+     * @param n the limit
+     *
+     * @return the padded string
+     */
+    public static String center(String s, char p, int n) {
+        int m = (int) Math.round((n-s.length())/2.0);
+        return padRight(padLeft(s, p, m+s.length()), p, n);
     }
 }

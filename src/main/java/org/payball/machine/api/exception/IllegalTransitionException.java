@@ -13,7 +13,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package org.payball.machine.api.exception;
 
 /**
@@ -25,9 +24,9 @@ public class IllegalTransitionException extends RuntimeException {
      * Creates the execption using the given message
      * description.
      *
-     * @param m the message description
+     * @param message the message description
      */
-    public IllegalTransitionException(String m) {
-        super(m);
+    public IllegalTransitionException(String message) {
+        super(message);
     }
 }

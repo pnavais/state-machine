@@ -13,20 +13,19 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package org.payball.machine.builder;
 
 import org.payball.machine.StateMachine;
 import org.payball.machine.api.Message;
 import org.payball.machine.model.State;
 import org.payball.machine.model.StateTransition;
-import org.payball.machine.model.StringMessage;
 import org.payball.machine.model.StateTransitionMap;
+import org.payball.machine.model.StringMessage;
 
 import java.util.Objects;
 
 /**
- * A static builder for {@link StateMachine} instances
+ * A simple builder for {@link StateMachine} instances
  */
 public class StateMachineBuilder {
 
@@ -41,160 +40,33 @@ public class StateMachineBuilder {
     }
 
     /**
-     * Adds a new transition from a given source state to a target state
-     * on message reception
+     * Starts the building of a new
+     * transition by specifying the source
+     * state's name
      *
      * @param srcStateName the source state's name
-     * @param  messageId the received message
-     * @param targetStateName the target state's name
-     *
-     * @return the builder transitionMap for chaining purposes
+     * @return the FromBuilder builder clause
      */
-    public StateMachineBuilder add(String srcStateName, String messageId, String targetStateName) {
-        return add(new StateTransition(new State(srcStateName), new StringMessage(messageId), new State(targetStateName)));
+    public FromBuilder from(String srcStateName) {
+        return from(new State(srcStateName));
     }
 
     /**
-     * Adds a new transition from a given source state to a target state
-     * on message reception
+     * Starts the building of a new
+     * transition by specifying the source
+     * state.
      *
-     * @param srcStateName the source state's name
-     * @param message the received message
-     * @param targetStateName the target state's name
-     *
-     * @return the builder transitionMap for chaining purposes
+     * @param srcState the source state
+     * @return the FromBuilder builder clause
      */
-    public StateMachineBuilder add(String srcStateName, Message<?> message, String targetStateName) {
-        return add(new StateTransition(new State(srcStateName), message, new State(targetStateName)));
-    }
-
-    /**
-     * Adds a new transition from a given source state to a target state
-     * on message reception.
-     *
-     * @param srcStateName the source state's name
-     * @param  messageId the received message
-     * @param target the target state
-     *
-     * @return the builder transitionMap for chaining purposes
-     */
-    public StateMachineBuilder add(String srcStateName, String messageId, State target) {
-        return add(new StateTransition(new State(srcStateName), new StringMessage(messageId), target));
-    }
-
-    /**
-     * Adds a new transition from a given source state to a target state
-     * on message reception.
-     *
-     * @param srcStateName the source state's name
-     * @param  message the received message
-     * @param target the target state
-     *
-     * @return the builder transitionMap for chaining purposes
-     */
-    public StateMachineBuilder add(String srcStateName, Message message, State target) {
-         return add(new StateTransition(new State(srcStateName), message, target));
-    }
-
-    /**
-     * Adds a new transition from a given source state to a target state
-     * on message reception.
-     *
-     * @param origin the source state
-     * @param  messageId the received message
-     * @param target the target state
-     *
-     * @return the builder transitionMap for chaining purposes
-     */
-    public StateMachineBuilder add(State origin, String messageId, State target) {
-        return add(new StateTransition(origin, new StringMessage(messageId), target));
-    }
-
-    /**
-     * Adds a new transition from a given source state to a target state
-     * on message reception.
-     *
-     * @param origin the source state
-     * @param  message the received message
-     * @param target the target state
-     *
-     * @return the builder transitionMap for chaining purposes
-     */
-    public StateMachineBuilder add(State origin, Message message, State target) {
-        return add(new StateTransition(origin, message, target));
-    }
-
-    /**
-     * Adds a new transition from a given source state to a target state
-     * on message reception.
-     *
-     * @param origin the source state
-     * @param  messageId the received message
-     * @param targetStateName the target state's name
-     *
-     * @return the builder transitionMap for chaining purposes
-     */
-    public StateMachineBuilder add(State origin, String messageId, String targetStateName) {
-        return add(new StateTransition(origin, new StringMessage(messageId), new State(targetStateName)));
-    }
-
-    /**
-     * Creates a loop for the given origin state's name
-     * and message description.
-     *
-     * @param srcStateName the source state's name
-     * @param message the message
-     *
-     * @return the builder transitionMap for chaining purposes
-     */
-    public StateMachineBuilder selfLoop(String srcStateName, String message) {
-        return add(srcStateName, message, srcStateName);
-    }
-
-    /**
-     * Creates a loop for the given origin state's name
-     * and message.
-     *
-     * @param srcStateName the source state's name
-     * @param message the message
-     *
-     * @return the builder transitionMap for chaining purposes
-     */
-    public StateMachineBuilder selfLoop(String srcStateName, Message message) {
-        return add(srcStateName, message, srcStateName);
-    }
-
-    /**
-     * Creates a loop for the given origin state
-     * and message.
-     *
-     * @param origin the source state's name
-     * @param message the message
-     *
-     * @return the builder transitionMap for chaining purposes
-     */
-    public StateMachineBuilder selfLoop(State origin, Message message) {
-        return add(origin, message, origin);
-    }
-
-    /**
-     * Creates a loop for the given origin state
-     * and message description.
-     *
-     * @param origin the source state's name
-     * @param message the message
-     *
-     * @return the builder transitionMap for chaining purposes
-     */
-    public StateMachineBuilder selfLoop(State origin, String message) {
-        return add(origin, message, origin);
+    public FromBuilder from(State srcState) {
+        return new FromBuilder(this, srcState);
     }
 
     /**
      * Adds the given transition to the transition map.
      *
      * @param transition the transition to add
-     *
      * @return the builder transitionMap for chaining purposes.
      */
     public StateMachineBuilder add(StateTransition transition) {
@@ -204,10 +76,32 @@ public class StateMachineBuilder {
     }
 
     /**
+     * Starts the definition of a loop
+     * for the given state's name
+     *
+     * @param stateName the state name
+     * @return the ToBuilder builder clause
+     */
+    public ToBuilder selfLoop(String stateName) {
+        return selfLoop(new State(stateName));
+    }
+
+    /**
+     * Starts a definition of a loop
+     * for the given state
+     *
+     * @param state the state
+     * @return the ToBuilder builder clause
+     */
+    public ToBuilder selfLoop(State state) {
+        return new ToBuilder(this, state, state);
+    }
+
+    /**
      * Creates a new transitionMap from the
      * transition map currently built.
      *
-     * @return the new state machine with the current
+     * @return the new srcState machine with the current
      * transitions.
      */
     public StateMachine build() {
@@ -223,4 +117,102 @@ public class StateMachineBuilder {
         return transitionMap;
     }
 
+    /**
+     * Internal builder class to begin the definition
+     * of a new transition.
+     */
+    public static class FromBuilder {
+
+        /** The builder instance */
+        private final StateMachineBuilder builder;
+
+        /** The source state */
+        private final State srcState;
+
+        /**
+         * Creates a new From Builder clause for the
+         * State Machine builder using the given state as source.
+         *
+         * @param builder the builder
+         * @param srcState the source state
+         */
+        private FromBuilder(StateMachineBuilder builder, State srcState) {
+            this.builder = builder;
+            this.srcState = srcState;
+        }
+
+        /**
+         * Adds a new target state to the
+         * transition under build.
+         *
+         * @param targetStateName the state
+         * @return the builder ToBuilder clause
+         */
+        public ToBuilder to(String targetStateName) {
+            return to(new State(targetStateName));
+        }
+
+        /**
+         * Adds a new target state by it's name
+         * to the transition under build.
+         *
+         * @param targetStateName the target state's name
+         * @return the ToBuilder builder clause
+         */
+        public ToBuilder to(State targetStateName) {
+            return new ToBuilder(builder, srcState, targetStateName);
+        }
+    }
+
+    /**
+     * Internal builder class to end the definition
+     * of a new transition.
+     */
+    public static class ToBuilder {
+
+        /** The builder instance */
+        private final StateMachineBuilder builder;
+
+        /** The source state */
+        private final State srcState;
+
+        /** The target state */
+        private final State targetState;
+
+        /**
+         * Creates a new ToBuilder clause for the builder
+         * using the given source and target states.
+         *
+         * @param builder the builder
+         * @param srcState the source state
+         */
+        private ToBuilder(StateMachineBuilder builder, State srcState, State targetState) {
+            this.srcState = srcState;
+            this.targetState = targetState;
+            this.builder = builder;
+        }
+
+        /**
+         * Ends the transition by applying the message and
+         * retrieving the initial builder.
+         *
+         * @param message the string message to add
+         * @return the initial builder
+         */
+        public StateMachineBuilder on(String message) {
+            return on(new StringMessage((message)));
+        }
+
+        /**
+         * Ends the transition by applying a custom message and
+         * retrieving the initial builder.
+         *
+         * @param message the custom message to add
+         * @return the initial builder
+         */
+        private StateMachineBuilder on(Message<?> message) {
+            builder.add(new StateTransition(srcState, message, targetState));
+            return builder;
+        }
+    }
 }

@@ -13,7 +13,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package org.payball.machine.api;
 
 import org.payball.machine.api.exception.IllegalTransitionException;
@@ -55,7 +54,6 @@ public interface Transition<T> {
      * or throw an {@link IllegalTransitionException} otherwise
      *
      * @param transition the transition to check
-     *
      * @return the input transition
      */
     static Transition validate(Transition<?> transition) {

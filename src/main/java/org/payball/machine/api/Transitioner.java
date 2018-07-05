@@ -61,7 +61,6 @@ public interface Transitioner<K extends Node, T extends Transition<K>>  {
      * on message reception.
      *
      * @param m the message
-     *
      * @return the next node
      */
     Optional<K> getNext(Message<?> m);
@@ -79,7 +78,6 @@ public interface Transitioner<K extends Node, T extends Transition<K>>  {
      * defined for the given node.
      *
      * @param nodeName the node's name
-     *
      * @return the transitions for the given node
      */
     Collection<T> getTransitions(String nodeName);

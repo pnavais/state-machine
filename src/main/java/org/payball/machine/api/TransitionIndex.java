@@ -45,7 +45,6 @@ public interface TransitionIndex<K extends Node, T extends Transition<K>> {
      *
      * @param source the origin node
      * @param m the message
-     *
      * @return the next node if found or empty otherwise
      */
     Optional<K> getNext(K source, Message<?> m);
@@ -55,7 +54,6 @@ public interface TransitionIndex<K extends Node, T extends Transition<K>> {
      * by its name.
      *
      * @param name the node's name to search
-     *
      * @return the node found or empty otherwise
      */
     Optional<K> find(String name);
@@ -79,7 +77,6 @@ public interface TransitionIndex<K extends Node, T extends Transition<K>> {
      * for the given node.
      *
      * @param name the node's name
-     *
      * @return the transitions for the node
      */
     Collection<T> getTransitions(String name);

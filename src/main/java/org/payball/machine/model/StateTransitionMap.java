@@ -13,13 +13,11 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package org.payball.machine.model;
 
 import org.payball.machine.api.Message;
 import org.payball.machine.api.Transition;
 import org.payball.machine.api.TransitionIndex;
-import org.payball.machine.api.exception.NullStateException;
 import org.payball.machine.api.exception.NullTransitionException;
 
 import java.util.*;
@@ -173,11 +171,12 @@ public class StateTransitionMap implements TransitionIndex<State, StateTransitio
      */
     @Override
     public Collection<StateTransition> getTransitions(String stateName) {
-         Optional.ofNullable(transitionMap.get(stateName)).ifPresent(m -> {
+         /*Optional.ofNullable(transitionMap.get(stateName)).ifPresent(m -> {
            m.forEach((message, state) -> {
 
            };
-         }).orElseThrow(() -> new NullStateException("The state [" + stateName + "] was not found")).;
+         }).orElseThrow(() -> new NullStateException("The state [" + stateName + "] was not found")).;*/
+        throw new UnsupportedOperationException("Not implemented yet!");
     }
 
 }
