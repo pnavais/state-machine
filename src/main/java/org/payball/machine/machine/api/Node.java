@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.payball.machine.api;
+package org.payball.machine.machine.api;
 
 /**
  * Represents any item present in a directed graph

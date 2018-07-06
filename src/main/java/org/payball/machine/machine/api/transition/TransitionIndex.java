@@ -13,7 +13,11 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.payball.machine.api;
+package org.payball.machine.machine.api.transition;
+
+import org.payball.machine.machine.api.Message;
+import org.payball.machine.machine.api.Node;
+import org.payball.machine.machine.api.Transition;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -47,7 +51,7 @@ public interface TransitionIndex<K extends Node, T extends Transition<K>> {
      * @param m the message
      * @return the next node if found or empty otherwise
      */
-    Optional<K> getNext(K source, Message<?> m);
+    Optional<K> getNext(K source, Message m);
 
     /**
      * Search the given node in the transition index

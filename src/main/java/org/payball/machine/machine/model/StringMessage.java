@@ -13,30 +13,39 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.payball.machine.model;
+package org.payball.machine.machine.model;
 
-import org.payball.machine.api.Message;
+import org.payball.machine.machine.api.Message;
+import org.payball.machine.machine.api.Payload;
 
 import java.util.Objects;
+import java.util.UUID;
 
 /**
  * An implementation of the Message interface
  * with a String payload.
  */
-public class StringMessage implements Message<String> {
+public class StringMessage implements Message {
 
-    /**
-     * The message identifier
-     */
-    private final String messageId;
+    /** The message key */
+    private String messageKey;
+
+    /** The message identifier */
+    private final Payload payload;
+
+    /** The message identifier */
+    private final UUID messageId;
 
     /**
      * Default constructor with a message identifier
      *
-     * @param messageId the message identifier
+     * @param messageKey the message identifier
      */
-    public StringMessage(String messageId) {
-        this.messageId = messageId;
+    public StringMessage(String messageKey) {
+        Objects.requireNonNull(messageKey);
+        this.messageKey = messageKey;
+        this.messageId = UUID.randomUUID();
+        this.payload = () -> this.messageKey;
     }
 
     /**
@@ -44,13 +53,13 @@ public class StringMessage implements Message<String> {
      *
      * @return the message identifier
      */
-    public String getMessageId() {
+    public UUID getMessageId() {
         return messageId;
     }
 
     @Override
-    public String getPayload() {
-        return messageId;
+    public Payload getPayload() {
+        return payload;
     }
 
     @Override
@@ -58,11 +67,11 @@ public class StringMessage implements Message<String> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         StringMessage that = (StringMessage) o;
-        return Objects.equals(messageId, that.messageId);
+        return Objects.equals(messageKey, that.messageKey);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(messageId);
+        return Objects.hash(messageKey);
     }
 }

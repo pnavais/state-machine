@@ -13,20 +13,19 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.payball.machine.api.exception;
+package org.payball.machine.machine.api.exception;
 
 /**
- * An exception raised when dealing with incorrect transitions
+ * An exception raised when dealing with void states.
  */
-public class IllegalTransitionException extends RuntimeException {
+public class NullStateException extends RuntimeException {
 
     /**
-     * Creates the execption using the given message
-     * description.
+     * Create the exception with the given message.
      *
-     * @param message the message description
+     * @param message the message
      */
-    public IllegalTransitionException(String message) {
+    public NullStateException(String message) {
         super(message);
     }
 }

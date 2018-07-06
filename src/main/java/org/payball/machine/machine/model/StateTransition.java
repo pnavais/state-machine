@@ -13,11 +13,11 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.payball.machine.model;
+package org.payball.machine.machine.model;
 
 
-import org.payball.machine.api.Message;
-import org.payball.machine.api.Transition;
+import org.payball.machine.machine.api.Message;
+import org.payball.machine.machine.api.Transition;
 
 import java.util.Objects;
 
@@ -26,19 +26,13 @@ import java.util.Objects;
  */
 public class StateTransition implements Transition<State> {
 
-    /**
-     * The origin of the transition
-     */
+    /** The origin of the transition */
     private final State source;
 
-    /**
-     * The message received on the origin state
-     */
-    private final Message<?> message;
+    /** The message received on the origin state */
+    private final Message message;
 
-    /**
-     * The target destination upon message processing
-     */
+    /** The target destination upon message processing */
     private final State target;
 
     /**
@@ -49,7 +43,7 @@ public class StateTransition implements Transition<State> {
      * @param message the message
      * @param target the destination state
      */
-    public StateTransition(State source, Message<?> message, State target) {
+    public StateTransition(State source, Message message, State target) {
         this.source = source;
         this.message = message;
         this.target = target;

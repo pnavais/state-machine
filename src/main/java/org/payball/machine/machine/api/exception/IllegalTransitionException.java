@@ -13,30 +13,20 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.payball.machine.model;
-
-import org.payball.machine.api.AbstractNode;
+package org.payball.machine.machine.api.exception;
 
 /**
- * An state represents an arbitrary node in a state machine
- * containing its transitions.
+ * An exception raised when dealing with incorrect transitions
  */
-public class State extends AbstractNode {
+public class IllegalTransitionException extends RuntimeException {
 
-     /**
-     * Constructor with node name
+    /**
+     * Creates the execption using the given message
+     * description.
      *
-     * @param name the name of the node
+     * @param message the message description
      */
-    public State(String name) {
-        super(name);
-    }
-
-    @Override
-    public String toString() {
-        return "State{" +
-                "name='" + name + '\'' +
-                ", id=" + id +
-                '}';
+    public IllegalTransitionException(String message) {
+        super(message);
     }
 }

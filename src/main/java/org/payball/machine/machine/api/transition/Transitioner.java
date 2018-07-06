@@ -13,7 +13,11 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.payball.machine.api;
+package org.payball.machine.machine.api.transition;
+
+import org.payball.machine.machine.api.Message;
+import org.payball.machine.machine.api.Node;
+import org.payball.machine.machine.api.Transition;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -42,8 +46,17 @@ public interface Transitioner<K extends Node, T extends Transition<K>>  {
     void remove(T transition);
 
     /**
+     * Finds the node in the transition
+     * associated with the give name.
+     *
+     * @param nodeName the node's name
+     * @return the node with the given name
+     */
+    Optional<K> find(String nodeName);
+
+    /**
      * Performs generic initialization e.g.
-     * setting the current initial node.
+     * setting the initial node.
      */
     void init();
 
@@ -56,6 +69,14 @@ public interface Transitioner<K extends Node, T extends Transition<K>>  {
     void setCurrent(String nodeName);
 
     /**
+     * Retrieves the node
+     * of the last transition performed.
+     *
+     * @return the current node
+     */
+    K getCurrent();
+
+    /**
      * Retrieves the next node upon
      * transitioning from the current node
      * on message reception.
@@ -63,11 +84,11 @@ public interface Transitioner<K extends Node, T extends Transition<K>>  {
      * @param m the message
      * @return the next node
      */
-    Optional<K> getNext(Message<?> m);
+    Optional<K> getNext(Message m);
 
     /**
      * Retrieves the number of nodes currently
-     * handled by the transitioner.
+     * handled by the transition.
      *
      * @return the number of elements
      */
@@ -84,9 +105,11 @@ public interface Transitioner<K extends Node, T extends Transition<K>>  {
 
     /**
      * Retrieves the transition index used
-     * by the transitioner.
+     * by the transition.
      *
      * @return the transition index
      */
-    TransitionIndex<K,T> getTansitionsIndex();
+    TransitionIndex<K,T> getTransitionsIndex();
+
+
 }

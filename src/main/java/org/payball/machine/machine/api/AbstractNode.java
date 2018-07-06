@@ -13,24 +13,26 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.payball.machine.api;
+package org.payball.machine.machine.api;
+
+import org.payball.machine.machine.api.filter.MessageFilter;
 
 import java.util.*;
 
 /**
  * Represents an arbitrary node of a given directed graph
  */
-public abstract class AbstractNode implements Node {
+public abstract class AbstractNode<T extends AbstractNode> implements Node {
 
-    /**
-     * The shorthand name associated to the node
-     */
+    /** The shorthand name associated to the node */
     protected String name;
 
-    /**
-     * The identifier of the node
-     */
+    /** The identifier of the node */
     protected final UUID id;
+
+
+    /** The message filter */
+    protected MessageFilter<T> messageFilter;
 
     /**
      * Constructor with node name

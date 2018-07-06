@@ -13,14 +13,14 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.payball.machine.builder;
+package org.payball.machine.machine.builder;
 
-import org.payball.machine.StateMachine;
-import org.payball.machine.api.Message;
-import org.payball.machine.model.State;
-import org.payball.machine.model.StateTransition;
-import org.payball.machine.model.StateTransitionMap;
-import org.payball.machine.model.StringMessage;
+import org.payball.machine.machine.StateMachine;
+import org.payball.machine.machine.api.Message;
+import org.payball.machine.machine.model.State;
+import org.payball.machine.machine.model.StateTransition;
+import org.payball.machine.machine.model.StateTransitionMap;
+import org.payball.machine.machine.model.StringMessage;
 
 import java.util.Objects;
 
@@ -185,6 +185,7 @@ public class StateMachineBuilder {
          *
          * @param builder the builder
          * @param srcState the source state
+         * @param targetState the target state
          */
         private ToBuilder(StateMachineBuilder builder, State srcState, State targetState) {
             this.srcState = srcState;
@@ -210,9 +211,10 @@ public class StateMachineBuilder {
          * @param message the custom message to add
          * @return the initial builder
          */
-        private StateMachineBuilder on(Message<?> message) {
+        private StateMachineBuilder on(Message message) {
             builder.add(new StateTransition(srcState, message, targetState));
             return builder;
         }
     }
+
 }

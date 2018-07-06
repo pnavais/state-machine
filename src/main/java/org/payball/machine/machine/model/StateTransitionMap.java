@@ -13,14 +13,16 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.payball.machine.model;
+package org.payball.machine.machine.model;
 
-import org.payball.machine.api.Message;
-import org.payball.machine.api.Transition;
-import org.payball.machine.api.TransitionIndex;
-import org.payball.machine.api.exception.NullTransitionException;
+import org.payball.machine.machine.api.Message;
+import org.payball.machine.machine.api.Transition;
+import org.payball.machine.machine.api.transition.TransitionIndex;
+import org.payball.machine.machine.api.exception.NullStateException;
+import org.payball.machine.machine.api.exception.NullTransitionException;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * The State Machine contains a simple map of Transitions between
@@ -31,7 +33,7 @@ public class StateTransitionMap implements TransitionIndex<State, StateTransitio
     /**
      * The transitions stored by the state machine
      */
-    private Map<State, Map<Message<?>, State>> transitionMap;
+    private Map<State, Map<Message, State>> transitionMap;
 
     /**
      * Creates the state machine.
@@ -54,7 +56,7 @@ public class StateTransitionMap implements TransitionIndex<State, StateTransitio
         Transition.validate(transition);
 
         // Retrieve the current transitions mapping
-        Map<Message<?>, State> messageStateMap = Optional.ofNullable(transitionMap.get(transition.getOrigin())).orElse(new LinkedHashMap<>());
+        Map<Message, State> messageStateMap = Optional.ofNullable(transitionMap.get(transition.getOrigin())).orElse(new LinkedHashMap<>());
 
         // Update origin with mappings
         messageStateMap.put(transition.getMessage(), find(transition.getTarget().getName()).orElse(transition.getTarget()));
@@ -96,7 +98,7 @@ public class StateTransitionMap implements TransitionIndex<State, StateTransitio
         Objects.requireNonNull(state);
 
         // Remove transition mappings
-        Map<Message<?>, State> messageStateMap = Optional.ofNullable(transitionMap.get(state))
+        Map<Message, State> messageStateMap = Optional.ofNullable(transitionMap.get(state))
                 .orElseThrow(() -> new NullTransitionException("State [" + state + "] does not exist"));
         messageStateMap.clear();
 
@@ -109,7 +111,7 @@ public class StateTransitionMap implements TransitionIndex<State, StateTransitio
      *
      * @return the transition map
      */
-    public Map<State, Map<Message<?>, State>> getTransitionMap() {
+    public Map<State, Map<Message, State>> getTransitionMap() {
         return transitionMap;
     }
 
@@ -122,7 +124,7 @@ public class StateTransitionMap implements TransitionIndex<State, StateTransitio
      * @return the next state if found or empty otherwise
      */
     @Override
-    public Optional<State> getNext(State source, Message<?> m) {
+    public Optional<State> getNext(State source, Message m) {
         Objects.requireNonNull(source, "The source state cannot be null");
         Objects.requireNonNull(m, "The message cannot be null");
 
@@ -163,7 +165,7 @@ public class StateTransitionMap implements TransitionIndex<State, StateTransitio
 
     /**
      * Retrieves the transitions from the given state
-     * or throws a {@link org.payball.machine.api.exception.NullStateException}
+     * or throws a {@link NullStateException}
      * if not found.
      * @param stateName the state's name
      *
@@ -171,12 +173,13 @@ public class StateTransitionMap implements TransitionIndex<State, StateTransitio
      */
     @Override
     public Collection<StateTransition> getTransitions(String stateName) {
-         /*Optional.ofNullable(transitionMap.get(stateName)).ifPresent(m -> {
-           m.forEach((message, state) -> {
 
-           };
-         }).orElseThrow(() -> new NullStateException("The state [" + stateName + "] was not found")).;*/
-        throw new UnsupportedOperationException("Not implemented yet!");
+        State origin = find(stateName).orElseThrow(() -> new NullStateException("State [" + stateName + "] not found"));
+        Map<Message, State> messageStateMap = transitionMap.get(origin);
+
+        return messageStateMap.keySet().stream()
+                     .map(message -> new StateTransition(origin, message, messageStateMap.get(message)))
+                     .collect(Collectors.toList());
     }
 
 }

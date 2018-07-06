@@ -13,19 +13,26 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.payball.machine.api.exception;
+package org.payball.machine.machine.api;
+
+import java.util.UUID;
 
 /**
- * An exception raised when dealing with void transitions.
+ * Represents a message passed to a given state
+ * in the state machine.
+ * The message is represented by a unique identifier
+ * and contains any generic information (payload).
+ *
  */
-public class NullTransitionException extends RuntimeException {
+public interface Message {
+
+    UUID getMessageId();
 
     /**
-     * Creates a new exception with the given message.
+     * Retrieves the payload contents
+     * of the message.
      *
-     * @param message the message
+     * @return the payload contents
      */
-    public NullTransitionException(String message) {
-        super(message);
-    }
+    Payload getPayload();
 }

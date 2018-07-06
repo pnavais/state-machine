@@ -13,17 +13,16 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+package org.payball.machine.machine;
 
-package org.payball.machine;
-
-import org.payball.machine.api.Message;
-import org.payball.machine.api.TransitionIndex;
-import org.payball.machine.api.Transitioner;
-import org.payball.machine.api.exception.NullStateException;
-import org.payball.machine.builder.StateMachineBuilder;
-import org.payball.machine.model.State;
-import org.payball.machine.model.StateTransition;
-import org.payball.machine.model.StateTransitionMap;
+import org.payball.machine.machine.api.Message;
+import org.payball.machine.machine.api.transition.TransitionIndex;
+import org.payball.machine.machine.api.transition.Transitioner;
+import org.payball.machine.machine.api.exception.NullStateException;
+import org.payball.machine.machine.builder.StateMachineBuilder;
+import org.payball.machine.machine.model.State;
+import org.payball.machine.machine.model.StateTransition;
+import org.payball.machine.machine.model.StateTransitionMap;
 
 import java.util.Collection;
 import java.util.Objects;
@@ -98,12 +97,25 @@ public class StateMachine implements Transitioner<State, StateTransition> {
     }
 
     /**
+     * Finds the state referenced by the given name
+     * in the state machine
+     * machine. If already present, it is
+     * replaced silently.
+     *
+     * @param stateName the name of the node
+     */
+    @Override
+    public Optional<State> find(String stateName) {
+        return this.transitionsMap.find(stateName);
+    }
+
+    /**
      * Initializes the current state
      * to the first one added to the state machine (if any).
      */
     @Override
     public void init() {
-        this.currentState = this.transitionsMap.getFirst().get();
+        this.currentState = this.transitionsMap.getFirst().orElse(null);
     }
 
     /**
@@ -118,6 +130,14 @@ public class StateMachine implements Transitioner<State, StateTransition> {
     }
 
     /**
+     * Retrieves the current state
+     */
+    @Override
+    public State getCurrent() {
+        return currentState;
+    }
+
+    /**
      * Retrieves the next state upon
      * message reception. In case
      * the current state is not defined
@@ -129,7 +149,7 @@ public class StateMachine implements Transitioner<State, StateTransition> {
      * @return the next state or empty if not found
      */
     @Override
-    public Optional<State> getNext(Message<?> m) {
+    public Optional<State> getNext(Message m) {
         return transitionsMap.getNext(currentState, m);
     }
 
@@ -163,7 +183,9 @@ public class StateMachine implements Transitioner<State, StateTransition> {
      * @return the transition map
      */
     @Override
-    public TransitionIndex<State,StateTransition> getTansitionsIndex() {
+    public TransitionIndex<State,StateTransition> getTransitionsIndex() {
         return transitionsMap;
     }
+
+
 }
