@@ -31,7 +31,7 @@ public abstract class AbstractStateMachineTest {
     public static void init() {
         statePrinter = StateTransitionPrintBuilder.newBuilder()
                 .setStateFormatter(s -> s.getName()+" ["+s.getId()+"]")
-                .setHeaderWidth(10).build();
+                .setHeaderWidth(20).build();
     }
 
     /**

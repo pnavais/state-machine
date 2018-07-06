@@ -15,6 +15,7 @@
  */
 package org.payball.machine.utils;
 
+import org.payball.machine.machine.StateMachine;
 import org.payball.machine.machine.api.Message;
 import org.payball.machine.machine.model.State;
 import org.payball.machine.machine.model.StateTransitionMap;

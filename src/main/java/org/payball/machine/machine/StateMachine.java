@@ -42,24 +42,24 @@ public class StateMachine implements Transitioner<State, StateTransition> {
     /**
      * The transitions stored by the state machine
      */
-    private TransitionIndex<State, StateTransition> transitionsMap;
+    private TransitionIndex<State, StateTransition> transitionsIndex;
 
     /**
      * Creates the state machine.
      */
     public StateMachine() {
-        this.transitionsMap = new StateTransitionMap();
+        this.transitionsIndex = new StateTransitionMap();
     }
 
     /**
      * Creates the state machine with the given
      * transition map.
      *
-     * @param transitionMap the transition map
+     * @param transitionIndex the transition map
      */
-    public StateMachine(StateTransitionMap transitionMap) {
-        Objects.requireNonNull(transitionMap, "Null transitions map supplied");
-        this.transitionsMap = transitionMap;
+    public StateMachine(TransitionIndex<State, StateTransition> transitionIndex) {
+        Objects.requireNonNull(transitionIndex, "Null transitions index supplied");
+        this.transitionsIndex = transitionIndex;
     }
 
     /**
@@ -81,7 +81,7 @@ public class StateMachine implements Transitioner<State, StateTransition> {
      */
     @Override
     public void add(StateTransition transition) {
-        this.transitionsMap.add(transition);
+        this.transitionsIndex.add(transition);
     }
 
     /**
@@ -93,7 +93,35 @@ public class StateMachine implements Transitioner<State, StateTransition> {
      */
     @Override
     public void remove(StateTransition transition) {
-        this.transitionsMap.remove(transition);
+        this.transitionsIndex.remove(transition);
+    }
+
+    /**
+     * Removes an existing state from the state machine.
+     * All Transitions having state as origin or target
+     * will be removed.
+     * In case the state does not exists a {@link NullStateException}
+     * is thrown.
+     *
+     * @param stateName the state to remove
+     */
+    @Override
+    public void remove(String stateName) {
+        this.transitionsIndex.find(stateName).ifPresent(s -> this.transitionsIndex.remove(s));
+    }
+
+    /**
+     * Removes an existing state from the state machine.
+     * All Transitions having state as origin or target
+     * will be removed.
+     * In case the state does not exists a {@link NullStateException}
+     * is thrown.
+     *
+     * @param state the state to remove
+     */
+    @Override
+    public void remove(State state) {
+        this.transitionsIndex.remove(state);
     }
 
     /**
@@ -106,7 +134,7 @@ public class StateMachine implements Transitioner<State, StateTransition> {
      */
     @Override
     public Optional<State> find(String stateName) {
-        return this.transitionsMap.find(stateName);
+        return this.transitionsIndex.find(stateName);
     }
 
     /**
@@ -115,7 +143,7 @@ public class StateMachine implements Transitioner<State, StateTransition> {
      */
     @Override
     public void init() {
-        this.currentState = this.transitionsMap.getFirst().orElse(null);
+        this.currentState = this.transitionsIndex.getFirst().orElse(null);
     }
 
     /**
@@ -126,7 +154,7 @@ public class StateMachine implements Transitioner<State, StateTransition> {
     @Override
     public void setCurrent(String stateName) {
         Objects.requireNonNull(stateName);
-        this.currentState = this.transitionsMap.find(stateName).orElseThrow(() -> new NullStateException("State ["+stateName+"] not found"));
+        this.currentState = this.transitionsIndex.find(stateName).orElseThrow(() -> new NullStateException("State ["+stateName+"] not found"));
     }
 
     /**
@@ -150,7 +178,7 @@ public class StateMachine implements Transitioner<State, StateTransition> {
      */
     @Override
     public Optional<State> getNext(Message m) {
-        return transitionsMap.getNext(currentState, m);
+        return transitionsIndex.getNext(currentState, m);
     }
 
     /**
@@ -161,7 +189,7 @@ public class StateMachine implements Transitioner<State, StateTransition> {
      */
     @Override
     public int size() {
-        return transitionsMap.size();
+        return transitionsIndex.size();
     }
 
     /**
@@ -174,7 +202,7 @@ public class StateMachine implements Transitioner<State, StateTransition> {
      */
     @Override
     public Collection<StateTransition> getTransitions(String stateName) {
-        return transitionsMap.getTransitions(stateName);
+        return transitionsIndex.getTransitions(stateName);
     }
 
     /**
@@ -184,7 +212,7 @@ public class StateMachine implements Transitioner<State, StateTransition> {
      */
     @Override
     public TransitionIndex<State,StateTransition> getTransitionsIndex() {
-        return transitionsMap;
+        return transitionsIndex;
     }
 
 

@@ -5,6 +5,17 @@
   <groupId>org.payball</groupId>
   <artifactId>state-machine</artifactId>
   <version>1.0.0</version>
+  <packaging>jar</packaging>
+
+  <name>state-machine</name>
+  <url>https://github.com/pnavais/state-machine</url>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+      <maven-compiler-plugin.version>3.5</maven-compiler-plugin.version>
+  </properties>
+
+
     <build>
         <plugins>
             <plugin>
@@ -15,16 +26,33 @@
                     <target>1.8</target>
                 </configuration>
             </plugin>
+
+            <!-- Java 8 coverage through Jacoco -->
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>**/*TestSuite.*</exclude>
+                    </excludes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Coveralls publishing -->
+            <plugin>
+                <groupId>org.eluder.coveralls</groupId>
+                <artifactId>coveralls-maven-plugin</artifactId>
+            </plugin>
         </plugins>
     </build>
-    <packaging>jar</packaging>
-
-  <name>state-machine</name>
-  <url>https://github.com/pnavais/state-machine</url>
-
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-  </properties>
 
   <dependencies>
     <dependency>

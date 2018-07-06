@@ -30,7 +30,6 @@ public abstract class AbstractNode<T extends AbstractNode> implements Node {
     /** The identifier of the node */
     protected final UUID id;
 
-
     /** The message filter */
     protected MessageFilter<T> messageFilter;
 
@@ -52,16 +51,6 @@ public abstract class AbstractNode<T extends AbstractNode> implements Node {
     public UUID getId() {
         return id;
     }
-
-    /**
-     * Sets the name of the node
-     *
-     * @param name the name of the node
-     */
-    public void setName(String name) {
-        this.name = name;
-    }
-
 
     /**
      * Retrieves the name of the node

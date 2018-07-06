@@ -27,6 +27,44 @@ import java.util.stream.Collectors;
 /**
  * The State Machine contains a simple map of Transitions between
  * different nodes (States) triggered by incoming messages.
+ *
+ * This transition index is implemented as a map using as key
+ * the source of the transition and as key another map containing
+ * the association between messages and destination states.
+ * <p><p>
+ * For example, the transition [ A -- m --> B ] would be stored in a map
+ * as represented in the table below :
+ * </p></p>
+ * <pre>
+ * Key    | Transitions
+ * --------------------
+ * A      | [ m ->  B ]
+ * B      | []
+ * </pre>
+ * It is important to note that target states will be also stored
+ * as key in the transitions map.
+ *
+ * In case a new transition from A is added , [ A --- n ---> C ] ,
+ * the transitions would be updated as :
+ * <pre>
+ * Key    | Transitions
+ * --------------------
+ * A      | [ m ->  B,  n ->  C ]
+ * B      | []
+ * C      | []
+ * </pre>
+ *
+ * In case a transition is added from this state using
+ * the same message [ A --- m ---> C, the transition map would be updated as follows :
+ * <pre>
+ * Key    | Transitions
+ * --------------------
+ * A      | [ m ->  C,  n ->  C ]
+ * B      | []
+ * C      | []
+ * </pre>
+ *
+ * After this operation State B is not reachable
  */
 public class StateTransitionMap implements TransitionIndex<State, StateTransition> {
 
@@ -94,6 +132,7 @@ public class StateTransitionMap implements TransitionIndex<State, StateTransitio
      *
      * @param state the state to remove
      */
+    @Override
     public void remove(State state) {
         Objects.requireNonNull(state);
 
@@ -104,6 +143,9 @@ public class StateTransitionMap implements TransitionIndex<State, StateTransitio
 
         // Remove state
         transitionMap.remove(state);
+
+        // Remove transitions using the state as target
+        transitionMap.values().forEach(m -> m.values().removeIf(s -> s.getName().equals(state.getName())));
     }
 
     /**

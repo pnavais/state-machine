@@ -44,6 +44,14 @@ public interface TransitionIndex<K extends Node, T extends Transition<K>> {
     void remove(T transition);
 
     /**
+     * Removes an existing node from the index
+     * and all its transitions.
+     *
+     * @param node the node to remove
+     */
+    void remove(K node);
+
+    /**
      * Retrieves the next node after applying the
      * message on the given source node.
      *

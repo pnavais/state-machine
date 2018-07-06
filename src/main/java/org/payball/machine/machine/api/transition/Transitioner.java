@@ -46,6 +46,22 @@ public interface Transitioner<K extends Node, T extends Transition<K>>  {
     void remove(T transition);
 
     /**
+     * Removes a node matching the given name
+     * and allits transitions
+     *
+     * @param nodeName the node mame to remove
+     */
+    void remove(String nodeName);
+
+    /**
+     * Removes an existing node and all
+     * its transitions.
+     *
+     * @param node the node to remove
+     */
+    void remove(K node);
+
+    /**
      * Finds the node in the transition
      * associated with the give name.
      *

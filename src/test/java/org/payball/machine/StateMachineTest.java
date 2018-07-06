@@ -19,15 +19,18 @@ package org.payball.machine;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.payball.machine.machine.StateMachine;
+import org.payball.machine.machine.builder.StateMachineBuilder;
 import org.payball.machine.machine.model.State;
+import org.payball.machine.machine.model.StateTransition;
 import org.payball.machine.machine.model.StateTransitionMap;
+import org.payball.machine.machine.model.StringMessage;
 import org.payball.machine.utils.StateTransitionUtils;
 
+import java.util.Arrays;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit test for simple App.
@@ -35,12 +38,117 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class StateMachineTest extends AbstractStateMachineTest {
 
+    @Test
+    public void testStateMachineAdd() {
+        StateMachine machine = new StateMachine();
+
+        machine.add(new StateTransition(new State("A"), new StringMessage("1"), new State("B")));
+
+        assertEquals(2, machine.size(), "Error building state machine");
+        assertNotNull(machine.getTransitions("A"), "Error retrieving transitions");
+        assertEquals(1, machine.getTransitions("A").size(), "Transitions size mismatch");
+        assertEquals("A", machine.getTransitions("A").iterator().next().getOrigin().getName(), "Transition origin retrieval mismatch");
+        assertEquals("B", machine.getTransitions("A").iterator().next().getTarget().getName(), "Transition target retrieval mismatch");
+        assertEquals("1", machine.getTransitions("A").iterator().next().getMessage().getPayload().get(), "Transition message retrieval mismatch");
+    }
+
+    @Test
+    public void testStateMachineDuplicateAdd() {
+        StateMachine machine = new StateMachine();
+
+        machine.add(new StateTransition(new State("A"), new StringMessage("1"), new State("B")));
+        machine.add(new StateTransition(new State("A"), new StringMessage("1"), new State("B")));
+
+        assertEquals(2, machine.size(), "Error building state machine");
+        assertNotNull(machine.getTransitions("A"), "Error retrieving transitions");
+        assertEquals(1, machine.getTransitions("A").size(), "Transitions size mismatch");
+        assertEquals("A", machine.getTransitions("A").iterator().next().getOrigin().getName(), "Transition origin retrieval mismatch");
+        assertEquals("B", machine.getTransitions("A").iterator().next().getTarget().getName(), "Transition target retrieval mismatch");
+        assertEquals("1", machine.getTransitions("A").iterator().next().getMessage().getPayload().get(), "Transition message retrieval mismatch");
+    }
+
+    @Test
+    public void testStateMachineOverrideTransitionOnAdd() {
+        StateMachine machine = new StateMachine();
+
+        machine.add(new StateTransition(new State("A"), new StringMessage("1"), new State("B")));
+        machine.add(new StateTransition(new State("A"), new StringMessage("1"), new State("C")));
+
+        assertEquals(3, machine.size(), "Error building state machine");
+        assertNotNull(machine.getTransitions("A"), "Error retrieving transitions");
+        assertEquals(1, machine.getTransitions("A").size(), "Transitions size mismatch");
+        assertEquals("A", machine.getTransitions("A").iterator().next().getOrigin().getName(), "Transition origin retrieval mismatch");
+        assertEquals("C", machine.getTransitions("A").iterator().next().getTarget().getName(), "Transition target retrieval mismatch");
+        assertEquals("1", machine.getTransitions("A").iterator().next().getMessage().getPayload().get(), "Transition message retrieval mismatch");
+
+        //TODO: Add functionality to remove states not reachable
+    }
+
+    @Test
+    public void testStateMachineFindTransition() {
+        StateMachine machine = new StateMachine();
+
+        machine.add(new StateTransition(new State("A"), new StringMessage("1"), new State("B")));
+        machine.add(new StateTransition(new State("B"), new StringMessage("1"), new State("C")));
+
+        assertEquals(3, machine.size(), "Error building state machine");
+        assertNotNull(machine.getTransitions("A"), "Error retrieving transitions");
+
+        Arrays.asList("A", "B", "C" ).forEach(s -> {
+            Optional<State> sFound = machine.find(s);
+            assertTrue(sFound.isPresent(), "Error retrieving state");
+            assertEquals(s, sFound.get().getName(), "Error retrieving state");
+        });
+    }
+
+    @Test
+    public void testStateMachineRemoveState() {
+        StateMachine machine = new StateMachine();
+
+        machine.add(new StateTransition(new State("A"), new StringMessage("1"), new State("B")));
+        machine.add(new StateTransition(new State("B"), new StringMessage("2"), new State("C")));
+
+        assertEquals(3, machine.size(), "Error building state machine");
+
+        AtomicInteger counter = new AtomicInteger(3);
+        Arrays.asList("A", "B", "C" ).forEach(s -> {
+            Optional<State> sFound = machine.find(s);
+            assertTrue(sFound.isPresent(), "Error retrieving state");
+            assertEquals(s, sFound.get().getName(), "Error retrieving state");
+
+            machine.remove(s);
+            assertEquals(counter.decrementAndGet(), machine.size(), "Error removing state");
+        });
+    }
+
+    @Test
+    public void testStateMachineRemoveStateCascade() {
+        StateMachine machine = new StateMachine();
+
+        machine.add(new StateTransition(new State("A"), new StringMessage("1"), new State("B")));
+        machine.add(new StateTransition(new State("B"), new StringMessage("2"), new State("B")));
+
+        assertEquals(2, machine.size(), "Error building state machine");
+
+        assertNotNull(machine.getTransitions("B"), "Error retrieving transitions");
+        assertEquals(1, machine.getTransitions("B").size(), "Error retrieving transitions");
+
+        assertNotNull(machine.getTransitions("A"), "Error retrieving transitions");
+        assertEquals(1, machine.getTransitions("A").size(), "Error retrieving transitions");
+
+        machine.remove("B");
+        Optional<State> b = machine.find("B");
+        assertFalse(b.isPresent(), "Error removing state");
+        assertEquals(1, machine.size(), "Error removing state in cascade");
+        assertNotNull(machine.getTransitions("A"), "Error retrieving transitions");
+        assertEquals(0, machine.getTransitions("A").size(), "Error retrieving transitions");
+    }
 
     /**
      * Tests the initialization of the State Machine
      */
     @Test
-    public void testMachineInit() {
+    public void testMachineBuilderInit() {
         StateMachine stateMachine = StateMachine.newBuilder()
                 .from("A").to("B").on("1")
                 .from("B").to("C").on("2")
@@ -76,6 +184,33 @@ public class StateMachineTest extends AbstractStateMachineTest {
         Assertions.assertEquals("C", thirdState.get().getName(), "State name mismatch");
 
         StateTransitionUtils.printTransitions((StateTransitionMap) stateMachine.getTransitionsIndex(), getStatePrinter());
+    }
+
+
+    @Test
+    public void testTransitionMapIdentity() {
+        StateMachineBuilder builder = StateMachine.newBuilder()
+                .from("A").to("B").on("1")
+                .from("A").to("C").on("1");
+
+        StateMachine firstMachine = builder.build();
+        StateMachine secondMachine = builder.build();
+        assertNotEquals(firstMachine, secondMachine, "State machines must differ");
+        assertEquals(firstMachine.getTransitionsIndex(), secondMachine.getTransitionsIndex(), "Transition index mismatch");
+    }
+
+    @Test
+    public void testTransitionMapModification() {
+        StateMachineBuilder builder = StateMachine.newBuilder()
+                .from("A").to("B").on("1")
+                .from("A").to("C").on("1");
+
+        StateMachine firstMachine = builder.build();
+        StateMachine secondMachine = builder.build();
+
+
+
+        assertEquals(firstMachine.getTransitionsIndex(), secondMachine.getTransitionsIndex(), "Transition index mismatch");
     }
 
 }
