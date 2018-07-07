@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.payball.machine;
+package org.payball.machine.core;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.payball.machine.utils.StateTransitionPrint;
@@ -39,7 +39,7 @@ public abstract class AbstractStateMachineTest {
      *
      * @return the state printer
      */
-    public static StateTransitionPrint getStatePrinter() {
+    static StateTransitionPrint getStatePrinter() {
         return statePrinter;
     }
 }

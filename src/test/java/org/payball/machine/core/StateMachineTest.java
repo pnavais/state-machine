@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.payball.machine;
+package org.payball.machine.core;
 
 
 import org.junit.jupiter.api.Assertions;
@@ -39,7 +39,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class StateMachineTest extends AbstractStateMachineTest {
 
     @Test
-    public void testStateMachineAdd() {
+    void testStateMachineAdd() {
         StateMachine machine = new StateMachine();
 
         machine.add(new StateTransition(new State("A"), new StringMessage("1"), new State("B")));
@@ -53,7 +53,7 @@ public class StateMachineTest extends AbstractStateMachineTest {
     }
 
     @Test
-    public void testStateMachineDuplicateAdd() {
+    void testStateMachineDuplicateAdd() {
         StateMachine machine = new StateMachine();
 
         machine.add(new StateTransition(new State("A"), new StringMessage("1"), new State("B")));
@@ -68,7 +68,7 @@ public class StateMachineTest extends AbstractStateMachineTest {
     }
 
     @Test
-    public void testStateMachineOverrideTransitionOnAdd() {
+    void testStateMachineOverrideTransitionOnAdd() {
         StateMachine machine = new StateMachine();
 
         machine.add(new StateTransition(new State("A"), new StringMessage("1"), new State("B")));
@@ -85,7 +85,7 @@ public class StateMachineTest extends AbstractStateMachineTest {
     }
 
     @Test
-    public void testStateMachineFindTransition() {
+    void testStateMachineFindTransition() {
         StateMachine machine = new StateMachine();
 
         machine.add(new StateTransition(new State("A"), new StringMessage("1"), new State("B")));
@@ -102,7 +102,7 @@ public class StateMachineTest extends AbstractStateMachineTest {
     }
 
     @Test
-    public void testStateMachineRemoveState() {
+    void testStateMachineRemoveState() {
         StateMachine machine = new StateMachine();
 
         machine.add(new StateTransition(new State("A"), new StringMessage("1"), new State("B")));
@@ -122,7 +122,7 @@ public class StateMachineTest extends AbstractStateMachineTest {
     }
 
     @Test
-    public void testStateMachineRemoveStateCascade() {
+    void testStateMachineRemoveStateCascade() {
         StateMachine machine = new StateMachine();
 
         machine.add(new StateTransition(new State("A"), new StringMessage("1"), new State("B")));
@@ -148,7 +148,7 @@ public class StateMachineTest extends AbstractStateMachineTest {
      * Tests the initialization of the State Machine
      */
     @Test
-    public void testMachineBuilderInit() {
+    void testMachineBuilderInit() {
         StateMachine stateMachine = StateMachine.newBuilder()
                 .from("A").to("B").on("1")
                 .from("B").to("C").on("2")
@@ -168,7 +168,7 @@ public class StateMachineTest extends AbstractStateMachineTest {
      * Tests the initialization of the State Machine
      */
     @Test
-    public void testOverrideTransitionsInit() {
+    void testOverrideTransitionsInit() {
         StateMachine stateMachine = StateMachine.newBuilder()
                 .from("A").to("B").on("1")
                 .from("A").to("C").on("1")
@@ -188,7 +188,7 @@ public class StateMachineTest extends AbstractStateMachineTest {
 
 
     @Test
-    public void testTransitionMapIdentity() {
+    void testTransitionMapIdentity() {
         StateMachineBuilder builder = StateMachine.newBuilder()
                 .from("A").to("B").on("1")
                 .from("A").to("C").on("1");
@@ -200,7 +200,7 @@ public class StateMachineTest extends AbstractStateMachineTest {
     }
 
     @Test
-    public void testTransitionMapModification() {
+    void testTransitionMapModification() {
         StateMachineBuilder builder = StateMachine.newBuilder()
                 .from("A").to("B").on("1")
                 .from("A").to("C").on("1");
