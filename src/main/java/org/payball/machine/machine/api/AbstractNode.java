@@ -49,6 +49,7 @@ public abstract class AbstractNode<T extends AbstractNode> implements Node {
      *
      * @return the identifier of the node
      */
+    @Override
     public UUID getId() {
         return id;
     }

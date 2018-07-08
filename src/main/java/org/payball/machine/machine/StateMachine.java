@@ -23,6 +23,7 @@ import org.payball.machine.machine.builder.StateMachineBuilder;
 import org.payball.machine.machine.model.State;
 import org.payball.machine.machine.model.StateTransition;
 import org.payball.machine.machine.model.StateTransitionMap;
+import org.payball.machine.machine.model.StringMessage;
 
 import java.util.Collection;
 import java.util.Objects;
@@ -172,13 +173,31 @@ public class StateMachine implements Transitioner<State, StateTransition> {
      * or no next state is defined , an empty state
      * is returned.
      *
+     * @param messageKey the message key
+     *
+     * @return the next state or empty if not found
+     */
+    @Override
+    public Optional<State> getNext(String messageKey) {
+        return getNext(StringMessage.from(messageKey));
+    }
+
+    /**
+     * Retrieves the next state upon
+     * message reception. In case
+     * the current state is not defined
+     * or no next state is defined , an empty state
+     * is returned.
+     *
      * @param m the message
      *
      * @return the next state or empty if not found
      */
     @Override
     public Optional<State> getNext(Message m) {
-        return transitionsIndex.getNext(currentState, m);
+        Optional<State> next = transitionsIndex.getNext(currentState, m);
+        next.ifPresent(state -> currentState = state);
+        return next;
     }
 
     /**
@@ -214,6 +233,5 @@ public class StateMachine implements Transitioner<State, StateTransition> {
     public TransitionIndex<State,StateTransition> getTransitionsIndex() {
         return transitionsIndex;
     }
-
 
 }

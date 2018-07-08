@@ -26,7 +26,19 @@ import java.util.UUID;
  */
 public interface Message {
 
-    UUID getMessageId();
+    /**
+     * Retrieves the message name
+     *
+     * @return the message name
+     */
+    String getName();
+
+    /**
+     * Retrieves the message identifier
+     *
+     * @return the message identifier
+     */
+    UUID getId();
 
     /**
      * Retrieves the payload contents

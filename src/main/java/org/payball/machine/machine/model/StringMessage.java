@@ -60,14 +60,31 @@ public class StringMessage implements Message {
     }
 
     /**
+     * Retrieves the message name
+     *
+     * @return the name of the message
+     */
+    @Override
+    public String getName() {
+        return messageKey;
+    }
+
+    /**
      * Retrieves the message identifier
      *
      * @return the message identifier
      */
-    public UUID getMessageId() {
+    @Override
+    public UUID getId() {
         return messageId;
     }
 
+    /**
+     * Retrieves the message payload.
+     * In this case, the message key
+     *
+     * @return the message key
+     */
     @Override
     public Payload getPayload() {
         return payload;

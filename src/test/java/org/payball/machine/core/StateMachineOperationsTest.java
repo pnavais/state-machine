@@ -20,12 +20,14 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.runners.MethodSorters;
 import org.payball.machine.machine.model.State;
+import org.payball.machine.machine.model.StringMessage;
 
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.IntStream;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Tests operations of State Machines.
@@ -40,6 +42,7 @@ public class StateMachineOperationsTest extends AbstractStateMachineTest {
         Arrays.asList("A", "B", "C", "D").forEach(stateName -> {
             Optional<State> state = defaultMachine.find(stateName);
             assertTrue(state.isPresent(), "Error retrieving state");
+            assertEquals(stateName, state.get().getName(), "State names differ");
         });
     }
 
@@ -48,6 +51,50 @@ public class StateMachineOperationsTest extends AbstractStateMachineTest {
     void testStateNotPresentSearch() {
          Optional<State> state = defaultMachine.find("E");
         assertFalse(state.isPresent(), "Error retrieving state");
+    }
+
+    @Test
+    @DisplayName("Test if the current state is set")
+    void testInitialState() {
+        State current = defaultMachine.getCurrent();
+        assertNotNull(current, "Error retrieving initial state");
+        assertEquals("A", current.getName(), "Initial state is not valid");
+    }
+
+    @Test
+    @DisplayName("Traverse state machine from initial state")
+    void testStateWalk() {
+
+        assertNotNull(defaultMachine.getCurrent(), "Error retrieving initial state");
+        assertEquals("A", defaultMachine.getCurrent().getName());
+
+        AtomicInteger counter = new AtomicInteger(0);
+        "BCD".chars().forEach(value -> {
+            checkNextState(counter, (char) value);
+        });
+    }
+
+    @Test
+    @DisplayName("Traverse state machine from another state")
+    void testStateWalkFromNode() {
+
+        defaultMachine.setCurrent("B");
+
+        assertNotNull(defaultMachine.getCurrent(), "Error retrieving initial state");
+        assertEquals("B", defaultMachine.getCurrent().getName());
+
+        AtomicInteger counter = new AtomicInteger(1);
+        "CD".chars().forEach(value -> {
+            checkNextState(counter, (char) value);
+        });
+    }
+
+    private void checkNextState(AtomicInteger counter, char value) {
+        Optional<State> next = defaultMachine.getNext(String.valueOf(counter.incrementAndGet()));
+        assertTrue(next.isPresent(), "Error retrieving next state");
+        assertEquals(String.valueOf(value), next.get().getName(), "Next State name differs from expected");
+        State current = defaultMachine.getCurrent();
+        assertEquals(current, next.get(), "Error transitioning to next state");
     }
 
 }

@@ -15,6 +15,8 @@
  */
 package org.payball.machine.machine.api;
 
+import java.util.UUID;
+
 /**
  * Represents any item present in a directed graph
  */
@@ -26,4 +28,11 @@ public interface Node {
      * @return the name of the node
      */
     String getName();
+
+    /**
+     * Retrieves the message identifier
+     *
+     * @return the message identifier
+     */
+    UUID getId();
 }

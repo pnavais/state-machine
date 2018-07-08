@@ -92,6 +92,17 @@ public interface Transitioner<K extends Node, T extends Transition<K>>  {
      */
     K getCurrent();
 
+
+    /**
+     * Retrieves the next node upon
+     * transitioning from the current node
+     * on message key reception.
+     *
+     * @param messageKey the message key
+     * @return the next node
+     */
+    Optional<K> getNext(String messageKey);
+
     /**
      * Retrieves the next node upon
      * transitioning from the current node
