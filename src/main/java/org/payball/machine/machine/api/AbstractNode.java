@@ -39,6 +39,7 @@ public abstract class AbstractNode<T extends AbstractNode> implements Node {
      * @param name the name of the node
      */
     public AbstractNode(String name) {
+        Objects.requireNonNull(name, "Name cannot be null");
         this.name = name;
         this.id = UUID.randomUUID();
     }

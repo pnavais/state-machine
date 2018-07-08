@@ -153,7 +153,7 @@ public class StateMachine implements Transitioner<State, StateTransition> {
      */
     @Override
     public void setCurrent(String stateName) {
-        Objects.requireNonNull(stateName);
+        Objects.requireNonNull(stateName, "State name cannot be null");
         this.currentState = this.transitionsIndex.find(stateName).orElseThrow(() -> new NullStateException("State ["+stateName+"] not found"));
     }
 

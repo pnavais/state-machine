@@ -26,7 +26,7 @@ import org.payball.machine.machine.api.Message;
 public interface MessageFilter<T extends AbstractNode> {
 
     /** The status of the operation */
-    enum Status { ABORT, PROCEED };
+    enum Status { ABORT, PROCEED }
 
     /**
      * Intercepts a message to be dispatched to the

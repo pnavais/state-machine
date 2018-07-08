@@ -38,13 +38,17 @@ public class State extends AbstractNode<State> {
         this.messageFilter = new MappedFunctionMessageFilter<>();
     }
 
-    @Override
-    public String toString() {
-        return "State{" +
-                "name='" + name + '\'' +
-                ", id=" + id +
-                '}';
+    /**
+     * Static constructor using
+     * the given name.
+     *
+     * @param name the state's name
+     * @return the new state
+     */
+    public static State named(String name) {
+        return new State(name);
     }
+
 
     /**
      * Sets the reception handler for the given message
@@ -60,9 +64,16 @@ public class State extends AbstractNode<State> {
      *
      * @param dispatchHandler the dispatch handler
      */
-    public void setDispatchHanmdler(Message message, Function<State, MessageFilter.Status> dispatchHandler) {
+    public void setDispatchHandler(Message message, Function<State, MessageFilter.Status> dispatchHandler) {
         ((MappedFunctionMessageFilter<State>)this.messageFilter).setDispatchHandler(message, dispatchHandler);
     }
 
+    @Override
+    public String toString() {
+        return "State{" +
+                "name='" + name + '\'' +
+                ", id=" + id +
+                '}';
+    }
 
 }

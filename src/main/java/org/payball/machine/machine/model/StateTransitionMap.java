@@ -134,7 +134,7 @@ public class StateTransitionMap implements TransitionIndex<State, StateTransitio
      */
     @Override
     public void remove(State state) {
-        Objects.requireNonNull(state);
+        Objects.requireNonNull(state, "State cannot be null");
 
         // Remove transition mappings
         Map<Message, State> messageStateMap = Optional.ofNullable(transitionMap.get(state))
@@ -161,16 +161,16 @@ public class StateTransitionMap implements TransitionIndex<State, StateTransitio
      * Retrieves the next state in the transition from
      * source state upon message m reception
      * @param source the origin state
-     * @param m the received message
+     * @param message the received message
      *
      * @return the next state if found or empty otherwise
      */
     @Override
-    public Optional<State> getNext(State source, Message m) {
+    public Optional<State> getNext(State source, Message message) {
         Objects.requireNonNull(source, "The source state cannot be null");
-        Objects.requireNonNull(m, "The message cannot be null");
+        Objects.requireNonNull(message, "The message cannot be null");
 
-        return Optional.ofNullable(transitionMap.get(source)).map(messageStateMap -> messageStateMap.get(m));
+        return Optional.ofNullable(transitionMap.get(source)).map(messageStateMap -> messageStateMap.get(message));
     }
 
     /**
@@ -207,7 +207,7 @@ public class StateTransitionMap implements TransitionIndex<State, StateTransitio
 
     /**
      * Retrieves the transitions from the given state
-     * or throws a {@link NullStateException}
+     * as a new list or throws a {@link NullStateException}
      * if not found.
      * @param stateName the state's name
      *

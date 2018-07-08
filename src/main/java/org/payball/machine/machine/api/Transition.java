@@ -61,6 +61,8 @@ public interface Transition<T> {
             throw new IllegalTransitionException("The transition cannot be null");
         } else  if (transition.getOrigin() == null) {
             throw new IllegalTransitionException("The transition source cannot be null");
+        } else  if (transition.getTarget() == null) {
+            throw new IllegalTransitionException("The transition target cannot be null");
         } else if (transition.getMessage() == null) {
             throw new IllegalTransitionException("The transition message cannot be null");
         }

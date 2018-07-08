@@ -49,6 +49,19 @@ public class StateTransition implements Transition<State> {
         this.target = target;
     }
 
+    /**
+     * Creates a new {@link StateTransition} using the provided
+     * source/target names and message identifier.
+     *
+     * @param srcStateName the source state's name
+     * @param targetStateName the destination state's name
+     * @param message the message identifier
+     * @return the new {@link StateTransition}
+     */
+    public static StateTransition of(String srcStateName, String targetStateName, String message) {
+        return new StateTransition(State.named(srcStateName), StringMessage.from(message), State.named(targetStateName));
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

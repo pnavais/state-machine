@@ -16,6 +16,8 @@
 package org.payball.machine.core;
 
 import org.junit.jupiter.api.BeforeAll;
+import org.payball.machine.machine.StateMachine;
+import org.payball.machine.machine.model.StateTransition;
 import org.payball.machine.utils.StateTransitionPrint;
 import org.payball.machine.utils.StateTransitionPrintBuilder;
 
@@ -24,8 +26,11 @@ import org.payball.machine.utils.StateTransitionPrintBuilder;
  */
 public abstract class AbstractStateMachineTest {
 
+    /** Default state machine for tests */
+    protected StateMachine defaultMachine;
+
     /** The state printer */
-    private static StateTransitionPrint statePrinter;
+    protected static StateTransitionPrint statePrinter;
 
     @BeforeAll
     public static void init() {
@@ -35,11 +40,15 @@ public abstract class AbstractStateMachineTest {
     }
 
     /**
-     * Retrieves the state printer.
-     *
-     * @return the state printer
+     * Creates the default State Machine
      */
-    static StateTransitionPrint getStatePrinter() {
-        return statePrinter;
+    protected AbstractStateMachineTest() {
+        defaultMachine = StateMachine.newBuilder()
+                .add(StateTransition.of("A","B","1"))
+                .add(StateTransition.of("B", "C", "2"))
+                .add(StateTransition.of("C", "D", "3"))
+                .add(StateTransition.of("D", "D", "4"))
+                .build();
     }
+
 }

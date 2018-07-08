@@ -42,10 +42,21 @@ public class StringMessage implements Message {
      * @param messageKey the message identifier
      */
     public StringMessage(String messageKey) {
-        Objects.requireNonNull(messageKey);
+        Objects.requireNonNull(messageKey, "Message key cannot be null");
         this.messageKey = messageKey;
         this.messageId = UUID.randomUUID();
         this.payload = () -> this.messageKey;
+    }
+
+    /**
+     * Creates a new {@link StringMessage} from
+     * the given message key.
+     *
+     * @param messageKey the message key
+     * @return the new {@link StringMessage}
+     */
+    public static Message from(String messageKey) {
+        return new StringMessage(messageKey);
     }
 
     /**

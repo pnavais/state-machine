@@ -16,9 +16,13 @@
 package org.payball.machine.core;
 
 
+import org.junit.FixMethodOrder;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.runners.MethodSorters;
 import org.payball.machine.machine.StateMachine;
+import org.payball.machine.machine.api.exception.IllegalTransitionException;
 import org.payball.machine.machine.builder.StateMachineBuilder;
 import org.payball.machine.machine.model.State;
 import org.payball.machine.machine.model.StateTransition;
@@ -27,18 +31,21 @@ import org.payball.machine.machine.model.StringMessage;
 import org.payball.machine.utils.StateTransitionUtils;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Unit test for simple App.
+ * Tests the creation of State Machines.
  */
-
-public class StateMachineTest extends AbstractStateMachineTest {
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+@DisplayName("State Machine Creation Tests")
+public class StateMachineCreationTest extends AbstractStateMachineTest {
 
     @Test
+    @DisplayName("Single Transition creation test")
     void testStateMachineAdd() {
         StateMachine machine = new StateMachine();
 
@@ -53,6 +60,26 @@ public class StateMachineTest extends AbstractStateMachineTest {
     }
 
     @Test
+    @DisplayName("Single Transition creation with null states test")
+    void testStateMachineNullAdd() {
+        StateMachine machine = new StateMachine();
+
+        assertThrows(IllegalTransitionException.class, () -> machine.add(new StateTransition(null,
+                StringMessage.from("1"), State.named("B"))), "Error adding null origin on State Transition");
+        assertThrows(NullPointerException.class, () -> machine.add(new StateTransition(new State(null),
+                StringMessage.from("1"), State.named("B"))), "Error adding null named origin on State Transition");
+        assertThrows(IllegalTransitionException.class, () -> machine.add(new StateTransition(State.named("A"),
+                StringMessage.from("1"), null)), "Error adding null target on State Transition");
+        assertThrows(NullPointerException.class, () -> machine.add(new StateTransition(new State(null),
+                StringMessage.from("1"), State.named(null))), "Error adding null named target on State Transition");
+        assertThrows(IllegalTransitionException.class, () -> machine.add(new StateTransition(State.named("A"),
+                null, State.named("B"))), "Error adding null target on State Transition");
+        assertThrows(NullPointerException.class, () -> machine.add(new StateTransition(State.named("A"),
+                StringMessage.from(null), State.named("B"))), "Error adding null named target on State Transition");
+    }
+
+    @Test
+    @DisplayName("Duplicate transitions test")
     void testStateMachineDuplicateAdd() {
         StateMachine machine = new StateMachine();
 
@@ -68,6 +95,7 @@ public class StateMachineTest extends AbstractStateMachineTest {
     }
 
     @Test
+    @DisplayName("Override Transition by adding test")
     void testStateMachineOverrideTransitionOnAdd() {
         StateMachine machine = new StateMachine();
 
@@ -85,6 +113,7 @@ public class StateMachineTest extends AbstractStateMachineTest {
     }
 
     @Test
+    @DisplayName("Find transition test")
     void testStateMachineFindTransition() {
         StateMachine machine = new StateMachine();
 
@@ -94,7 +123,7 @@ public class StateMachineTest extends AbstractStateMachineTest {
         assertEquals(3, machine.size(), "Error building state machine");
         assertNotNull(machine.getTransitions("A"), "Error retrieving transitions");
 
-        Arrays.asList("A", "B", "C" ).forEach(s -> {
+        Arrays.asList("A", "B", "C").forEach(s -> {
             Optional<State> sFound = machine.find(s);
             assertTrue(sFound.isPresent(), "Error retrieving state");
             assertEquals(s, sFound.get().getName(), "Error retrieving state");
@@ -102,6 +131,7 @@ public class StateMachineTest extends AbstractStateMachineTest {
     }
 
     @Test
+    @DisplayName("Remove State test")
     void testStateMachineRemoveState() {
         StateMachine machine = new StateMachine();
 
@@ -111,7 +141,7 @@ public class StateMachineTest extends AbstractStateMachineTest {
         assertEquals(3, machine.size(), "Error building state machine");
 
         AtomicInteger counter = new AtomicInteger(3);
-        Arrays.asList("A", "B", "C" ).forEach(s -> {
+        Arrays.asList("A", "B", "C").forEach(s -> {
             Optional<State> sFound = machine.find(s);
             assertTrue(sFound.isPresent(), "Error retrieving state");
             assertEquals(s, sFound.get().getName(), "Error retrieving state");
@@ -122,6 +152,7 @@ public class StateMachineTest extends AbstractStateMachineTest {
     }
 
     @Test
+    @DisplayName("Remove States with transitions test")
     void testStateMachineRemoveStateCascade() {
         StateMachine machine = new StateMachine();
 
@@ -144,14 +175,12 @@ public class StateMachineTest extends AbstractStateMachineTest {
         assertEquals(0, machine.getTransitions("A").size(), "Error retrieving transitions");
     }
 
-    /**
-     * Tests the initialization of the State Machine
-     */
     @Test
+    @DisplayName("State Machine Builder initialization test")
     void testMachineBuilderInit() {
         StateMachine stateMachine = StateMachine.newBuilder()
-                .from("A").to("B").on("1")
-                .from("B").to("C").on("2")
+                .from("A").to("B").when("1")
+                .and("B").to("C").when("2")
                 .build();
 
         assertNotNull(stateMachine, "Null state machine found");
@@ -161,17 +190,15 @@ public class StateMachineTest extends AbstractStateMachineTest {
         assertNotNull(stateMachine.getTransitions("B"), "State transitions not retrieved correctly");
         assertEquals(1, stateMachine.getTransitions("B").size(), "Transitions size mismatch");
 
-        StateTransitionUtils.printTransitions((StateTransitionMap) stateMachine.getTransitionsIndex(), getStatePrinter());
+        StateTransitionUtils.printTransitions((StateTransitionMap) stateMachine.getTransitionsIndex(), statePrinter);
     }
 
-    /**
-     * Tests the initialization of the State Machine
-     */
     @Test
+    @DisplayName("Override transitions during build test")
     void testOverrideTransitionsInit() {
         StateMachine stateMachine = StateMachine.newBuilder()
-                .from("A").to("B").on("1")
-                .from("A").to("C").on("1")
+                .from("A").to("B").when("1")
+                .and("A").to("C").when("1")
                 .build();
 
         assertNotNull(stateMachine, "Null state machine found");
@@ -183,15 +210,16 @@ public class StateMachineTest extends AbstractStateMachineTest {
         assertTrue(thirdState.isPresent(), "Error retrieving state");
         Assertions.assertEquals("C", thirdState.get().getName(), "State name mismatch");
 
-        StateTransitionUtils.printTransitions((StateTransitionMap) stateMachine.getTransitionsIndex(), getStatePrinter());
+        StateTransitionUtils.printTransitions((StateTransitionMap) stateMachine.getTransitionsIndex(), statePrinter);
     }
 
 
     @Test
+    @DisplayName("Multiple StateMachines from same Builder test")
     void testTransitionMapIdentity() {
-        StateMachineBuilder builder = StateMachine.newBuilder()
-                .from("A").to("B").on("1")
-                .from("A").to("C").on("1");
+        StateMachineBuilder builder = StateMachine.newBuilder();
+        builder.from("A").to("B").when("1")
+                .and("A").to("C").when("2");
 
         StateMachine firstMachine = builder.build();
         StateMachine secondMachine = builder.build();
@@ -200,17 +228,27 @@ public class StateMachineTest extends AbstractStateMachineTest {
     }
 
     @Test
+    @DisplayName("Modification of State Transitions test")
     void testTransitionMapModification() {
-        StateMachineBuilder builder = StateMachine.newBuilder()
-                .from("A").to("B").on("1")
-                .from("A").to("C").on("1");
+        StateMachineBuilder builder = StateMachine.newBuilder();
+        builder.from("A").to("B").when("1")
+                .and(State.named("A")).to("C").when("2");
 
         StateMachine firstMachine = builder.build();
-        StateMachine secondMachine = builder.build();
 
+        Collection<StateTransition> transitions = firstMachine.getTransitions("A");
+        assertNotNull(transitions, "Error retrieving the transitions");
+        assertEquals(2, transitions.size(), "Transitions size mismatch");
+        transitions.remove(StateTransition.of("A", "B", "1"));
 
+        transitions = firstMachine.getTransitions("A");
+        assertNotNull(transitions, "Error retrieving the transitions");
+        assertEquals(2, transitions.size(), "Transitions size mismatch");
 
-        assertEquals(firstMachine.getTransitionsIndex(), secondMachine.getTransitionsIndex(), "Transition index mismatch");
+        firstMachine.remove(StateTransition.of("A", "B", "1"));
+        transitions = firstMachine.getTransitions("A");
+        assertNotNull(transitions, "Error retrieving the transitions");
+        assertEquals(1, transitions.size(), "Transitions size mismatch");
     }
 
 }

@@ -20,7 +20,8 @@ import org.junit.platform.runner.JUnitPlatform;
 import org.junit.platform.suite.api.SelectClasses;
 import org.junit.platform.suite.api.SuiteDisplayName;
 import org.junit.runner.RunWith;
-import org.payball.machine.core.StateMachineTest;
+import org.payball.machine.core.StateMachineCreationTest;
+import org.payball.machine.core.StateMachineOperationsTest;
 
 /**
  * Suite of JUnit tests for the State Machine.
@@ -30,7 +31,7 @@ import org.payball.machine.core.StateMachineTest;
 
 @RunWith(JUnitPlatform.class)
 @SuiteDisplayName("State Machine tests")
-@SelectClasses({ StateMachineTest.class })
+@SelectClasses({ StateMachineCreationTest.class , StateMachineOperationsTest.class})
 public class StateMachineTestSuite {
 
 }
