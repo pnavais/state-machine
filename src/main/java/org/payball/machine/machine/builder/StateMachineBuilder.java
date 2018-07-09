@@ -17,11 +17,8 @@ package org.payball.machine.machine.builder;
 
 import org.payball.machine.machine.StateMachine;
 import org.payball.machine.machine.api.Message;
-import org.payball.machine.machine.api.Node;
-import org.payball.machine.machine.api.Transition;
 import org.payball.machine.machine.api.builder.TransitionerBuilder;
 import org.payball.machine.machine.api.transition.TransitionIndex;
-import org.payball.machine.machine.api.transition.Transitioner;
 import org.payball.machine.machine.model.State;
 import org.payball.machine.machine.model.StateTransition;
 import org.payball.machine.machine.model.StateTransitionMap;

@@ -21,10 +21,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.runners.MethodSorters;
 import org.payball.machine.machine.StateMachine;
+import org.payball.machine.machine.api.transition.TransitionIndex;
 import org.payball.machine.machine.builder.StateMachineBuilder;
 import org.payball.machine.machine.model.State;
 import org.payball.machine.machine.model.StateTransition;
 import org.payball.machine.machine.model.StateTransitionMap;
+import org.payball.machine.machine.model.StringMessage;
 import org.payball.machine.utils.StateTransitionUtils;
 
 import java.util.Collection;
@@ -121,17 +123,29 @@ public class StateMachineBuilderTest extends AbstractStateMachineTest {
     @DisplayName("Create State machine using existing transition map")
     void testCreateFromExistingMap() {
         StateMachineBuilder builder = StateMachineBuilder.newBuilder();
-        builder.from("A").to("B").on("1")
-                .and(State.named("A")).to("C").on("2")
-                .selfLoop("A").on("0");
 
-        StateMachineBuilder otherBuilder = StateMachineBuilder.newBuilder(builder.getTransitionIndex());
+        // Create some transitions
+        TransitionIndex<State, StateTransition> transitionIndex = builder.from("A").to("B").on("1")
+                .selfLoop("A").on("s1")
+                .and(State.named("A")).to("C").on("2")
+                .from(State.named("C")).to(State.named("D")).on(StringMessage.from("3"))
+                .getTransitionIndex();
+
+        // Add additional transitions
+        builder.from("D").to("E").on("4")
+                .from("F").to("G").on("5")
+                .from("G").to("H").on("6")
+                .selfLoop(State.named("C")).on("s2")
+                .add(StateTransition.of("E", "F", "5"));
+
+        // Check transitions are correct
+        StateMachineBuilder otherBuilder = StateMachineBuilder.newBuilder(transitionIndex);
         assertEquals(builder.getTransitionIndex(), otherBuilder.getTransitionIndex(), "Error retrieving transition index");
         otherBuilder.from("B").to("D").on("3");
         builder.selfLoop(State.named("D")).on("4");
         assertEquals(builder.getTransitionIndex(), otherBuilder.getTransitionIndex(), "Error retrieving transition index");
         assertEquals(builder.getTransitionIndex().size(), otherBuilder.getTransitionIndex().size(), "Error adding new states to builder");
-        assertEquals(4, builder.getTransitionIndex().size(), "Error adding new states to builder");
+        assertEquals(8, builder.getTransitionIndex().size(), "Error adding new states to builder");
 
         Collection<StateTransition> d = otherBuilder.getTransitionIndex().getTransitions("D");
         assertNotNull(d, "Error retrieving transitions");
