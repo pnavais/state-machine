@@ -16,7 +16,7 @@
 package org.payball.machine.machine.api.exception;
 
 /**
- * An exception raised when dealing with incorrect transitions
+ * An exception raised on dealing with incorrect transitions
  */
 public class IllegalTransitionException extends RuntimeException {
 

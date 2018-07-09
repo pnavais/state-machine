@@ -17,21 +17,16 @@ package org.payball.machine.core;
 
 
 import org.junit.FixMethodOrder;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.runners.MethodSorters;
 import org.payball.machine.machine.StateMachine;
 import org.payball.machine.machine.api.exception.IllegalTransitionException;
-import org.payball.machine.machine.builder.StateMachineBuilder;
 import org.payball.machine.machine.model.State;
 import org.payball.machine.machine.model.StateTransition;
-import org.payball.machine.machine.model.StateTransitionMap;
 import org.payball.machine.machine.model.StringMessage;
-import org.payball.machine.utils.StateTransitionUtils;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -76,6 +71,8 @@ public class StateMachineCreationTest extends AbstractStateMachineTest {
                 null, State.named("B"))), "Error adding null target on State Transition");
         assertThrows(NullPointerException.class, () -> machine.add(new StateTransition(State.named("A"),
                 StringMessage.from(null), State.named("B"))), "Error adding null named target on State Transition");
+        assertThrows(IllegalTransitionException.class, () -> machine.add(null), "Error adding null transition");
+
     }
 
     @Test
@@ -175,80 +172,5 @@ public class StateMachineCreationTest extends AbstractStateMachineTest {
         assertEquals(0, machine.getTransitions("A").size(), "Error retrieving transitions");
     }
 
-    @Test
-    @DisplayName("State Machine Builder initialization test")
-    void testMachineBuilderInit() {
-        StateMachine stateMachine = StateMachine.newBuilder()
-                .from("A").to("B").when("1")
-                .and("B").to("C").when("2")
-                .build();
-
-        assertNotNull(stateMachine, "Null state machine found");
-        assertEquals(3, stateMachine.size(), "State machine size mismatch");
-        assertNotNull(stateMachine.getTransitions("A"), "State transitions not retrieved correctly");
-        assertEquals(1, stateMachine.getTransitions("A").size(), "Transitions size mismatch");
-        assertNotNull(stateMachine.getTransitions("B"), "State transitions not retrieved correctly");
-        assertEquals(1, stateMachine.getTransitions("B").size(), "Transitions size mismatch");
-
-        StateTransitionUtils.printTransitions((StateTransitionMap) stateMachine.getTransitionsIndex(), statePrinter);
-    }
-
-    @Test
-    @DisplayName("Override transitions during build test")
-    void testOverrideTransitionsInit() {
-        StateMachine stateMachine = StateMachine.newBuilder()
-                .from("A").to("B").when("1")
-                .and("A").to("C").when("1")
-                .build();
-
-        assertNotNull(stateMachine, "Null state machine found");
-        assertEquals(3, stateMachine.size(), "State machine size mismatch");
-        assertNotNull(stateMachine.getTransitions("A"), "State transitions not retrieved correctly");
-        assertEquals(1, stateMachine.getTransitions("A").size(), "Transitions size mismatch");
-
-        Optional<State> thirdState = stateMachine.find("C");
-        assertTrue(thirdState.isPresent(), "Error retrieving state");
-        Assertions.assertEquals("C", thirdState.get().getName(), "State name mismatch");
-
-        StateTransitionUtils.printTransitions((StateTransitionMap) stateMachine.getTransitionsIndex(), statePrinter);
-    }
-
-
-    @Test
-    @DisplayName("Multiple StateMachines from same Builder test")
-    void testTransitionMapIdentity() {
-        StateMachineBuilder builder = StateMachine.newBuilder();
-        builder.from("A").to("B").when("1")
-                .and("A").to("C").when("2");
-
-        StateMachine firstMachine = builder.build();
-        StateMachine secondMachine = builder.build();
-        assertNotEquals(firstMachine, secondMachine, "State machines must differ");
-        assertEquals(firstMachine.getTransitionsIndex(), secondMachine.getTransitionsIndex(), "Transition index mismatch");
-    }
-
-    @Test
-    @DisplayName("Modification of State Transitions test")
-    void testTransitionMapModification() {
-        StateMachineBuilder builder = StateMachine.newBuilder();
-        builder.from("A").to("B").when("1")
-                .and(State.named("A")).to("C").when("2");
-
-        StateMachine firstMachine = builder.build();
-
-        Collection<StateTransition> transitions = firstMachine.getTransitions("A");
-        assertNotNull(transitions, "Error retrieving the transitions");
-        assertEquals(2, transitions.size(), "Transitions size mismatch");
-        transitions.remove(StateTransition.of("A", "B", "1"));
-
-        transitions = firstMachine.getTransitions("A");
-        assertNotNull(transitions, "Error retrieving the transitions");
-        assertEquals(2, transitions.size(), "Transitions size mismatch");
-
-        firstMachine.remove(StateTransition.of("A", "B", "1"));
-        transitions = firstMachine.getTransitions("A");
-        assertNotNull(transitions, "Error retrieving the transitions");
-        assertEquals(1, transitions.size(), "Transitions size mismatch");
-    }
 
 }

@@ -17,6 +17,11 @@ package org.payball.machine.machine.builder;
 
 import org.payball.machine.machine.StateMachine;
 import org.payball.machine.machine.api.Message;
+import org.payball.machine.machine.api.Node;
+import org.payball.machine.machine.api.Transition;
+import org.payball.machine.machine.api.builder.TransitionerBuilder;
+import org.payball.machine.machine.api.transition.TransitionIndex;
+import org.payball.machine.machine.api.transition.Transitioner;
 import org.payball.machine.machine.model.State;
 import org.payball.machine.machine.model.StateTransition;
 import org.payball.machine.machine.model.StateTransitionMap;
@@ -27,16 +32,47 @@ import java.util.Objects;
 /**
  * A simple machineBuilder for {@link StateMachine} instances
  */
-public class StateMachineBuilder {
+public class StateMachineBuilder implements TransitionerBuilder<State, StateTransition> {
 
     /** The transitions map */
-    private StateTransitionMap transitionMap;
+    private TransitionIndex<State, StateTransition> transitionIndex;
 
     /**
-     * The constructor
+     * The constructor with default
+     * transition index.
      */
-    public StateMachineBuilder() {
-        transitionMap = new StateTransitionMap();
+    private StateMachineBuilder() {
+        transitionIndex = new StateTransitionMap();
+    }
+
+    /**
+     * Creates a builder with the given transitioner
+     *
+     * @param transitionIndex the transition index
+     */
+    private StateMachineBuilder(TransitionIndex<State, StateTransition> transitionIndex) {
+        Objects.requireNonNull(transitionIndex);
+        this.transitionIndex = transitionIndex;
+    }
+
+    /**
+     * Retrieves a new {@link StateMachineBuilder} instance
+     * with the default transitioner.
+     *
+     * @return a new StateMachineBuilder instance
+     */
+    public static StateMachineBuilder newBuilder() {
+        return new StateMachineBuilder();
+    }
+
+    /**
+     * Retrieves a new {@link StateMachineBuilder} instance
+     * with the given transaitioner.
+     *
+     * @return a new StateMachineBuilder instance
+     */
+    public static StateMachineBuilder newBuilder(TransitionIndex<State, StateTransition> transitionIndex) {
+        return new StateMachineBuilder(transitionIndex);
     }
 
     /**
@@ -45,9 +81,10 @@ public class StateMachineBuilder {
      * state's name
      *
      * @param srcStateName the source state's name
-     * @return the FromBuilder machineBuilder clause
+     * @return the StateMachineFromBuilder machineBuilder clause
      */
-    public FromBuilder from(String srcStateName) {
+    @Override
+    public StateMachineFromBuilder from(String srcStateName) {
         return from(new State(srcStateName));
     }
 
@@ -57,21 +94,23 @@ public class StateMachineBuilder {
      * state.
      *
      * @param srcState the source state
-     * @return the FromBuilder machineBuilder clause
+     * @return the StateMachineFromBuilder machineBuilder clause
      */
-    public FromBuilder from(State srcState) {
-        return new FromBuilder(this, srcState);
+    @Override
+    public StateMachineFromBuilder from(State srcState) {
+        return new StateMachineFromBuilder(this, srcState);
     }
 
     /**
      * Adds the given transition to the transition map.
      *
      * @param transition the transition to add
-     * @return the machineBuilder transitionMap for chaining purposes.
+     * @return the machineBuilder transitionIndex for chaining purposes.
      */
+    @Override
     public StateMachineBuilder add(StateTransition transition) {
         Objects.requireNonNull(transition, "Cannot add null transition");
-        this.transitionMap.add(transition);
+        this.transitionIndex.add(transition);
         return this;
     }
 
@@ -79,11 +118,12 @@ public class StateMachineBuilder {
      * Starts the definition of a loop
      * for the given state's name
      *
-     * @param stateName the state name
-     * @return the ToBuilder machineBuilder clause
+     * @param nodeName the state name
+     * @return the StateMachineToBuilder machineBuilder clause
      */
-    public ToBuilder selfLoop(String stateName) {
-        return selfLoop(new State(stateName));
+    @Override
+    public StateMachineToBuilder selfLoop(String nodeName) {
+        return selfLoop(new State(nodeName));
     }
 
     /**
@@ -91,21 +131,23 @@ public class StateMachineBuilder {
      * for the given state
      *
      * @param state the state
-     * @return the ToBuilder machineBuilder clause
+     * @return the StateMachineToBuilder machineBuilder clause
      */
-    public ToBuilder selfLoop(State state) {
-        return new ToBuilder(new FromBuilder(this, state), state);
+    @Override
+    public StateMachineToBuilder selfLoop(State state) {
+        return new StateMachineToBuilder(new StateMachineFromBuilder(this, state), state);
     }
 
     /**
-     * Creates a new transitionMap from the
+     * Creates a new transitionIndex from the
      * transition map currently built.
      *
      * @return the new srcState machine with the current
      * transitions.
      */
+    @Override
     public StateMachine build() {
-        return new StateMachine(transitionMap);
+        return new StateMachine(transitionIndex);
     }
 
     /**
@@ -113,15 +155,16 @@ public class StateMachineBuilder {
      *
      * @return the transition map
      */
-    public StateTransitionMap getTransitionMap() {
-        return transitionMap;
+    @Override
+    public TransitionIndex<State, StateTransition> getTransitionIndex() {
+        return transitionIndex;
     }
 
     /**
      * Internal machineBuilder class to begin the definition
      * of a new transition.
      */
-    public static class FromBuilder {
+    public static class StateMachineFromBuilder implements IFromBuilder {
 
         /** The machineBuilder instance */
         private final StateMachineBuilder machineBuilder;
@@ -136,7 +179,7 @@ public class StateMachineBuilder {
          * @param machineBuilder the machineBuilder
          * @param srcState the source state
          */
-        private FromBuilder(StateMachineBuilder machineBuilder, State srcState) {
+        private StateMachineFromBuilder(StateMachineBuilder machineBuilder, State srcState) {
             this.machineBuilder = machineBuilder;
             this.srcState = srcState;
         }
@@ -145,11 +188,12 @@ public class StateMachineBuilder {
          * Adds a new target state to the
          * transition under build.
          *
-         * @param targetStateName the state
-         * @return the machineBuilder ToBuilder clause
+         * @param srcNodeName the state
+         * @return the machineBuilder StateMachineToBuilder clause
          */
-        public ToBuilder to(String targetStateName) {
-            return to(new State(targetStateName));
+        @Override
+        public StateMachineToBuilder to(String srcNodeName) {
+            return to(new State(srcNodeName));
         }
 
         /**
@@ -157,10 +201,11 @@ public class StateMachineBuilder {
          * to the transition under build.
          *
          * @param targetStateName the target state's name
-         * @return the ToBuilder machineBuilder clause
+         * @return the StateMachineToBuilder machineBuilder clause
          */
-        public ToBuilder to(State targetStateName) {
-            return new ToBuilder(this, targetStateName);
+        @Override
+        public StateMachineToBuilder to(State targetStateName) {
+            return new StateMachineToBuilder(this, targetStateName);
         }
     }
 
@@ -168,22 +213,22 @@ public class StateMachineBuilder {
      * Internal machineBuilder class to specify
      * the target destination of a new transition.
      */
-    public static class ToBuilder {
+    public static class StateMachineToBuilder implements IToBuilder {
 
         /** The from machineBuilder instance */
-        private final FromBuilder fromBuilder;
+        private final StateMachineFromBuilder fromBuilder;
 
         /** The target state */
         private final State targetState;
 
         /**
-         * Creates a new ToBuilder clause for the machineBuilder
+         * Creates a new StateMachineToBuilder clause for the machineBuilder
          * using the given from machineBuilder.
          *
          * @param fromBuilder the machineBuilder
          * @param targetState the target state
          */
-        private ToBuilder(FromBuilder fromBuilder, State targetState) {
+        private StateMachineToBuilder(StateMachineFromBuilder fromBuilder, State targetState) {
             this.fromBuilder = fromBuilder;
             this.targetState = targetState;
         }
@@ -195,8 +240,9 @@ public class StateMachineBuilder {
          * @param message the string message to add
          * @return the initial machineBuilder
          */
-        public WhenBuilder when(String message) {
-            return when(new StringMessage((message)));
+        @Override
+        public StateMachineOnBuilder on(String message) {
+            return on(new StringMessage((message)));
         }
 
         /**
@@ -206,8 +252,9 @@ public class StateMachineBuilder {
          * @param message the custom message to add
          * @return the initial machineBuilder
          */
-        private WhenBuilder when(Message message) {
-            return new WhenBuilder(this, message);
+        @Override
+        public StateMachineOnBuilder on(Message message) {
+            return new StateMachineOnBuilder(this, message);
         }
     }
 
@@ -215,27 +262,21 @@ public class StateMachineBuilder {
      * Internal machineBuilder class to end the definition
      * of a new transition.
      */
-    public static class WhenBuilder {
+    public static class StateMachineOnBuilder implements IOnBuilder<State, StateTransition> {
 
         /** The to machineBuilder instance */
-        private final ToBuilder toBuilder;
-
-        /** The message */
-        private Message message;
+        private final StateMachineBuilder builder;
 
         /**
-         * Creates a new ToBuilder clause for the machineBuilder
+         * Creates a new StateMachineToBuilder clause for the machineBuilder
          * using the given from machineBuilder.
          *
          * @param toBuilder the to builder
          * @param message the target state
          */
-        private WhenBuilder(ToBuilder toBuilder, Message message) {
-            this.toBuilder = toBuilder;
-            this.message = message;
-
+        private StateMachineOnBuilder(StateMachineToBuilder toBuilder, Message message) {
             // Adds the transition to the builder
-            StateMachineBuilder builder = toBuilder.fromBuilder.machineBuilder;
+            this.builder = toBuilder.fromBuilder.machineBuilder;
             builder.add(new StateTransition(toBuilder.fromBuilder.srcState, message, toBuilder.targetState));
         }
 
@@ -246,29 +287,103 @@ public class StateMachineBuilder {
          * @param srcStateName the origin state's name
          * @return the From builder clause
          */
-        public FromBuilder and(String srcStateName) {
-            return toBuilder.fromBuilder.machineBuilder.from(srcStateName);
+        @Override
+        public StateMachineFromBuilder and(String srcStateName) {
+            return builder.from(srcStateName);
         }
 
         /**
-         * Allows continuing the builder chain by
-         * adding an additional transition
+         * Delegates the start of transition to the builder
+         * wrapped instance.
          *
-         * @param state the origin state's name
-         * @return the From builder clause
+         * @param state the state to begin the transition
+         * @return the from builder
          */
-        public FromBuilder and(State state) {
-            return toBuilder.fromBuilder.machineBuilder.from(state);
+        @Override
+        public StateMachineFromBuilder and(State state) {
+            return builder.from(state);
         }
 
         /**
-         * Terminal action, building the state machine
-         * with its currently defined transitions
+         * Delegates the start of transition to the builder
+         * wrapped instance.
          *
-         * @return the state machine
+         * @param srcStateName the state name to begin the transition
+         * @return the from builder
          */
+        @Override
+        public StateMachineFromBuilder from(String srcStateName) {
+            return builder.from(srcStateName);
+        }
+
+        /**
+         * Delegates the start of transition to the builder
+         * wrapped instance.
+         *
+         * @param state the state to begin the transition
+         * @return the from builder
+         */
+        @Override
+        public StateMachineFromBuilder from(State state) {
+            return builder.from(state);
+        }
+
+        /**
+         * Delegates the addition of the transition to the builder
+         * wrapped instance.
+         *
+         * @param transition the transition to add
+         * @return the from builder
+         */
+        @Override
+        public StateMachineBuilder add(StateTransition transition) {
+            return builder.add(transition);
+        }
+
+        /**
+         * Delegates the addition of the self loop to the builder
+         * wrapped instance.
+         *
+         * @param stateName the state name to create the loop
+         * @return the IToBuilder clause
+         */
+        @Override
+        public StateMachineToBuilder selfLoop(String stateName) {
+            return builder.selfLoop(stateName);
+        }
+
+        /**
+         * Delegates the addition of the self loop to the builder
+         * wrapped instance.
+         *
+         * @param state the state to create the loop
+         * @return @return the IToBuilder clause
+         */
+        @Override
+        public StateMachineToBuilder selfLoop(State state) {
+            return builder.selfLoop(state);
+        }
+
+        /**
+         * Delegates the addition of the self loop to the builder
+         * wrapped instance.
+         *
+         * @return the from builder
+         */
+        @Override
         public StateMachine build() {
-            return toBuilder.fromBuilder.machineBuilder.build();
+            return builder.build();
+        }
+
+        /**
+         * Returns the transition index from the wrapped
+         * builder.
+         *
+         * @return the transition index
+         */
+        @Override
+        public TransitionIndex<State, StateTransition> getTransitionIndex() {
+            return builder.getTransitionIndex();
         }
 
     }

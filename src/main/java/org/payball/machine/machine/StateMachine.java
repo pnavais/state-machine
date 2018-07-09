@@ -16,10 +16,9 @@
 package org.payball.machine.machine;
 
 import org.payball.machine.machine.api.Message;
+import org.payball.machine.machine.api.exception.NullStateException;
 import org.payball.machine.machine.api.transition.TransitionIndex;
 import org.payball.machine.machine.api.transition.Transitioner;
-import org.payball.machine.machine.api.exception.NullStateException;
-import org.payball.machine.machine.builder.StateMachineBuilder;
 import org.payball.machine.machine.model.State;
 import org.payball.machine.machine.model.StateTransition;
 import org.payball.machine.machine.model.StateTransitionMap;
@@ -61,16 +60,6 @@ public class StateMachine implements Transitioner<State, StateTransition> {
     public StateMachine(TransitionIndex<State, StateTransition> transitionIndex) {
         Objects.requireNonNull(transitionIndex, "Null transitions index supplied");
         this.transitionsIndex = transitionIndex;
-    }
-
-    /**
-     * Retrieves a new {@link StateMachineBuilder} instance
-     * to ease the State Machine creation process.
-     *
-     * @return a new StateMachineBuilder instance
-     */
-    public static StateMachineBuilder newBuilder() {
-        return new StateMachineBuilder();
     }
 
     /**

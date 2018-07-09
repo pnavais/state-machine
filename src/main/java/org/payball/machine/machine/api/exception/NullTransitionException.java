@@ -16,7 +16,7 @@
 package org.payball.machine.machine.api.exception;
 
 /**
- * An exception raised when dealing with void transitions.
+ * An exception raised on dealing with void transitions.
  */
 public class NullTransitionException extends RuntimeException {
 
