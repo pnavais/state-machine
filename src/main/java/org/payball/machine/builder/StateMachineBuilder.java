@@ -13,17 +13,18 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.payball.machine.machine.builder;
+package org.payball.machine.builder;
 
-import org.payball.machine.machine.StateMachine;
-import org.payball.machine.machine.api.Message;
-import org.payball.machine.machine.api.builder.TransitionerBuilder;
-import org.payball.machine.machine.api.transition.TransitionIndex;
-import org.payball.machine.machine.model.State;
-import org.payball.machine.machine.model.StateTransition;
-import org.payball.machine.machine.model.StateTransitionMap;
-import org.payball.machine.machine.model.StringMessage;
+import org.payball.machine.StateMachine;
+import org.payball.machine.api.Message;
+import org.payball.machine.api.builder.TransitionerBuilder;
+import org.payball.machine.api.transition.TransitionIndex;
+import org.payball.machine.model.State;
+import org.payball.machine.model.StateTransition;
+import org.payball.machine.model.StateTransitionMap;
+import org.payball.machine.model.StringMessage;
 
+import java.util.Collection;
 import java.util.Objects;
 
 /**
@@ -108,6 +109,18 @@ public class StateMachineBuilder implements TransitionerBuilder<State, StateTran
     public StateMachineBuilder add(StateTransition transition) {
         Objects.requireNonNull(transition, "Cannot add null transition");
         this.transitionIndex.add(transition);
+        return this;
+    }
+
+    /**
+     * Adds the given transitions to the transition map.
+     *
+     * @param transitions the transitions to add
+     * @return the machineBuilder transitionIndex for chaining purposes.
+     */
+    @Override
+    public StateMachineBuilder addAll(Collection<StateTransition> transitions) {
+        transitions.forEach(this::add);
         return this;
     }
 
@@ -335,6 +348,18 @@ public class StateMachineBuilder implements TransitionerBuilder<State, StateTran
         @Override
         public StateMachineBuilder add(StateTransition transition) {
             return builder.add(transition);
+        }
+
+        /**
+         * Delegates the addition of the transition to the builder
+         * wrapped instance.
+         *
+         * @param transitions the transition to add
+         * @return the from builder
+         */
+        @Override
+        public StateMachineBuilder addAll(Collection<StateTransition> transitions) {
+            return builder.addAll(transitions);
         }
 
         /**

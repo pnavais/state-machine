@@ -13,19 +13,14 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.payball.machine.machine.api.exception;
+package org.payball.machine.api;
+
+import java.util.function.Supplier;
 
 /**
- * An exception raised on dealing with void transitions.
+ * A simple marker interface representing
+ * the information contained by transition messages.
  */
-public class NullTransitionException extends RuntimeException {
+public interface Payload extends Supplier<Object> {
 
-    /**
-     * Creates a new exception with the given message.
-     *
-     * @param message the message
-     */
-    public NullTransitionException(String message) {
-        super(message);
-    }
 }

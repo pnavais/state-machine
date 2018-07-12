@@ -13,11 +13,11 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.payball.machine.machine.api.transition;
+package org.payball.machine.api.transition;
 
-import org.payball.machine.machine.api.Message;
-import org.payball.machine.machine.api.Node;
-import org.payball.machine.machine.api.Transition;
+import org.payball.machine.api.Message;
+import org.payball.machine.api.Node;
+import org.payball.machine.api.Transition;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -37,6 +37,13 @@ public interface Transitioner<K extends Node, T extends Transition<K>>  {
      * @param transition the transition to add
      */
     void add(T transition);
+
+    /**
+     * Adds all transitions contained in the
+     * given index.
+     * @param index the index to copy from
+     */
+    void addAll(TransitionIndex<K, T> index);
 
     /**
      * Removes an existing transition
@@ -92,7 +99,6 @@ public interface Transitioner<K extends Node, T extends Transition<K>>  {
      */
     K getCurrent();
 
-
     /**
      * Retrieves the next node upon
      * transitioning from the current node
@@ -129,6 +135,14 @@ public interface Transitioner<K extends Node, T extends Transition<K>>  {
      * @return the transitions for the given node
      */
     Collection<T> getTransitions(String nodeName);
+
+    /**
+     * Retrieves the transitions currently
+     * defined in the transitioner.
+     *
+     * @return the transitions
+     */
+    Collection<T> getTransitions();
 
     /**
      * Retrieves the transition index used

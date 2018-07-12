@@ -13,11 +13,11 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.payball.machine.machine.model;
+package org.payball.machine.model;
 
 
-import org.payball.machine.machine.api.Message;
-import org.payball.machine.machine.api.Transition;
+import org.payball.machine.api.Message;
+import org.payball.machine.api.Transition;
 
 import java.util.Objects;
 

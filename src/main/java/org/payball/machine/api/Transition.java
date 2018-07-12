@@ -13,9 +13,9 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.payball.machine.machine.api;
+package org.payball.machine.api;
 
-import org.payball.machine.machine.api.exception.IllegalTransitionException;
+import org.payball.machine.api.exception.IllegalTransitionException;
 
 /**
  * A generic contract allowing to identify

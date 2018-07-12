@@ -13,26 +13,19 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.payball.machine.machine.api;
-
-import java.util.UUID;
+package org.payball.machine.api.exception;
 
 /**
- * Represents any item present in a directed graph
+ * An exception raised on dealing with void states.
  */
-public interface Node {
+public class NullStateException extends RuntimeException {
 
     /**
-     * Retrieves the name of the node
+     * Create the exception with the given message.
      *
-     * @return the name of the node
+     * @param message the message
      */
-    String getName();
-
-    /**
-     * Retrieves the message identifier
-     *
-     * @return the message identifier
-     */
-    UUID getId();
+    public NullStateException(String message) {
+        super(message);
+    }
 }

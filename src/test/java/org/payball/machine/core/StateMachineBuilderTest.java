@@ -20,16 +20,19 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.runners.MethodSorters;
-import org.payball.machine.machine.StateMachine;
-import org.payball.machine.machine.api.transition.TransitionIndex;
-import org.payball.machine.machine.builder.StateMachineBuilder;
-import org.payball.machine.machine.model.State;
-import org.payball.machine.machine.model.StateTransition;
-import org.payball.machine.machine.model.StateTransitionMap;
-import org.payball.machine.machine.model.StringMessage;
+import org.payball.machine.StateMachine;
+import org.payball.machine.api.transition.TransitionIndex;
+import org.payball.machine.api.transition.Transitioner;
+import org.payball.machine.builder.StateMachineBuilder;
+import org.payball.machine.model.State;
+import org.payball.machine.model.StateTransition;
+import org.payball.machine.model.StateTransitionMap;
+import org.payball.machine.model.StringMessage;
 import org.payball.machine.utils.StateTransitionUtils;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -81,6 +84,28 @@ public class StateMachineBuilderTest extends AbstractStateMachineTest {
         StateTransitionUtils.printTransitions((StateTransitionMap) stateMachine.getTransitionsIndex(), statePrinter);
     }
 
+    @Test
+    @DisplayName("Add a list of transitions during build test")
+    void testAddTransitionsFromList() {
+
+        List<StateTransition> transitionList = new ArrayList<>();
+
+        transitionList.add(StateTransition.of("A", "B", "1"));
+        transitionList.add(StateTransition.of("B", "C", "2"));
+
+        StateMachineBuilder builder = StateMachineBuilder.newBuilder().addAll(transitionList);
+        StateMachine machine = builder.build();
+
+        assertEquals(3, machine.size(), "Error creating machine from transitions list");
+        assertEquals(2, machine.getTransitions().size(), "Error retrieving transitions");
+
+        transitionList.add(StateTransition.of("C", "D", "3"));
+        builder.from("D").to("D").on("4").addAll(transitionList);
+
+        assertEquals(4, machine.size(), "Error creating machine from transitions list");
+        assertEquals(4, machine.getTransitions().size(), "Error retrieving transitions");
+    }
+
 
     @Test
     @DisplayName("Multiple StateMachines from same Builder test")
@@ -93,6 +118,51 @@ public class StateMachineBuilderTest extends AbstractStateMachineTest {
         StateMachine secondMachine = builder.build();
         assertNotEquals(firstMachine, secondMachine, "State machines must differ");
         assertEquals(firstMachine.getTransitionsIndex(), secondMachine.getTransitionsIndex(), "Transition index mismatch");
+    }
+
+    @Test
+    @DisplayName("Aadd all states to State Machine from index test")
+    void testTransitionMapCopy() {
+        TransitionIndex<State, StateTransition> transitionIndex = StateMachineBuilder.newBuilder()
+                .from("A").to("B").on("1")
+                .getTransitionIndex();
+
+        StateMachine machineBase = new StateMachine(transitionIndex);
+        Transitioner machineExtended = StateMachineBuilder.newBuilder().addAll(transitionIndex.getTransitions())
+                .from("B").to("C").on("2").build();
+
+        assertNotNull(machineBase.getTransitions(), "Transitions not created correctly");
+        assertEquals(2, machineBase.size(), "Error retrieving machine base size");
+        assertEquals(1, machineBase.getTransitions().size(), "Base Transitions not retrieved correctly");
+
+        assertNotNull(machineExtended.getTransitions(), "Transitions not created correctly");
+        assertEquals(3, machineExtended.size(), "Error retrieving extended machine size");
+        assertEquals(2, machineExtended.getTransitions().size(), "Extended Transitions not retrieved correctly");
+
+        assertEquals(machineBase.size(), machineBase.getTransitionsIndex().size(), "Error retrieving transitions index from base machine");
+        assertEquals(machineExtended.size(), machineExtended.getTransitionsIndex().size(), "Error retrieving transitions index from extended machine");
+    }
+
+    @Test
+    @DisplayName("Extend State Machine and check base not modified test")
+    void testTransitionMapCopyIdentity() {
+        StateMachine machineBase = StateMachineBuilder.newBuilder()
+                .from("A").to("B").on("1")
+                .and("B").to("C").on("2")
+                .build();
+
+        Transitioner machineExtended = StateMachineBuilder.newBuilder().addAll(machineBase.getTransitions())
+                .from("C").to("D").on("3").build();
+
+        machineBase.remove("C");
+        assertEquals(2, machineBase.size(), "Error retrieving machine base size");
+        assertEquals(1, machineBase.getTransitions().size(), "Base Transitions not retrieved correctly");
+
+        Optional c = machineExtended.find("C");
+        assertTrue(c.isPresent(), "Error retrieving state from extended machine");
+
+        assertEquals(4, machineExtended.size(), "Error retrieving machine extended size");
+        assertEquals(3, machineExtended.getTransitions().size(), "Extended Transitions not retrieved correctly");
     }
 
     @Test

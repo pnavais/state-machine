@@ -15,10 +15,9 @@
  */
 package org.payball.machine.utils;
 
-import org.payball.machine.machine.StateMachine;
-import org.payball.machine.machine.api.Message;
-import org.payball.machine.machine.model.State;
-import org.payball.machine.machine.model.StateTransitionMap;
+import org.payball.machine.api.Message;
+import org.payball.machine.model.State;
+import org.payball.machine.model.StateTransitionMap;
 
 import java.util.Map;
 import java.util.Optional;

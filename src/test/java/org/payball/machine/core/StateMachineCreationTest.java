@@ -20,11 +20,11 @@ import org.junit.FixMethodOrder;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.runners.MethodSorters;
-import org.payball.machine.machine.StateMachine;
-import org.payball.machine.machine.api.exception.IllegalTransitionException;
-import org.payball.machine.machine.model.State;
-import org.payball.machine.machine.model.StateTransition;
-import org.payball.machine.machine.model.StringMessage;
+import org.payball.machine.StateMachine;
+import org.payball.machine.api.exception.IllegalTransitionException;
+import org.payball.machine.model.State;
+import org.payball.machine.model.StateTransition;
+import org.payball.machine.model.StringMessage;
 
 import java.util.Arrays;
 import java.util.Optional;

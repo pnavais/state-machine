@@ -13,19 +13,19 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.payball.machine.machine.api.exception;
+package org.payball.machine.api.exception;
 
 /**
- * An exception raised on dealing with void states.
+ * An exception raised on dealing with void transitions.
  */
-public class NullStateException extends RuntimeException {
+public class NullTransitionException extends RuntimeException {
 
     /**
-     * Create the exception with the given message.
+     * Creates a new exception with the given message.
      *
      * @param message the message
      */
-    public NullStateException(String message) {
+    public NullTransitionException(String message) {
         super(message);
     }
 }

@@ -19,7 +19,7 @@ import org.junit.FixMethodOrder;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.runners.MethodSorters;
-import org.payball.machine.machine.model.State;
+import org.payball.machine.model.State;
 
 import java.util.Arrays;
 import java.util.List;

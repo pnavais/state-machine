@@ -13,14 +13,20 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.payball.machine.machine.api;
-
-import java.util.function.Supplier;
+package org.payball.machine.api.exception;
 
 /**
- * A simple marker interface representing
- * the information contained by transition messages.
+ * An exception raised on dealing with incorrect transitions
  */
-public interface Payload extends Supplier<Object> {
+public class IllegalTransitionException extends RuntimeException {
 
+    /**
+     * Creates the execption using the given message
+     * description.
+     *
+     * @param message the message description
+     */
+    public IllegalTransitionException(String message) {
+        super(message);
+    }
 }

@@ -15,8 +15,8 @@
  */
 package org.payball.machine.utils;
 
-import org.payball.machine.machine.api.Message;
-import org.payball.machine.machine.model.State;
+import org.payball.machine.api.Message;
+import org.payball.machine.model.State;
 
 import java.io.PrintStream;
 import java.util.function.Function;

@@ -13,12 +13,12 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.payball.machine.machine.model;
+package org.payball.machine.model;
 
-import org.payball.machine.machine.api.AbstractNode;
-import org.payball.machine.machine.api.Message;
-import org.payball.machine.machine.api.filter.MappedFunctionMessageFilter;
-import org.payball.machine.machine.api.filter.MessageFilter;
+import org.payball.machine.api.AbstractNode;
+import org.payball.machine.api.Message;
+import org.payball.machine.api.filter.MappedFunctionMessageFilter;
+import org.payball.machine.api.filter.MessageFilter;
 
 import java.util.function.Function;
 

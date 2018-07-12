@@ -13,20 +13,26 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.payball.machine.machine.api.exception;
+package org.payball.machine.api;
+
+import java.util.UUID;
 
 /**
- * An exception raised on dealing with incorrect transitions
+ * Represents any item present in a directed graph
  */
-public class IllegalTransitionException extends RuntimeException {
+public interface Node {
 
     /**
-     * Creates the execption using the given message
-     * description.
+     * Retrieves the name of the node
      *
-     * @param message the message description
+     * @return the name of the node
      */
-    public IllegalTransitionException(String message) {
-        super(message);
-    }
+    String getName();
+
+    /**
+     * Retrieves the message identifier
+     *
+     * @return the message identifier
+     */
+    UUID getId();
 }

@@ -13,14 +13,16 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.payball.machine.machine.api.builder;
+package org.payball.machine.api.builder;
 
-import org.payball.machine.machine.api.Message;
-import org.payball.machine.machine.api.Node;
-import org.payball.machine.machine.api.Transition;
-import org.payball.machine.machine.api.transition.TransitionIndex;
-import org.payball.machine.machine.api.transition.Transitioner;
-import org.payball.machine.machine.model.State;
+import org.payball.machine.api.Message;
+import org.payball.machine.api.Node;
+import org.payball.machine.api.Transition;
+import org.payball.machine.api.transition.TransitionIndex;
+import org.payball.machine.api.transition.Transitioner;
+import org.payball.machine.model.State;
+
+import java.util.Collection;
 
 public interface TransitionerBuilder<T extends Node, K extends Transition<T>> {
 
@@ -51,6 +53,14 @@ public interface TransitionerBuilder<T extends Node, K extends Transition<T>> {
      * @return self for chaining purposes.
      */
     TransitionerBuilder add(K transition);
+
+    /**
+     * Adds the given transitions to the transition map.
+     *
+     * @param transitions the transitions to add
+     * @return self for chaining purposes.
+     */
+    TransitionerBuilder addAll(Collection<K> transitions);
 
     /**
      * Starts the definition of a loop

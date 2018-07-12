@@ -13,13 +13,13 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.payball.machine.machine.model;
+package org.payball.machine.model;
 
-import org.payball.machine.machine.api.Message;
-import org.payball.machine.machine.api.Transition;
-import org.payball.machine.machine.api.transition.TransitionIndex;
-import org.payball.machine.machine.api.exception.NullStateException;
-import org.payball.machine.machine.api.exception.NullTransitionException;
+import org.payball.machine.api.Message;
+import org.payball.machine.api.Transition;
+import org.payball.machine.api.transition.TransitionIndex;
+import org.payball.machine.api.exception.NullStateException;
+import org.payball.machine.api.exception.NullTransitionException;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -81,7 +81,7 @@ public class StateTransitionMap implements TransitionIndex<State, StateTransitio
     }
 
     /**
-     * Adds a new Transition to the statemachine.
+     * Adds a new Transition to the state machine.
      * If already present, it is replaced silently
      * i.e if a transition is found from a source state with
      * the input message, the destination is updated by the
@@ -109,6 +109,16 @@ public class StateTransitionMap implements TransitionIndex<State, StateTransitio
             transitionMap.put(transition.getTarget(), new LinkedHashMap<>());
         }
 
+    }
+
+    /**
+     * Adds the transitions to the state machine.
+     *
+     * @param transitions the transition to add
+     */
+    @Override
+    public void addAll(Collection<StateTransition> transitions) {
+        transitions.forEach(this::add);
     }
 
     /**
@@ -220,8 +230,30 @@ public class StateTransitionMap implements TransitionIndex<State, StateTransitio
         Map<Message, State> messageStateMap = transitionMap.get(origin);
 
         return messageStateMap.keySet().stream()
-                     .map(message -> new StateTransition(origin, message, messageStateMap.get(message)))
-                     .collect(Collectors.toList());
+                .map(message -> new StateTransition(origin, message, messageStateMap.get(message)))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Retrieves all transitions
+     *
+     * @return the list of transitions
+     */
+    @Override
+    public Collection<StateTransition> getTransitions() {
+
+        Collection<StateTransition> list = new ArrayList<>();
+
+        transitionMap.keySet().forEach(srcState -> {
+            Map<Message, State> messageStateMap = transitionMap.get(srcState);
+
+            list.addAll(messageStateMap.keySet().stream()
+                    .map(message -> new StateTransition(srcState, message, messageStateMap.get(message)))
+                    .collect(Collectors.toList()));
+
+        });
+
+        return list;
     }
 
 }

@@ -13,16 +13,17 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.payball.machine.machine;
+package org.payball.machine;
 
-import org.payball.machine.machine.api.Message;
-import org.payball.machine.machine.api.exception.NullStateException;
-import org.payball.machine.machine.api.transition.TransitionIndex;
-import org.payball.machine.machine.api.transition.Transitioner;
-import org.payball.machine.machine.model.State;
-import org.payball.machine.machine.model.StateTransition;
-import org.payball.machine.machine.model.StateTransitionMap;
-import org.payball.machine.machine.model.StringMessage;
+
+import org.payball.machine.api.Message;
+import org.payball.machine.api.exception.NullStateException;
+import org.payball.machine.api.transition.TransitionIndex;
+import org.payball.machine.api.transition.Transitioner;
+import org.payball.machine.model.State;
+import org.payball.machine.model.StateTransition;
+import org.payball.machine.model.StateTransitionMap;
+import org.payball.machine.model.StringMessage;
 
 import java.util.Collection;
 import java.util.Objects;
@@ -60,6 +61,18 @@ public class StateMachine implements Transitioner<State, StateTransition> {
     public StateMachine(TransitionIndex<State, StateTransition> transitionIndex) {
         Objects.requireNonNull(transitionIndex, "Null transitions index supplied");
         this.transitionsIndex = transitionIndex;
+    }
+
+    /**
+     * Adds a new Transition to the state
+     * machine. If already present, it is
+     * replaced silently.
+     *
+     * @param transitionIndex the transitions to add
+     */
+    @Override
+    public void addAll(TransitionIndex<State, StateTransition> transitionIndex) {
+        transitionIndex.addAll(transitionIndex.getTransitions());
     }
 
     /**
@@ -211,6 +224,16 @@ public class StateMachine implements Transitioner<State, StateTransition> {
     @Override
     public Collection<StateTransition> getTransitions(String stateName) {
         return transitionsIndex.getTransitions(stateName);
+    }
+
+    /**
+     * Retrieves all the state transitions
+     *
+     * @return the transitions in the machine
+     */
+    @Override
+    public Collection<StateTransition> getTransitions() {
+        return transitionsIndex.getTransitions();
     }
 
     /**

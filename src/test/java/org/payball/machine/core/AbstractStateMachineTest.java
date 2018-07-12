@@ -17,9 +17,9 @@ package org.payball.machine.core;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.payball.machine.machine.StateMachine;
-import org.payball.machine.machine.builder.StateMachineBuilder;
-import org.payball.machine.machine.model.StateTransition;
+import org.payball.machine.StateMachine;
+import org.payball.machine.builder.StateMachineBuilder;
+import org.payball.machine.model.StateTransition;
 import org.payball.machine.utils.StateTransitionPrint;
 import org.payball.machine.utils.StateTransitionPrintBuilder;
 

@@ -13,10 +13,10 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.payball.machine.machine.api.filter;
+package org.payball.machine.api.filter;
 
-import org.payball.machine.machine.api.AbstractNode;
-import org.payball.machine.machine.api.Message;
+import org.payball.machine.api.AbstractNode;
+import org.payball.machine.api.Message;
 
 /**
  * A {@link MessageFilter} allows performing custom
