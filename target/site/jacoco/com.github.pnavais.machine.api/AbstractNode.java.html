@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AbstractNode.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">state-machine</a> &gt; <a href="index.source.html" class="el_package">com.github.pnavais.machine.api</a> &gt; <span class="el_source">AbstractNode.java</span></div><h1>AbstractNode.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2019 Pablo Navais
+ *
+ *  Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package com.github.pnavais.machine.api;
+
+import lombok.NonNull;
+import lombok.ToString;
+
+import java.util.Objects;
+import java.util.UUID;
+
+/**
+ * Represents an arbitrary node of a given directed graph
+ */
+<span class="nc" id="L27">@ToString</span>
+public abstract class AbstractNode implements Node {
+
+    /** The shorthand name associated to the node */
+    protected String name;
+
+    /** The identifier of the node */
+    protected final UUID id;
+
+    /**
+     * Constructor with node name
+     *
+     * @param name the name of the node
+     */
+<span class="pc bpc" id="L41" title="1 of 2 branches missed.">    public AbstractNode(@NonNull String name) {</span>
+<span class="fc" id="L42">        this.name = name;</span>
+<span class="fc" id="L43">        this.id = UUID.randomUUID();</span>
+<span class="fc" id="L44">    }</span>
+
+    /**
+     * Retrieves the identifier of the node
+     *
+     * @return the identifier of the node
+     */
+    public UUID getId() {
+<span class="nc" id="L52">        return id;</span>
+    }
+
+    /**
+     * Retrieves the name of the node
+     *
+     * @return the name of the node
+     */
+    @Override
+    public String getName() {
+<span class="fc" id="L62">        return name;</span>
+    }
+
+    @Override
+    public boolean equals(Object o) {
+<span class="pc bpc" id="L67" title="1 of 2 branches missed.">        if (this == o) return true;</span>
+<span class="pc bpc" id="L68" title="2 of 4 branches missed.">        if (o == null || getClass() != o.getClass()) return false;</span>
+<span class="fc" id="L69">        AbstractNode that = (AbstractNode) o;</span>
+<span class="fc" id="L70">        return Objects.equals(name, that.name);</span>
+    }
+
+    @Override
+    public int hashCode() {
+<span class="fc" id="L75">        return Objects.hash(name);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

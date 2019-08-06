@@ -1,0 +1,8 @@
+/mnt/g/Proyectos/state-machine/src/test/java/com/github/pnavais/machine/builder/StateMachineBuilderTest.java
+/mnt/g/Proyectos/state-machine/src/test/java/com/github/pnavais/machine/utils/StringUtils.java
+/mnt/g/Proyectos/state-machine/src/test/java/com/github/pnavais/machine/AbstractStateMachineTest.java
+/mnt/g/Proyectos/state-machine/src/test/java/com/github/pnavais/machine/utils/StateTransitionUtils.java
+/mnt/g/Proyectos/state-machine/src/test/java/com/github/pnavais/machine/utils/StateTransitionPrint.java
+/mnt/g/Proyectos/state-machine/src/test/java/com/github/pnavais/machine/utils/StateTransitionPrintBuilder.java
+/mnt/g/Proyectos/state-machine/src/test/java/com/github/pnavais/machine/StateMachineTestSuite.java
+/mnt/g/Proyectos/state-machine/src/test/java/com/github/pnavais/machine/core/StateMachineTest.java

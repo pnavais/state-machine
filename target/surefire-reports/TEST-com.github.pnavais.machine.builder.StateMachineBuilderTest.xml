@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd" name="com.github.pnavais.machine.builder.StateMachineBuilderTest" time="0.009" tests="4" errors="0" skipped="0" failures="0">
+  <properties>
+    <property name="awt.toolkit" value="sun.awt.X11.XToolkit"/>
+    <property name="file.encoding.pkg" value="sun.io"/>
+    <property name="java.specification.version" value="1.8"/>
+    <property name="sun.cpu.isalist" value=""/>
+    <property name="sun.jnu.encoding" value="UTF-8"/>
+    <property name="java.class.path" value="/mnt/g/Proyectos/state-machine/target/test-classes:/mnt/g/Proyectos/state-machine/target/classes:/home/pnavais/.m2/repository/org/junit/platform/junit-platform-runner/1.2.0/junit-platform-runner-1.2.0.jar:/home/pnavais/.m2/repository/org/apiguardian/apiguardian-api/1.0.0/apiguardian-api-1.0.0.jar:/home/pnavais/.m2/repository/org/junit/platform/junit-platform-launcher/1.2.0/junit-platform-launcher-1.2.0.jar:/home/pnavais/.m2/repository/junit/junit/4.12/junit-4.12.jar:/home/pnavais/.m2/repository/org/junit/platform/junit-platform-suite-api/1.2.0/junit-platform-suite-api-1.2.0.jar:/home/pnavais/.m2/repository/org/junit/platform/junit-platform-commons/1.2.0/junit-platform-commons-1.2.0.jar:/home/pnavais/.m2/repository/org/junit/jupiter/junit-jupiter-api/5.2.0/junit-jupiter-api-5.2.0.jar:/home/pnavais/.m2/repository/org/opentest4j/opentest4j/1.1.0/opentest4j-1.1.0.jar:/home/pnavais/.m2/repository/org/junit/jupiter/junit-jupiter-params/5.2.0/junit-jupiter-params-5.2.0.jar:/home/pnavais/.m2/repository/org/junit/jupiter/junit-jupiter-engine/5.2.0/junit-jupiter-engine-5.2.0.jar:/home/pnavais/.m2/repository/org/junit/platform/junit-platform-engine/1.2.0/junit-platform-engine-1.2.0.jar:/home/pnavais/.m2/repository/org/junit/vintage/junit-vintage-engine/5.2.0/junit-vintage-engine-5.2.0.jar:/home/pnavais/.m2/repository/org/hamcrest/hamcrest-library/1.3/hamcrest-library-1.3.jar:/home/pnavais/.m2/repository/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar:/home/pnavais/.m2/repository/com/google/jimfs/jimfs/1.1/jimfs-1.1.jar:/home/pnavais/.m2/repository/com/google/guava/guava/18.0/guava-18.0.jar:/home/pnavais/.m2/repository/org/powermock/powermock-module-junit4/2.0.2/powermock-module-junit4-2.0.2.jar:/home/pnavais/.m2/repository/org/powermock/powermock-module-junit4-common/2.0.2/powermock-module-junit4-common-2.0.2.jar:/home/pnavais/.m2/repository/org/powermock/powermock-reflect/2.0.2/powermock-reflect-2.0.2.jar:/home/pnavais/.m2/repository/org/powermock/powermock-core/2.0.2/powermock-core-2.0.2.jar:/home/pnavais/.m2/repository/org/javassist/javassist/3.24.0-GA/javassist-3.24.0-GA.jar:/home/pnavais/.m2/repository/org/powermock/powermock-api-mockito2/2.0.2/powermock-api-mockito2-2.0.2.jar:/home/pnavais/.m2/repository/org/powermock/powermock-api-support/2.0.2/powermock-api-support-2.0.2.jar:/home/pnavais/.m2/repository/org/mockito/mockito-core/2.27.0/mockito-core-2.27.0.jar:/home/pnavais/.m2/repository/net/bytebuddy/byte-buddy/1.9.10/byte-buddy-1.9.10.jar:/home/pnavais/.m2/repository/net/bytebuddy/byte-buddy-agent/1.9.10/byte-buddy-agent-1.9.10.jar:/home/pnavais/.m2/repository/org/objenesis/objenesis/2.6/objenesis-2.6.jar:/home/pnavais/.m2/repository/org/projectlombok/lombok/1.18.8/lombok-1.18.8.jar:/home/pnavais/.m2/repository/com/github/freva/ascii-table/1.1.0/ascii-table-1.1.0.jar:"/>
+    <property name="java.vm.vendor" value="Amazon.com Inc."/>
+    <property name="sun.arch.data.model" value="64"/>
+    <property name="java.vendor.url" value="https://aws.amazon.com/corretto/"/>
+    <property name="user.timezone" value=""/>
+    <property name="java.vm.specification.version" value="1.8"/>
+    <property name="os.name" value="Linux"/>
+    <property name="user.country" value="US"/>
+    <property name="sun.java.launcher" value="SUN_STANDARD"/>
+    <property name="sun.boot.library.path" value="/usr/local/sdkman/candidates/java/8.0.222-amzn/jre/lib/amd64"/>
+    <property name="sun.java.command" value="/mnt/g/Proyectos/state-machine/target/surefire/surefirebooter9197410022910175026.jar /mnt/g/Proyectos/state-machine/target/surefire 2019-08-06T15-26-34_554-jvmRun1 surefire6447634171500907745tmp surefire_0335360341815751935tmp"/>
+    <property name="surefire.test.class.path" value="/mnt/g/Proyectos/state-machine/target/test-classes:/mnt/g/Proyectos/state-machine/target/classes:/home/pnavais/.m2/repository/org/junit/platform/junit-platform-runner/1.2.0/junit-platform-runner-1.2.0.jar:/home/pnavais/.m2/repository/org/apiguardian/apiguardian-api/1.0.0/apiguardian-api-1.0.0.jar:/home/pnavais/.m2/repository/org/junit/platform/junit-platform-launcher/1.2.0/junit-platform-launcher-1.2.0.jar:/home/pnavais/.m2/repository/junit/junit/4.12/junit-4.12.jar:/home/pnavais/.m2/repository/org/junit/platform/junit-platform-suite-api/1.2.0/junit-platform-suite-api-1.2.0.jar:/home/pnavais/.m2/repository/org/junit/platform/junit-platform-commons/1.2.0/junit-platform-commons-1.2.0.jar:/home/pnavais/.m2/repository/org/junit/jupiter/junit-jupiter-api/5.2.0/junit-jupiter-api-5.2.0.jar:/home/pnavais/.m2/repository/org/opentest4j/opentest4j/1.1.0/opentest4j-1.1.0.jar:/home/pnavais/.m2/repository/org/junit/jupiter/junit-jupiter-params/5.2.0/junit-jupiter-params-5.2.0.jar:/home/pnavais/.m2/repository/org/junit/jupiter/junit-jupiter-engine/5.2.0/junit-jupiter-engine-5.2.0.jar:/home/pnavais/.m2/repository/org/junit/platform/junit-platform-engine/1.2.0/junit-platform-engine-1.2.0.jar:/home/pnavais/.m2/repository/org/junit/vintage/junit-vintage-engine/5.2.0/junit-vintage-engine-5.2.0.jar:/home/pnavais/.m2/repository/org/hamcrest/hamcrest-library/1.3/hamcrest-library-1.3.jar:/home/pnavais/.m2/repository/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar:/home/pnavais/.m2/repository/com/google/jimfs/jimfs/1.1/jimfs-1.1.jar:/home/pnavais/.m2/repository/com/google/guava/guava/18.0/guava-18.0.jar:/home/pnavais/.m2/repository/org/powermock/powermock-module-junit4/2.0.2/powermock-module-junit4-2.0.2.jar:/home/pnavais/.m2/repository/org/powermock/powermock-module-junit4-common/2.0.2/powermock-module-junit4-common-2.0.2.jar:/home/pnavais/.m2/repository/org/powermock/powermock-reflect/2.0.2/powermock-reflect-2.0.2.jar:/home/pnavais/.m2/repository/org/powermock/powermock-core/2.0.2/powermock-core-2.0.2.jar:/home/pnavais/.m2/repository/org/javassist/javassist/3.24.0-GA/javassist-3.24.0-GA.jar:/home/pnavais/.m2/repository/org/powermock/powermock-api-mockito2/2.0.2/powermock-api-mockito2-2.0.2.jar:/home/pnavais/.m2/repository/org/powermock/powermock-api-support/2.0.2/powermock-api-support-2.0.2.jar:/home/pnavais/.m2/repository/org/mockito/mockito-core/2.27.0/mockito-core-2.27.0.jar:/home/pnavais/.m2/repository/net/bytebuddy/byte-buddy/1.9.10/byte-buddy-1.9.10.jar:/home/pnavais/.m2/repository/net/bytebuddy/byte-buddy-agent/1.9.10/byte-buddy-agent-1.9.10.jar:/home/pnavais/.m2/repository/org/objenesis/objenesis/2.6/objenesis-2.6.jar:/home/pnavais/.m2/repository/org/projectlombok/lombok/1.18.8/lombok-1.18.8.jar:/home/pnavais/.m2/repository/com/github/freva/ascii-table/1.1.0/ascii-table-1.1.0.jar:"/>
+    <property name="sun.cpu.endian" value="little"/>
+    <property name="user.home" value="/home/pnavais"/>
+    <property name="user.language" value="en"/>
+    <property name="java.specification.vendor" value="Oracle Corporation"/>
+    <property name="java.home" value="/usr/local/sdkman/candidates/java/8.0.222-amzn/jre"/>
+    <property name="basedir" value="/mnt/g/Proyectos/state-machine"/>
+    <property name="file.separator" value="/"/>
+    <property name="line.separator" value="&#10;"/>
+    <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
+    <property name="java.specification.name" value="Java Platform API Specification"/>
+    <property name="java.awt.graphicsenv" value="sun.awt.X11GraphicsEnvironment"/>
+    <property name="surefire.real.class.path" value="/mnt/g/Proyectos/state-machine/target/surefire/surefirebooter9197410022910175026.jar:/home/pnavais/.m2/repository/org/jacoco/org.jacoco.agent/0.8.4/org.jacoco.agent-0.8.4-runtime.jar"/>
+    <property name="sun.boot.class.path" value="/usr/local/sdkman/candidates/java/8.0.222-amzn/jre/lib/resources.jar:/usr/local/sdkman/candidates/java/8.0.222-amzn/jre/lib/rt.jar:/usr/local/sdkman/candidates/java/8.0.222-amzn/jre/lib/sunrsasign.jar:/usr/local/sdkman/candidates/java/8.0.222-amzn/jre/lib/jsse.jar:/usr/local/sdkman/candidates/java/8.0.222-amzn/jre/lib/jce.jar:/usr/local/sdkman/candidates/java/8.0.222-amzn/jre/lib/charsets.jar:/usr/local/sdkman/candidates/java/8.0.222-amzn/jre/lib/jfr.jar:/usr/local/sdkman/candidates/java/8.0.222-amzn/jre/classes"/>
+    <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
+    <property name="java.runtime.version" value="1.8.0_222-b10"/>
+    <property name="user.name" value="pnavais"/>
+    <property name="path.separator" value=":"/>
+    <property name="os.version" value="4.4.0-17763-Microsoft"/>
+    <property name="java.endorsed.dirs" value="/usr/local/sdkman/candidates/java/8.0.222-amzn/jre/lib/endorsed"/>
+    <property name="java.runtime.name" value="OpenJDK Runtime Environment"/>
+    <property name="file.encoding" value="UTF-8"/>
+    <property name="java.vm.name" value="OpenJDK 64-Bit Server VM"/>
+    <property name="localRepository" value="/home/pnavais/.m2/repository"/>
+    <property name="java.vendor.url.bug" value="https://github.com/corretto/corretto-8/issues/"/>
+    <property name="java.io.tmpdir" value="/tmp"/>
+    <property name="java.version" value="1.8.0_222"/>
+    <property name="user.dir" value="/mnt/g/Proyectos/state-machine"/>
+    <property name="os.arch" value="amd64"/>
+    <property name="java.vm.specification.name" value="Java Virtual Machine Specification"/>
+    <property name="java.awt.printerjob" value="sun.print.PSPrinterJob"/>
+    <property name="sun.os.patch.level" value="unknown"/>
+    <property name="java.library.path" value="/usr/java/packages/lib/amd64:/usr/lib64:/lib64:/lib:/usr/lib"/>
+    <property name="java.vm.info" value="mixed mode"/>
+    <property name="java.vendor" value="Amazon.com Inc."/>
+    <property name="java.vm.version" value="25.222-b10"/>
+    <property name="java.ext.dirs" value="/usr/local/sdkman/candidates/java/8.0.222-amzn/jre/lib/ext:/usr/java/packages/lib/ext"/>
+    <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
+    <property name="java.class.version" value="52.0"/>
+  </properties>
+  <testcase name="testMachineBuilderInit" classname="com.github.pnavais.machine.builder.StateMachineBuilderTest" time="0.003"/>
+  <testcase name="testTransitionMapModification" classname="com.github.pnavais.machine.builder.StateMachineBuilderTest" time="0"/>
+  <testcase name="testTransitionMapIdentity" classname="com.github.pnavais.machine.builder.StateMachineBuilderTest" time="0"/>
+  <testcase name="testOverrideTransitionsInit" classname="com.github.pnavais.machine.builder.StateMachineBuilderTest" time="0"/>
+</testsuite>

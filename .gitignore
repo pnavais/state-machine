@@ -19,6 +19,9 @@
 *.tar.gz
 *.rar
 
+# Maven
+target/
+
 # Intellij IDEA
 *.iml
 .idea

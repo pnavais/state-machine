@@ -20,7 +20,6 @@ import com.github.pnavais.machine.AbstractStateMachineTest;
 import com.github.pnavais.machine.StateMachine;
 import com.github.pnavais.machine.index.StateTransitionMap;
 import com.github.pnavais.machine.model.State;
-import com.github.pnavais.machine.utils.StateTransitionPrint;
 import com.github.pnavais.machine.utils.StateTransitionUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -28,7 +27,6 @@ import org.junit.jupiter.api.Test;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Unit test for State Machine builder functionality
