@@ -36,46 +36,46 @@ import java.util.function.Function;
 @Setter
 @Builder(toBuilder=true)
 @AllArgsConstructor
-public class StateTransitionPrint {
+public class StateTransitionPrint<S extends State, M extends Message> {
 
+    /** The cell alignment */
     public enum CellAlignment { LEFT, RIGHT, CENTER }
 
     /** The maximum spacing size in each header's column */
     private static final int DEFAULT_TABLE_WIDTH = 140;
 
     /** The state formatter function */
-    private Function<State, String> stateFormatter;
+    @Builder.Default private Function<S, String> stateFormatter = State::getName;
 
     /** The message formatter function */
-    private Function<Message, String> messageFormatter;
+    @Builder.Default private Function<M, String> messageFormatter = message -> Optional.ofNullable(message.getPayload()).orElse(()-> "[null]").get().toString();
 
     /** The Transitions map formatter function */
-    private BiFunction<Message, State, String> mapFormatter;
+    private BiFunction<M, S, String> mapFormatter;
 
     /** The output stream */
-    private PrintStream output;
+    @Builder.Default private PrintStream output = System.out;
 
     /** The table width */
-    private int tableWidth;
-
-    /** Flag to use ellipsis if exceeding width */
-    private boolean useEllipsis;
+    @Builder.Default private int tableWidth = DEFAULT_TABLE_WIDTH;
 
     /** The cell alignment */
-    private CellAlignment cellAlignment;
+    @Builder.Default private CellAlignment cellAlignment = CellAlignment.CENTER;
 
     /**
-     * Creates a StateTransitionPrint object
-     * with default options.
+     * Instantiates a new State transition print.
      */
     public StateTransitionPrint() {
-        stateFormatter = State::getName;
-        messageFormatter = message -> Optional.ofNullable(message.getPayload()).orElse(()-> "[null]").get().toString();
-        mapFormatter = (message, state) -> Optional.ofNullable(message.getPayload()).orElse(()-> "[null]").get().toString() + " -> " + stateFormatter.apply(state);
-        output = System.out;
-        tableWidth = DEFAULT_TABLE_WIDTH;
-        cellAlignment = CellAlignment.CENTER;
-        useEllipsis = true;
+        fillDefaults();
     }
 
+    /**
+     * Fills the default values for dependent fields not carried by the builder
+     */
+    public StateTransitionPrint<S,M> fillDefaults() {
+        if (mapFormatter == null) {
+            mapFormatter = (message, state) -> Optional.ofNullable(message.getPayload()).orElse(()-> "[null]").get().toString() + " -> " + stateFormatter.apply(state);
+        }
+        return this;
+    }
 }

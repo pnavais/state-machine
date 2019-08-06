@@ -22,6 +22,7 @@ import com.github.pnavais.machine.api.transition.TransitionIndex;
 import com.github.pnavais.machine.api.exception.NullStateException;
 import com.github.pnavais.machine.api.exception.NullTransitionException;
 import com.github.pnavais.machine.model.StateTransition;
+import lombok.Getter;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -68,7 +69,8 @@ import java.util.stream.Collectors;
  *
  * After this operation State B is not reachable
  */
-public class StateTransitionMap implements TransitionIndex<State, StateTransition> {
+@Getter
+public class StateTransitionMap implements TransitionIndex<State, Message, StateTransition> {
 
     /**
      * The transitions stored by the state machine
@@ -110,7 +112,6 @@ public class StateTransitionMap implements TransitionIndex<State, StateTransitio
         if (!transitionMap.containsKey(transition.getTarget())) {
             transitionMap.put(transition.getTarget(), new LinkedHashMap<>());
         }
-
     }
 
     /**
@@ -148,15 +149,6 @@ public class StateTransitionMap implements TransitionIndex<State, StateTransitio
 
         // Remove transitions using the state as target
         transitionMap.values().forEach(m -> m.values().removeIf(s -> s.getName().equals(state.getName())));
-    }
-
-    /**
-     * Retrieves the transition map
-     *
-     * @return the transition map
-     */
-    public Map<State, Map<Message, State>> getTransitionMap() {
-        return transitionMap;
     }
 
     /**
@@ -224,7 +216,7 @@ public class StateTransitionMap implements TransitionIndex<State, StateTransitio
      * if not found.
      * @param stateName the state's name
      *
-     * @return
+     * @return the transitions
      */
     @Override
     public Collection<StateTransition> getTransitions(String stateName) {
@@ -237,4 +229,13 @@ public class StateTransitionMap implements TransitionIndex<State, StateTransitio
                      .collect(Collectors.toList());
     }
 
+    /**
+     * Retrieves the transitions as a map
+     *
+     * @return the transitions as a map
+     */
+    @Override
+    public Map<State, Map<Message, State>> getTransitionsAsMap() {
+        return transitionMap;
+    }
 }

@@ -15,8 +15,9 @@
  */
 package com.github.pnavais.machine;
 
+import com.github.pnavais.machine.api.Message;
+import com.github.pnavais.machine.model.State;
 import com.github.pnavais.machine.utils.StateTransitionPrint;
-import com.github.pnavais.machine.utils.StateTransitionPrintBuilder;
 import org.junit.jupiter.api.BeforeAll;
 
 /**
@@ -25,13 +26,13 @@ import org.junit.jupiter.api.BeforeAll;
 public abstract class AbstractStateMachineTest {
 
     /** The state printer */
-    private static StateTransitionPrint statePrinter;
+    private static StateTransitionPrint<State, Message> statePrinter;
 
     @BeforeAll
     public static void init() {
-        statePrinter = StateTransitionPrintBuilder.newBuilder()
+        statePrinter = StateTransitionPrint.builder()
                 .stateFormatter(s -> s.getName()+" ["+s.getId()+"]")
-                .build();
+                .build().fillDefaults();
     }
 
     /**
@@ -39,7 +40,7 @@ public abstract class AbstractStateMachineTest {
      *
      * @return the state printer
      */
-    public static StateTransitionPrint getStatePrinter() {
+    public static StateTransitionPrint<State,Message> getStatePrinter() {
         return statePrinter;
     }
 }

@@ -20,14 +20,17 @@ import com.github.pnavais.machine.api.Message;
 import com.github.pnavais.machine.api.Node;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.Optional;
 
 /**
  * An index allowing to store and fetch defined transitions.
  *
- * @param <T> the type of the transition to index
+ * @param <N> the type of Node
+ * @param <M> the type of Message
+ * @param <T> the type of Transition
  */
-public interface TransitionIndex<K extends Node, T extends Transition<K>> {
+public interface TransitionIndex<N extends Node, M extends Message, T extends Transition<N>> {
 
     /**
      * Adds a new transition to the index
@@ -49,7 +52,7 @@ public interface TransitionIndex<K extends Node, T extends Transition<K>> {
      *
      * @param node the node to remove
      */
-    void remove(K node);
+    void remove(N node);
 
     /**
      * Retrieves the next node after applying the
@@ -59,7 +62,7 @@ public interface TransitionIndex<K extends Node, T extends Transition<K>> {
      * @param m the message
      * @return the next node if found or empty otherwise
      */
-    Optional<K> getNext(K source, Message m);
+    Optional<N> getNext(N source, M m);
 
     /**
      * Search the given node in the transition index
@@ -68,14 +71,14 @@ public interface TransitionIndex<K extends Node, T extends Transition<K>> {
      * @param name the node's name to search
      * @return the node found or empty otherwise
      */
-    Optional<K> find(String name);
+    Optional<N> find(String name);
 
     /**
      * Retrieves the first node in the index
      *
      * @return the first element in the index or empty otherwise
      */
-    Optional<K> getFirst();
+    Optional<N> getFirst();
 
     /**
      * Retrieves the number of elements in the index
@@ -98,4 +101,11 @@ public interface TransitionIndex<K extends Node, T extends Transition<K>> {
      * @return the transitions for the node
      */
     Collection<T> getTransitions(String name);
+
+    /**
+     * Retrieves the transitions as a map
+     *
+     * @return the transition as a map
+     */
+     Map<N, Map<M, N>> getTransitionsAsMap();
 }

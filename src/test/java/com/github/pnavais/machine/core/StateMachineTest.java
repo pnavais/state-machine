@@ -21,6 +21,7 @@ import com.github.pnavais.machine.StateMachine;
 import com.github.pnavais.machine.model.State;
 import com.github.pnavais.machine.model.StateTransition;
 import com.github.pnavais.machine.model.StringMessage;
+import com.github.pnavais.machine.utils.StateTransitionUtils;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -103,6 +104,28 @@ public class StateMachineTest extends AbstractStateMachineTest {
 
         machine.add(new StateTransition(new State("A"), new StringMessage("1"), new State("B")));
         machine.add(new StateTransition(new State("B"), new StringMessage("2"), new State("C")));
+
+        assertEquals(3, machine.size(), "Error building state machine");
+
+        AtomicInteger counter = new AtomicInteger(3);
+        Arrays.asList("A", "B", "C" ).forEach(s -> {
+            Optional<State> sFound = machine.find(s);
+            assertTrue(sFound.isPresent(), "Error retrieving state");
+            assertEquals(s, sFound.get().getName(), "Error retrieving state");
+
+            machine.remove(s);
+            assertEquals(counter.decrementAndGet(), machine.size(), "Error removing state");
+        });
+    }
+
+    @Test
+    public void testStateMachineRemoveOrphans() {
+        StateMachine machine = new StateMachine();
+
+        machine.add(new StateTransition(new State("A"), new StringMessage("1"), new State("B")));
+        machine.add(new StateTransition(new State("B"), new StringMessage("2"), new State("C")));
+
+        StateTransitionUtils.printShortTransitions(machine.getTransitionsIndex());
 
         assertEquals(3, machine.size(), "Error building state machine");
 

@@ -20,7 +20,8 @@ import com.github.freva.asciitable.Column;
 import com.github.freva.asciitable.ColumnData;
 import com.github.freva.asciitable.HorizontalAlign;
 import com.github.pnavais.machine.api.Message;
-import com.github.pnavais.machine.index.StateTransitionMap;
+import com.github.pnavais.machine.api.Transition;
+import com.github.pnavais.machine.api.transition.TransitionIndex;
 import com.github.pnavais.machine.model.State;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -28,7 +29,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.*;
-import java.util.function.Function;
 
 /**
  * Utility methods for Transitions handling.
@@ -55,8 +55,9 @@ public class StateTransitionUtils {
      *
      * @param transitionsMap the transitions
      */
-    public static void printTransitions(StateTransitionMap transitionsMap) {
-        printTransitions(transitionsMap,  StateTransitionPrintBuilder.getDefault());
+    public static <S extends State, M extends Message, T extends Transition<S>> void printTransitions(TransitionIndex<S, M, T> transitionsMap) {
+
+        printTransitions(transitionsMap, StateTransitionPrint.<S,M>builder().build().fillDefaults());
     }
 
     /**
@@ -65,8 +66,8 @@ public class StateTransitionUtils {
      *
      * @param transitionsMap the transitions
      */
-    public static void printShortTransitions(StateTransitionMap transitionsMap) {
-        printShortTransitions(transitionsMap,  StateTransitionPrintBuilder.getDefault());
+    public static <S extends State, M extends Message, T extends Transition<S>> void printShortTransitions(TransitionIndex<S, M, T> transitionsMap) {
+        printShortTransitions(transitionsMap,  StateTransitionPrint.<S,M>builder().build().fillDefaults());
     }
 
     /**
@@ -75,11 +76,11 @@ public class StateTransitionUtils {
      *
      * @param transitionsMap the transitions
      */
-    public static void printTransitions(StateTransitionMap transitionsMap, StateTransitionPrint options) {
-        List<StateRow> data = new ArrayList<>();
+    public static <S extends State, M extends Message, T extends Transition<S>> void printTransitions(TransitionIndex<S, M, T> transitionsMap, StateTransitionPrint<S,M> options) {
+        List<StateRow<S,M>> data = new ArrayList<>();
         if (transitionsMap != null) {
-            transitionsMap.getTransitionMap().forEach((source, messageStateMap) -> messageStateMap.forEach((message, target) -> {
-                data.add(StateRow.builder().source(source).message(message).target(target).build());
+            transitionsMap.getTransitionsAsMap().forEach((source, messageStateMap) -> messageStateMap.forEach((message, target) -> {
+                data.add(StateRow.<S,M>builder().source(source).message(message).target(target).build());
             }));
         }
 
@@ -94,48 +95,15 @@ public class StateTransitionUtils {
      *
      * @param transitionsMap the transitions
      */
-    public static void printShortTransitions(StateTransitionMap transitionsMap, StateTransitionPrint options) {
-        List<StateRow> data = new ArrayList<>();
+    public static <S extends State, M extends Message, T extends Transition<S>> void printShortTransitions(TransitionIndex<S, M, T> transitionsMap, StateTransitionPrint<S,M> options) {
+        List<StateRow<S, M>> data = new ArrayList<>();
 
         if (transitionsMap != null) {
-            transitionsMap.getTransitionMap().forEach((source, transitions) -> data.add(StateRow.builder().source(source).transitions(transitions).build()));
+            transitionsMap.getTransitionsAsMap().forEach((source, transitions) -> data.add(StateRow.<S, M>builder().source(source).transitions(transitions).build()));
         }
         System.out.println(TitledAsciiTable.getTable("State Transitions", data, Arrays.asList(
                 new AlignedColumn(options.getCellAlignment()).header("Source").with(stateRow -> options.getStateFormatter().apply(stateRow.getSource())),
                 new AlignedColumn(options.getCellAlignment()).header("Target").maxColumnWidth(options.getTableWidth()).with(stateRow -> StringUtils.formatMap(options.getMapFormatter(), stateRow.getTransitions())))));
-    }
-
-    /**
-     * Formats the contents using its formatter for a given header and gap excess.
-     * Print options are also supplied to help formatting.
-     *
-     * @param formatter the formatter
-     * @param content the content to format
-     * @param gap the excess margin
-     * @param headerTag the header tag
-     * @param printOptions the print options
-     * @param <T> the type of the content
-     * @return the formatted message
-     */
-    private static <T> String formatMessage(Function<T, String> formatter, T content, int gap, String headerTag, StateTransitionPrint printOptions) {
-        // Shortens the text if exceeding header
-        String message = formatter.apply(content);
-        String shortenedMessage = printOptions.isUseEllipsis() ? StringUtils.ellipsis(message, headerTag.length() + gap) : message;
-        String out = shortenedMessage;
-
-        switch (printOptions.getCellAlignment()) {
-            case LEFT:
-                out = StringUtils.padRight(shortenedMessage, ' ', headerTag.length() + gap);
-                break;
-            case CENTER:
-                out = StringUtils.center(shortenedMessage, ' ', headerTag.length() + gap);
-                break;
-            case RIGHT:
-                out = StringUtils.padLeft(shortenedMessage, ' ', headerTag.length() + gap);
-                break;
-        }
-
-        return out;
     }
 
     /**
@@ -145,18 +113,18 @@ public class StateTransitionUtils {
     @AllArgsConstructor
     @Getter
     @Setter
-    private static class StateRow {
+    private static class StateRow<S extends State, M extends Message> {
         /** The source state */
-        State source;
+        S source;
 
         /** The message */
-        Message message;
+        M message;
 
         /** The target state */
-        State target;
+        S target;
 
         /** The transitions */
-        Map<Message, State> transitions;
+        Map<M, S> transitions;
     }
 
     /**
@@ -164,7 +132,6 @@ public class StateTransitionUtils {
      * alignments to both data and header.
      */
     private static class AlignedColumn extends Column {
-
         /**
          * Constructor with alignment option
          * @param cellAlignment the alignment option
@@ -173,14 +140,12 @@ public class StateTransitionUtils {
             HorizontalAlign align = HorizontalAlign.valueOf(cellAlignment.name());
             headerAlign(align).dataAlign(align);
         }
-
     }
 
     /**
      * Adds a title to the rendered table
      */
     private static class TitledAsciiTable {
-
         /**
          * Creates the table
          *
@@ -207,6 +172,5 @@ public class StateTransitionUtils {
 
             return renderedTable;
         }
-
     }
 }

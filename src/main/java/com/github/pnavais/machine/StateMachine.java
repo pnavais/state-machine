@@ -32,7 +32,7 @@ import java.util.Optional;
  * The State Machine contains a simple map of Transitions between
  * different nodes (States) triggered by incoming messages.
  */
-public class StateMachine implements Transitioner<State, StateTransition> {
+public class StateMachine implements Transitioner<State, Message, StateTransition> {
 
     /**
      * The current state
@@ -42,7 +42,7 @@ public class StateMachine implements Transitioner<State, StateTransition> {
     /**
      * The transitions stored by the state machine
      */
-    private TransitionIndex<State, StateTransition> transitionsIndex;
+    private TransitionIndex<State, Message, StateTransition> transitionsIndex;
 
     /**
      * Creates the state machine.
@@ -57,7 +57,7 @@ public class StateMachine implements Transitioner<State, StateTransition> {
      *
      * @param transitionIndex the transition map
      */
-    public StateMachine(TransitionIndex<State, StateTransition> transitionIndex) {
+    public StateMachine(TransitionIndex<State, Message, StateTransition> transitionIndex) {
         Objects.requireNonNull(transitionIndex, "Null transitions index supplied");
         this.transitionsIndex = transitionIndex;
     }
@@ -210,7 +210,7 @@ public class StateMachine implements Transitioner<State, StateTransition> {
      * @return the transition map
      */
     @Override
-    public TransitionIndex<State,StateTransition> getTransitionsIndex() {
+    public TransitionIndex<State, Message, StateTransition> getTransitionsIndex() {
         return transitionsIndex;
     }
 

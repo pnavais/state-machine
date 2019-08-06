@@ -74,7 +74,7 @@ public class StateMachineBuilderTest extends AbstractStateMachineTest {
         assertTrue(thirdState.isPresent(), "Error retrieving state");
         Assertions.assertEquals("C", thirdState.get().getName(), "State name mismatch");
 
-        StateTransitionUtils.printTransitions((StateTransitionMap) stateMachine.getTransitionsIndex(), getStatePrinter());
+        StateTransitionUtils.printTransitions(stateMachine.getTransitionsIndex(), getStatePrinter());
     }
 
     @Test

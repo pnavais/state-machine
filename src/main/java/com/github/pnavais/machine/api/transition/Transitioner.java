@@ -27,9 +27,10 @@ import java.util.Optional;
  * handling transitions between nodes.
  *
  * @param <K> the type of nodes
+ * @param <M> the type of messages
  * @param <T> the type of transitions
  */
-public interface Transitioner<K extends Node, T extends Transition<K>>  {
+public interface Transitioner<K extends Node, M extends Message, T extends Transition<K>>  {
 
     /**
      * Adds a new transition
@@ -125,7 +126,7 @@ public interface Transitioner<K extends Node, T extends Transition<K>>  {
      *
      * @return the transition index
      */
-    TransitionIndex<K,T> getTransitionsIndex();
+    TransitionIndex<K, M, T> getTransitionsIndex();
 
 
 }
