@@ -10,7 +10,7 @@ Generic State Machine implementation
              alt="Coverage"/>
     </a>
      <a href="LICENSE">
-       <img src="https://img.shields.io/github/license/pnavais/state-machine.svg?dummy=unused"
+       <img src="https://img.shields.io/github/license/pnavais/state-machine.svg"
             alt="License"/>         
     </a>
     <a href="https://sonarcloud.io/dashboard/index/org.payball:state-machine">
