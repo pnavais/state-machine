@@ -16,8 +16,8 @@
 
 package com.github.pnavais.machine.model;
 
-import lombok.ToString;
 import com.github.pnavais.machine.api.AbstractNode;
+import lombok.ToString;
 
 /**
  * An state represents an arbitrary node in a state machine
@@ -26,6 +26,9 @@ import com.github.pnavais.machine.api.AbstractNode;
 @ToString
 public abstract class AbstractState extends AbstractNode {
 
+    /** Flag to control whether the state is final or not */
+    private boolean finalState;
+
     /**
      * Constructor with node name
      *
@@ -33,5 +36,34 @@ public abstract class AbstractState extends AbstractNode {
      */
     public AbstractState(String name) {
         super(name);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return super.equals(o);
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
+    /**
+     * Sets whether the state is
+     * final or not.
+     * @param finalState the final state flag
+     */
+    public void setFinal(boolean finalState) {
+        this.finalState = finalState;
+    }
+
+    /**
+     * Retrieves the final state condition
+     * flag. If final, no further transitions
+     * can be allowed from this state.
+     * @return the final state flag
+     */
+    public boolean isFinal() {
+        return this.finalState;
     }
 }

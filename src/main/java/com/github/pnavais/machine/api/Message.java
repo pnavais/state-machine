@@ -15,8 +15,6 @@
  */
 package com.github.pnavais.machine.api;
 
-import com.github.pnavais.machine.model.VoidMessage;
-
 import java.util.UUID;
 
 /**
@@ -27,11 +25,6 @@ import java.util.UUID;
  *
  */
 public interface Message {
-
-    /**
-     * A void message used as marker representing any kind of message
-     */
-    Message ANY = VoidMessage.getDefault();
 
     /**
      * Retrieves the Message Identifier

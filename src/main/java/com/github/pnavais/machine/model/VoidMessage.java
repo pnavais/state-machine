@@ -51,4 +51,7 @@ public class VoidMessage implements Message {
     public Payload getPayload() {
         return null;
     }
+
+
+
 }

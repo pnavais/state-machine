@@ -17,6 +17,7 @@ package com.github.pnavais.machine.api.filter;
 
 import com.github.pnavais.machine.api.AbstractNode;
 import com.github.pnavais.machine.api.Message;
+import com.github.pnavais.machine.api.Status;
 
 /**
  * A {@link MessageFilter} allows performing custom
@@ -24,9 +25,6 @@ import com.github.pnavais.machine.api.Message;
  * whether the operation can continue or not.
  */
 public interface MessageFilter<T extends AbstractNode> {
-
-    /** The status of the operation */
-    enum Status { ABORT, PROCEED }
 
     /**
      * Intercepts a message to be dispatched to the

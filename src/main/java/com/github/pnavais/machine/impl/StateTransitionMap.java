@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.github.pnavais.machine.index;
+package com.github.pnavais.machine.impl;
 
 import com.github.pnavais.machine.api.Transition;
 import com.github.pnavais.machine.model.State;
@@ -165,6 +165,18 @@ public class StateTransitionMap implements TransitionIndex<State, Message, State
         Objects.requireNonNull(m, "The message cannot be null");
 
         return Optional.ofNullable(transitionMap.get(source)).map(messageStateMap -> messageStateMap.get(m));
+    }
+
+    /**
+     * Retrieves the previous node upon reception of the
+     * message on the given source node.
+     *
+     * @param source the origin node
+     * @param m the message
+     * @return the next node if found or empty otherwise
+     */
+    public Optional<State> getPrevious(State source, Message m) {
+        return transitionMap.keySet().stream().filter(state -> source.equals(transitionMap.get(state).get(m))).findFirst();
     }
 
     /**

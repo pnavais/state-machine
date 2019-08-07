@@ -19,7 +19,7 @@ import com.github.pnavais.machine.StateMachine;
 import com.github.pnavais.machine.api.Message;
 import com.github.pnavais.machine.model.State;
 import com.github.pnavais.machine.model.StateTransition;
-import com.github.pnavais.machine.index.StateTransitionMap;
+import com.github.pnavais.machine.impl.StateTransitionMap;
 import com.github.pnavais.machine.model.StringMessage;
 
 import java.util.Objects;

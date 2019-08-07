@@ -18,7 +18,7 @@ package com.github.pnavais.machine.builder;
 
 import com.github.pnavais.machine.AbstractStateMachineTest;
 import com.github.pnavais.machine.StateMachine;
-import com.github.pnavais.machine.index.StateTransitionMap;
+import com.github.pnavais.machine.impl.StateTransitionMap;
 import com.github.pnavais.machine.model.State;
 import com.github.pnavais.machine.utils.StateTransitionUtils;
 import org.junit.jupiter.api.Assertions;

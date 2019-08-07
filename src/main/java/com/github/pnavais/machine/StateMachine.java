@@ -16,13 +16,17 @@
 package com.github.pnavais.machine;
 
 import com.github.pnavais.machine.api.Message;
+import com.github.pnavais.machine.api.Status;
 import com.github.pnavais.machine.api.exception.NullStateException;
+import com.github.pnavais.machine.api.transition.TransitionChecker;
 import com.github.pnavais.machine.api.transition.TransitionIndex;
 import com.github.pnavais.machine.api.transition.Transitioner;
 import com.github.pnavais.machine.builder.StateMachineBuilder;
-import com.github.pnavais.machine.index.StateTransitionMap;
+import com.github.pnavais.machine.impl.StateTransitionChecker;
+import com.github.pnavais.machine.impl.StateTransitionMap;
 import com.github.pnavais.machine.model.State;
 import com.github.pnavais.machine.model.StateTransition;
+import lombok.NonNull;
 
 import java.util.Collection;
 import java.util.Objects;
@@ -45,10 +49,16 @@ public class StateMachine implements Transitioner<State, Message, StateTransitio
     private TransitionIndex<State, Message, StateTransition> transitionsIndex;
 
     /**
+     * The validator used to check transitions
+     */
+    private TransitionChecker<State, Message, StateTransition> transitionChecker;
+
+    /**
      * Creates the state machine.
      */
     public StateMachine() {
         this.transitionsIndex = new StateTransitionMap();
+        this.transitionChecker = new StateTransitionChecker();
     }
 
     /**
@@ -57,9 +67,20 @@ public class StateMachine implements Transitioner<State, Message, StateTransitio
      *
      * @param transitionIndex the transition map
      */
-    public StateMachine(TransitionIndex<State, Message, StateTransition> transitionIndex) {
-        Objects.requireNonNull(transitionIndex, "Null transitions index supplied");
+    public StateMachine(@NonNull TransitionIndex<State, Message, StateTransition> transitionIndex) {
         this.transitionsIndex = transitionIndex;
+    }
+
+    /**
+     * Creates the state machine with the given
+     * transition map.
+     *
+     * @param transitionIndex the transition map
+     */
+    public StateMachine(@NonNull TransitionIndex<State, Message, StateTransition> transitionIndex,
+                        @NonNull TransitionChecker<State, Message, StateTransition> transitionChecker) {
+        this.transitionsIndex = transitionIndex;
+        this.transitionChecker = transitionChecker;
     }
 
     /**
@@ -177,7 +198,28 @@ public class StateMachine implements Transitioner<State, Message, StateTransitio
      */
     @Override
     public Optional<State> getNext(Message m) {
-        return transitionsIndex.getNext(currentState, m);
+        Optional<State> targetState = Optional.empty();
+
+        // Validates departure from current state
+        Status status = transitionChecker.validateDeparture(transitionsIndex, m, currentState);
+
+        // Validates arrival to next state
+        if (status.equals(Status.PROCEED)) {
+            targetState = transitionsIndex.getNext(currentState, m);
+            status = targetState.isPresent() ? transitionChecker.validateArrival(transitionsIndex, m, targetState.get()) : Status.ABORT;
+        }
+
+        // Handles potential redirection on departure/arrival
+        if (status.isRedirect()) {
+            targetState = getNext(status.getMessage());
+        }
+
+        // Update current state if transitions are successful
+        if (targetState.isPresent() && (status.equals(Status.PROCEED))) {
+            currentState = targetState.get();
+        }
+
+        return targetState;
     }
 
     /**

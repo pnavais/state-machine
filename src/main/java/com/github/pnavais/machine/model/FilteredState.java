@@ -16,6 +16,7 @@
 
 package com.github.pnavais.machine.model;
 
+import com.github.pnavais.machine.api.Status;
 import lombok.NonNull;
 import com.github.pnavais.machine.api.Message;
 import com.github.pnavais.machine.api.filter.MappedFunctionMessageFilter;
@@ -27,16 +28,12 @@ import java.util.function.BiFunction;
  * A decorator adding message filtering functionality
  * to regular states.
  */
-public class FilteredState extends State  {
+public class FilteredState extends State implements MessageFilter<State> {
 
-    /**
-     * The target State.
-     */
+    /** The target State. */
     protected AbstractState state;
 
-    /**
-     * The Message filter.
-     */
+    /** The Message filter. */
     private MappedFunctionMessageFilter<State> messageFilter;
 
     /**
@@ -55,7 +52,7 @@ public class FilteredState extends State  {
      *
      * @param receptionHandler the reception handler
      */
-    public void setReceptionHandler(Message message, BiFunction<Message, State, MessageFilter.Status> receptionHandler) {
+    public void setReceptionHandler(Message message, BiFunction<Message, State, Status> receptionHandler) {
         this.messageFilter.setReceptionHandler(message, receptionHandler);
     }
 
@@ -64,7 +61,7 @@ public class FilteredState extends State  {
      *
      * @param dispatchHandler the dispatch handler
      */
-    public void setDispatchHandler(Message message, BiFunction<Message, State, MessageFilter.Status> dispatchHandler) {
+    public void setDispatchHandler(Message message, BiFunction<Message, State, Status> dispatchHandler) {
         this.messageFilter.setDispatchHandler(message, dispatchHandler);
     }
 
@@ -76,5 +73,31 @@ public class FilteredState extends State  {
     @Override
     public int hashCode() {
         return state.hashCode();
+    }
+
+    /**
+     * Intercepts a message to be dispatched to the
+     * given destination.
+     *
+     * @param message     the message to be dispatched
+     * @param destination the target node
+     * @return whether the operation shall continue or not
+     */
+    @Override
+    public Status onDispatch(Message message, State destination) {
+        return this.messageFilter.onDispatch(message, destination);
+    }
+
+    /**
+     * Intercepts a message to be received from the
+     * given origin.
+     *
+     * @param message the message to be dispatched
+     * @param source  the source node
+     * @return whether the operation shall continue or not
+     */
+    @Override
+    public Status onReceive(Message message, State source) {
+        return this.messageFilter.onReceive(message, source);
     }
 }

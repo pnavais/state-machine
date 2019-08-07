@@ -65,6 +65,16 @@ public interface TransitionIndex<N extends Node, M extends Message, T extends Tr
     Optional<N> getNext(N source, M m);
 
     /**
+     * Retrieves the previous node upon reception of the
+     * message on the given source node.
+     *
+     * @param source the origin node
+     * @param m the message
+     * @return the next node if found or empty otherwise
+     */
+    Optional<N> getPrevious(N source, M m);
+
+    /**
      * Search the given node in the transition index
      * by its name.
      *
@@ -108,4 +118,5 @@ public interface TransitionIndex<N extends Node, M extends Message, T extends Tr
      * @return the transition as a map
      */
      Map<N, Map<M, N>> getTransitionsAsMap();
+
 }

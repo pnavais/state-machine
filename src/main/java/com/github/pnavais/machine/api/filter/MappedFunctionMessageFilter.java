@@ -16,8 +16,9 @@
 package com.github.pnavais.machine.api.filter;
 
 import com.github.pnavais.machine.api.AbstractNode;
-import lombok.NonNull;
 import com.github.pnavais.machine.api.Message;
+import com.github.pnavais.machine.api.Status;
+import lombok.NonNull;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -76,14 +77,7 @@ public class MappedFunctionMessageFilter<T extends AbstractNode> implements Mess
      * @param function   the function
      */
     private void setHandler(Map<Message, BiFunction<Message, T, Status>> handlerMap, Message message, BiFunction<Message, T, Status> function) {
-        if (Message.ANY.equals(message)) {
-            handlerMap.clear();
-        }
-
-        // If any message already set inhibit other handlers
-        if (!handlerMap.containsKey(Message.ANY)) {
-            handlerMap.put(message, function);
-        }
+        handlerMap.put(message, function);
     }
 
     /**
@@ -113,11 +107,8 @@ public class MappedFunctionMessageFilter<T extends AbstractNode> implements Mess
      * @param message    the message
      */
     private void removeHandler(Map<Message, BiFunction<Message, T, Status>> handlerMap, Message message) {
-        if (Message.ANY.equals(message)) {
-            handlerMap.clear();
-        } else {
-            handlerMap.remove(message);
-        }
+
+        handlerMap.remove(message);
     }
 
     /**
@@ -156,7 +147,7 @@ public class MappedFunctionMessageFilter<T extends AbstractNode> implements Mess
      */
     private Status handleMessage(Map<Message, BiFunction<Message, T, Status>> handlerMap, Message message, T state) {
         return Optional.ofNullable(handlerMap.get(message))
-                .orElse(Optional.ofNullable(handlerMap.get(Message.ANY)).orElse((m, t) -> Status.PROCEED))
+                .orElse((m, t) -> Status.PROCEED)
                 .apply(message, state);
     }
 }
