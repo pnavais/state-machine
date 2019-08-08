@@ -49,6 +49,17 @@ public class StringMessage implements Message {
     }
 
     /**
+     * Static factory method to create a message
+     * with a message key.
+     *
+     * @param messageKey the message key
+     * @return the string message
+     */
+    public static StringMessage from(String messageKey) {
+        return new StringMessage(messageKey);
+    }
+
+    /**
      * Retrieves the message identifier
      *
      * @return the message identifier

@@ -16,22 +16,25 @@
 package com.github.pnavais.machine.api;
 
 import com.github.pnavais.machine.api.exception.IllegalTransitionException;
+import com.github.pnavais.machine.api.exception.NullTransitionException;
+
+import java.util.Map;
 
 /**
  * A generic contract allowing to identify
  * the target destination after processing
  * the message.
  *
- * @param <T> the type of the transition
+ * @param <N> the type of nodes of the transition
  */
-public interface Transition<T> {
+public interface Transition<N extends Node, M extends Message> {
 
     /**
      * Retrieves the message of the transition
      *
      * @return the message of the transition
      */
-    Message getMessage();
+    M getMessage();
 
     /**
      * The source object receiving the
@@ -39,7 +42,7 @@ public interface Transition<T> {
      *
      * @return the source
      */
-    T getOrigin();
+    N getOrigin();
 
     /**
      * The destination target after processing
@@ -47,23 +50,47 @@ public interface Transition<T> {
      *
      * @return the target destination
      */
-    T getTarget();
+    N getTarget();
 
     /**
      * Checks the transition parameter correctness
      * or throw an {@link IllegalTransitionException} otherwise
      *
      * @param transition the transition to check
-     * @return the input transition
      */
-    static Transition validate(Transition<?> transition) {
+    static <N extends Node, M extends Message> void validate(Transition<N, M> transition) {
         if (transition == null) {
-            throw new IllegalTransitionException("The transition cannot be null");
-        } else  if (transition.getOrigin() == null) {
+            throw new NullTransitionException("The transition cannot be null");
+        } else if (transition.getOrigin() == null) {
             throw new IllegalTransitionException("The transition source cannot be null");
+        } else if (transition.getTarget() == null) {
+            throw new IllegalTransitionException("The transition target cannot be null");
         } else if (transition.getMessage() == null) {
             throw new IllegalTransitionException("The transition message cannot be null");
         }
-        return transition;
+    }
+
+    /**
+     * Checks the transition parameter correctness
+     * or throw an {@link IllegalTransitionException} otherwise
+     *
+     * @param transition the transition to check
+     * @param transitionMap the transition map
+     */
+    static <N extends Node, M extends Message> void validate(Transition<N, M> transition, Map<N, Map<M, N>> transitionMap) {
+
+        validate(transition);
+
+        // Check that transition exists
+        boolean found = false;
+        Map<M, N> transitionsFound = transitionMap.get(transition.getOrigin());
+        if (transitionsFound != null) {
+            N target = transitionsFound.get(transition.getMessage());
+            found = transition.getTarget().equals(target);
+        }
+
+        if (!found) {
+            throw new IllegalTransitionException("Cannot find transition [" + transition.getOrigin() + " -> " + transition.getTarget() + "]");
+        }
     }
 }

@@ -36,7 +36,7 @@ import java.util.function.Function;
 @Setter
 @Builder(toBuilder=true)
 @AllArgsConstructor
-public class StateTransitionPrint<S extends State, M extends Message> {
+public class StateTransitionPrintOptions<S extends State, M extends Message> {
 
     /** The cell alignment */
     public enum CellAlignment { LEFT, RIGHT, CENTER }
@@ -65,14 +65,14 @@ public class StateTransitionPrint<S extends State, M extends Message> {
     /**
      * Instantiates a new State transition print.
      */
-    public StateTransitionPrint() {
+    public StateTransitionPrintOptions() {
         fillDefaults();
     }
 
     /**
      * Fills the default values for dependent fields not carried by the builder
      */
-    public StateTransitionPrint<S,M> fillDefaults() {
+    public StateTransitionPrintOptions<S,M> fillDefaults() {
         if (mapFormatter == null) {
             mapFormatter = (message, state) -> Optional.ofNullable(message.getPayload()).orElse(()-> "[null]").get().toString() + " -> " + stateFormatter.apply(state);
         }

@@ -15,22 +15,23 @@
  */
 package com.github.pnavais.machine.api.transition;
 
-import com.github.pnavais.machine.api.Transition;
 import com.github.pnavais.machine.api.Message;
 import com.github.pnavais.machine.api.Node;
+import com.github.pnavais.machine.api.Transition;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 /**
  * An interface for defining methods common to entities
  * handling transitions between nodes.
  *
- * @param <K> the type of nodes
+ * @param <N> the type of nodes
  * @param <M> the type of messages
  * @param <T> the type of transitions
  */
-public interface Transitioner<K extends Node, M extends Message, T extends Transition<K>>  {
+public interface Transitioner<N extends Node, M extends Message, T extends Transition<N,M>>  {
 
     /**
      * Adds a new transition
@@ -60,7 +61,7 @@ public interface Transitioner<K extends Node, M extends Message, T extends Trans
      *
      * @param node the node to remove
      */
-    void remove(K node);
+    void remove(N node);
 
     /**
      * Finds the node in the transition
@@ -69,7 +70,7 @@ public interface Transitioner<K extends Node, M extends Message, T extends Trans
      * @param nodeName the node's name
      * @return the node with the given name
      */
-    Optional<K> find(String nodeName);
+    Optional<N> find(String nodeName);
 
     /**
      * Performs generic initialization e.g.
@@ -91,7 +92,7 @@ public interface Transitioner<K extends Node, M extends Message, T extends Trans
      *
      * @return the current node
      */
-    K getCurrent();
+    N getCurrent();
 
     /**
      * Retrieves the next node upon
@@ -101,7 +102,7 @@ public interface Transitioner<K extends Node, M extends Message, T extends Trans
      * @param m the message
      * @return the next node
      */
-    Optional<K> getNext(Message m);
+    Optional<N> getNext(Message m);
 
     /**
      * Retrieves the number of nodes currently
@@ -126,7 +127,12 @@ public interface Transitioner<K extends Node, M extends Message, T extends Trans
      *
      * @return the transition index
      */
-    TransitionIndex<K, M, T> getTransitionsIndex();
+    TransitionIndex<N, M, T> getTransitionsIndex();
 
-
+    /**
+     * Remove orphan nodes.
+     * i.e. With no transitions and involved in no
+     * other node transitions.
+     */
+    List<N> prune();
 }

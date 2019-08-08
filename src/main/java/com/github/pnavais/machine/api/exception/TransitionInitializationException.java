@@ -1,11 +1,11 @@
 /*
  * Copyright 2019 Pablo Navais
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,9 +16,9 @@
 package com.github.pnavais.machine.api.exception;
 
 /**
- * An exception raised when dealing with incorrect transitions
+ * An exception raised when initializing transitions incorrectly
  */
-public class IllegalTransitionException extends RuntimeException {
+public class TransitionInitializationException extends RuntimeException {
 
     /**
      * Creates the exception using the given message
@@ -26,7 +26,7 @@ public class IllegalTransitionException extends RuntimeException {
      *
      * @param message the message description
      */
-    public IllegalTransitionException(String message) {
+    public TransitionInitializationException(String message) {
         super(message);
     }
 }

@@ -17,13 +17,11 @@
 package com.github.pnavais.machine.model;
 
 import com.github.pnavais.machine.api.AbstractNode;
-import lombok.ToString;
 
 /**
  * An state represents an arbitrary node in a state machine
  * containing its transitions.
  */
-@ToString
 public abstract class AbstractState extends AbstractNode {
 
     /** Flag to control whether the state is final or not */

@@ -18,9 +18,7 @@ package com.github.pnavais.machine.builder;
 
 import com.github.pnavais.machine.AbstractStateMachineTest;
 import com.github.pnavais.machine.StateMachine;
-import com.github.pnavais.machine.impl.StateTransitionMap;
 import com.github.pnavais.machine.model.State;
-import com.github.pnavais.machine.utils.StateTransitionUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -52,7 +50,9 @@ public class StateMachineBuilderTest extends AbstractStateMachineTest {
         assertNotNull(stateMachine.getTransitions("B"), "State transitions not retrieved correctly");
         assertEquals(2, stateMachine.getTransitions("B").size(), "Transitions size mismatch");
 
-        StateTransitionUtils.printTransitions((StateTransitionMap) stateMachine.getTransitionsIndex(), getStatePrinter());
+        getStatePrinterBuilder()
+                .printOptions(getStatePrinterOptions())
+                .build().printTransitions(stateMachine.getTransitionsIndex());
     }
 
     /**
@@ -74,7 +74,9 @@ public class StateMachineBuilderTest extends AbstractStateMachineTest {
         assertTrue(thirdState.isPresent(), "Error retrieving state");
         Assertions.assertEquals("C", thirdState.get().getName(), "State name mismatch");
 
-        StateTransitionUtils.printTransitions(stateMachine.getTransitionsIndex(), getStatePrinter());
+        getStatePrinterBuilder()
+                .printOptions(getStatePrinterOptions())
+                .build().printTransitions(stateMachine.getTransitionsIndex());
     }
 
     @Test

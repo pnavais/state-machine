@@ -15,11 +15,12 @@
  */
 package com.github.pnavais.machine.api.transition;
 
-import com.github.pnavais.machine.api.Transition;
 import com.github.pnavais.machine.api.Message;
 import com.github.pnavais.machine.api.Node;
+import com.github.pnavais.machine.api.Transition;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -30,7 +31,7 @@ import java.util.Optional;
  * @param <M> the type of Message
  * @param <T> the type of Transition
  */
-public interface TransitionIndex<N extends Node, M extends Message, T extends Transition<N>> {
+public interface TransitionIndex<N extends Node, M extends Message, T extends Transition<N,M>> {
 
     /**
      * Adds a new transition to the index
@@ -53,6 +54,14 @@ public interface TransitionIndex<N extends Node, M extends Message, T extends Tr
      * @param node the node to remove
      */
     void remove(N node);
+
+    /**
+     * Removes an existing node from the index
+     * and all its transitions by its name.
+     *
+     * @param node the node to remove
+     */
+    void remove(String node);
 
     /**
      * Retrieves the next node after applying the
@@ -101,11 +110,19 @@ public interface TransitionIndex<N extends Node, M extends Message, T extends Tr
      * Remove orphan states from the index
      * (i.e. States that are not reachable)
      */
-    void prune();
+    List<N> prune();
 
     /**
      * Retrieves the transitions stored in the index
      * for the given node.
+     *
+     * @param node the node
+     * @return the transitions for the node
+     */
+    Collection<T> getTransitions(N node);
+    /**
+     * Retrieves the transitions stored in the index
+     * for the given named node.
      *
      * @param name the node's name
      * @return the transitions for the node

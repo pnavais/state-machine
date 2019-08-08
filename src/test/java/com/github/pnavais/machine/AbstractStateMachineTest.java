@@ -17,7 +17,9 @@ package com.github.pnavais.machine;
 
 import com.github.pnavais.machine.api.Message;
 import com.github.pnavais.machine.model.State;
-import com.github.pnavais.machine.utils.StateTransitionPrint;
+import com.github.pnavais.machine.model.StateTransition;
+import com.github.pnavais.machine.utils.StateTransitionPrintOptions;
+import com.github.pnavais.machine.utils.StateTransitionPrinter;
 import org.junit.jupiter.api.BeforeAll;
 
 /**
@@ -26,21 +28,44 @@ import org.junit.jupiter.api.BeforeAll;
 public abstract class AbstractStateMachineTest {
 
     /** The state printer */
-    private static StateTransitionPrint<State, Message> statePrinter;
+    private static StateTransitionPrintOptions<State, Message> statePrinterOptions;
+
+    /** The state printer */
+    private static StateTransitionPrinter<State, Message, StateTransition> statePrinter;
 
     @BeforeAll
     public static void init() {
-        statePrinter = StateTransitionPrint.builder()
+        statePrinterOptions = StateTransitionPrintOptions.builder()
                 .stateFormatter(s -> s.getName()+" ["+s.getId()+"]")
                 .build().fillDefaults();
+
+        statePrinter = getStatePrinterBuilder().build();
     }
 
     /**
-     * Retrieves the state printer.
+     * Retrieves the state printer options
      *
-     * @return the state printer
+     * @return the state printer options
      */
-    public static StateTransitionPrint<State,Message> getStatePrinter() {
+    public static StateTransitionPrintOptions<State,Message> getStatePrinterOptions() {
+        return statePrinterOptions;
+    }
+
+    /**
+     * Retrieves the state transitions printer builder
+     *
+     * @return the state transitions printer builder
+     */
+    public static StateTransitionPrinter.StateTransitionPrinterBuilder<State, Message, StateTransition> getStatePrinterBuilder() {
+         return StateTransitionPrinter.builder();
+    }
+
+    /**
+     * Retrieves the state transitions printer
+     *
+     * @return the state transitions printer
+     */
+    public static StateTransitionPrinter<State, Message, StateTransition> getStatePrinter() {
         return statePrinter;
     }
 }

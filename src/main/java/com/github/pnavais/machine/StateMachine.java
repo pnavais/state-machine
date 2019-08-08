@@ -29,7 +29,7 @@ import com.github.pnavais.machine.model.StateTransition;
 import lombok.NonNull;
 
 import java.util.Collection;
-import java.util.Objects;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -172,9 +172,19 @@ public class StateMachine implements Transitioner<State, Message, StateTransitio
      * in case the state is not found.
      */
     @Override
-    public void setCurrent(String stateName) {
-        Objects.requireNonNull(stateName);
+    public void setCurrent(@NonNull String stateName) {
         this.currentState = this.transitionsIndex.find(stateName).orElseThrow(() -> new NullStateException("State ["+stateName+"] not found"));
+    }
+
+    /**
+     * Sets the current state if present
+     * @param state the state to set
+     */
+    public State setCurrent(@NonNull State state) {
+        if (find(state.getName()).isPresent()) {
+            this.currentState = state;
+        }
+        return this.currentState;
     }
 
     /**
@@ -256,5 +266,11 @@ public class StateMachine implements Transitioner<State, Message, StateTransitio
         return transitionsIndex;
     }
 
-
+    /**
+     * Remove orphan states
+     */
+    @Override
+    public List<State> prune() {
+        return transitionsIndex.prune();
+    }
 }

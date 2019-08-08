@@ -18,13 +18,12 @@ package com.github.pnavais.machine.model;
 
 import com.github.pnavais.machine.api.Message;
 import com.github.pnavais.machine.api.Transition;
-
-import java.util.Objects;
+import com.github.pnavais.machine.api.exception.TransitionInitializationException;
 
 /**
  * Represents a simple transition between states
  */
-public class StateTransition implements Transition<State> {
+public class StateTransition implements Transition<State, Message> {
 
     /** The origin of the transition */
     private final State source;
@@ -37,6 +36,18 @@ public class StateTransition implements Transition<State> {
 
     /**
      * Creates a new state transition with the given
+     * origin and destination state names after applying the message.
+     *
+     * @param source the origin state
+     * @param message the message
+     * @param target the destination state
+     */
+    public StateTransition(String source, Message message, String target) {
+        this(State.from(source).build(), message, State.from(target).build());
+    }
+
+    /**
+     * Creates a new state transition with the given
      * origin and destination states after applying the message.
      *
      * @param source the origin state
@@ -44,24 +55,16 @@ public class StateTransition implements Transition<State> {
      * @param target the destination state
      */
     public StateTransition(State source, Message message, State target) {
+
+        if (source == null || message == null|| target == null) {
+            throw new TransitionInitializationException("Cannot create transitions with null components");
+        }
+        if (source.isFinal()) {
+            throw new TransitionInitializationException("Cannot create transition from final state ["+source.getName()+"]");
+        }
         this.source = source;
         this.message = message;
         this.target = target;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        StateTransition that = (StateTransition) o;
-        return Objects.equals(source, that.source) &&
-                Objects.equals(message, that.message) &&
-                Objects.equals(target, that.target);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(source, message, target);
     }
 
     @Override

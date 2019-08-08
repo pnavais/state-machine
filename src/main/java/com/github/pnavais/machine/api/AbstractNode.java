@@ -16,7 +16,6 @@
 package com.github.pnavais.machine.api;
 
 import lombok.NonNull;
-import lombok.ToString;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -24,7 +23,6 @@ import java.util.UUID;
 /**
  * Represents an arbitrary node of a given directed graph
  */
-@ToString
 public abstract class AbstractNode implements Node {
 
     /** The shorthand name associated to the node */

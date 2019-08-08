@@ -17,7 +17,9 @@
 package com.github.pnavais.machine;
 
 import com.github.pnavais.machine.builder.StateMachineBuilderTest;
-import com.github.pnavais.machine.core.StateMachineTest;
+import com.github.pnavais.machine.core.StateMachineComponentsTest;
+import com.github.pnavais.machine.core.StateMachineCoreTest;
+import com.github.pnavais.machine.core.StateMachineTraversalTest;
 import org.junit.platform.runner.JUnitPlatform;
 import org.junit.platform.suite.api.IncludeEngines;
 import org.junit.platform.suite.api.SelectClasses;
@@ -27,6 +29,9 @@ import org.junit.runner.RunWith;
 @RunWith(JUnitPlatform.class)
 @IncludeEngines("junit-jupiter")
 @SuiteDisplayName("State Machine tests")
-@SelectClasses({StateMachineTest.class, StateMachineBuilderTest.class})
+@SelectClasses({StateMachineComponentsTest.class,
+        StateMachineCoreTest.class,
+        StateMachineTraversalTest. class,
+        StateMachineBuilderTest.class})
 public class StateMachineTestSuite {
 }

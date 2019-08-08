@@ -23,6 +23,7 @@ import com.github.pnavais.machine.api.exception.NullStateException;
 import com.github.pnavais.machine.api.exception.NullTransitionException;
 import com.github.pnavais.machine.model.StateTransition;
 import lombok.Getter;
+import lombok.NonNull;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -123,7 +124,7 @@ public class StateTransitionMap implements TransitionIndex<State, Message, State
      */
     @Override
     public void remove(StateTransition transition) {
-        Transition.validate(transition);
+        Transition.validate(transition, transitionMap);
 
         // Update the current transitions mapping
         Optional.ofNullable(transitionMap.get(transition.getOrigin())).ifPresent(m -> m.remove(transition.getMessage()));
@@ -136,8 +137,7 @@ public class StateTransitionMap implements TransitionIndex<State, Message, State
      * @param state the state to remove
      */
     @Override
-    public void remove(State state) {
-        Objects.requireNonNull(state);
+    public void remove(@NonNull State state) {
 
         // Remove transition mappings
         Map<Message, State> messageStateMap = Optional.ofNullable(transitionMap.get(state))
@@ -149,6 +149,18 @@ public class StateTransitionMap implements TransitionIndex<State, Message, State
 
         // Remove transitions using the state as target
         transitionMap.values().forEach(m -> m.values().removeIf(s -> s.getName().equals(state.getName())));
+    }
+
+    /**
+     * Removes the current state from the machine
+     * including defined transitions.
+     *
+     * @param stateName the state to remove
+     */
+    @Override
+    public void remove(@NonNull String stateName) {
+        State state = find(stateName).orElseThrow(() -> new NullStateException("State [" + stateName + "] not found"));
+        remove(state);
     }
 
     /**
@@ -213,13 +225,27 @@ public class StateTransitionMap implements TransitionIndex<State, Message, State
 
     /**
      * Remove orphan states from the transition map
-     * (i.e. States not involved in transitions)
+     * i.e. States with no transitions and not involved in other
+     * state transitions.
      */
     @Override
-    public void prune() {
-        transitionMap.forEach((state, messageStateMap) -> {
-            //messageStateMap
+    public List<State> prune() {
+        List<State> orphanStates = new ArrayList<>();
+        // Look for states with empty transitions
+        // as potential orphans
+        List<State> emptyStates = transitionMap.keySet().stream()
+                .filter(state -> transitionMap.get(state).isEmpty())
+                .collect(Collectors.toList());
+
+        // Remove states that are not involved in any transition
+        emptyStates.forEach(emptyState -> {
+            if (transitionMap.keySet().stream().noneMatch(state -> transitionMap.get(state).containsValue(emptyState))) {
+                transitionMap.remove(emptyState);
+                orphanStates.add(emptyState);
+            }
         });
+
+        return orphanStates;
     }
 
     /**
@@ -232,12 +258,25 @@ public class StateTransitionMap implements TransitionIndex<State, Message, State
      */
     @Override
     public Collection<StateTransition> getTransitions(String stateName) {
+        State state = find(stateName).orElseThrow(() -> new NullStateException("State [" + stateName + "] not found"));
+        return getTransitions(state);
+    }
 
-        State origin = find(stateName).orElseThrow(() -> new NullStateException("State [" + stateName + "] not found"));
-        Map<Message, State> messageStateMap = transitionMap.get(origin);
+    /**
+     * Retrieves the transitions from the given state
+     * or throws a {@link NullStateException}
+     * if not found.
+     * @param state the state
+     *
+     * @return the transitions
+     */
+    @Override
+    public Collection<StateTransition> getTransitions(State state) {
+
+        Map<Message, State> messageStateMap = transitionMap.get(state);
 
         return messageStateMap.keySet().stream()
-                     .map(message -> new StateTransition(origin, message, messageStateMap.get(message)))
+                     .map(message -> new StateTransition(state, message, messageStateMap.get(message)))
                      .collect(Collectors.toList());
     }
 

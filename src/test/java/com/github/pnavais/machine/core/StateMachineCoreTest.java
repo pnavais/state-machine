@@ -18,22 +18,27 @@ package com.github.pnavais.machine.core;
 
 import com.github.pnavais.machine.AbstractStateMachineTest;
 import com.github.pnavais.machine.StateMachine;
+import com.github.pnavais.machine.api.AbstractNode;
 import com.github.pnavais.machine.model.State;
 import com.github.pnavais.machine.model.StateTransition;
 import com.github.pnavais.machine.model.StringMessage;
-import com.github.pnavais.machine.utils.StateTransitionUtils;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit test for State Machine core functionality
  */
-public class StateMachineTest extends AbstractStateMachineTest {
+public class StateMachineCoreTest extends AbstractStateMachineTest {
 
     @Test
     public void testStateMachineAdd() {
@@ -77,8 +82,6 @@ public class StateMachineTest extends AbstractStateMachineTest {
         assertEquals("A", machine.getTransitions("A").iterator().next().getOrigin().getName(), "Transition origin retrieval mismatch");
         assertEquals("C", machine.getTransitions("A").iterator().next().getTarget().getName(), "Transition target retrieval mismatch");
         assertEquals("1", machine.getTransitions("A").iterator().next().getMessage().getPayload().get(), "Transition message retrieval mismatch");
-
-        //TODO: Add functionality to remove orphan states
     }
 
     @Test
@@ -122,23 +125,62 @@ public class StateMachineTest extends AbstractStateMachineTest {
     public void testStateMachineRemoveOrphans() {
         StateMachine machine = new StateMachine();
 
-        machine.add(new StateTransition(new State("A"), new StringMessage("1"), new State("B")));
+        machine.add(new StateTransition(new State("A"), new StringMessage("1b"), new State("B")));
+        machine.add(new StateTransition(new State("A"), new StringMessage("1c"), new State("C")));
         machine.add(new StateTransition(new State("B"), new StringMessage("2"), new State("C")));
+        machine.add(new StateTransition(new State("D"), new StringMessage("3"), new State("E")));
+        machine.add(new StateTransition(new State("D"), new StringMessage("4"), new State("F")));
 
-        StateTransitionUtils.printShortTransitions(machine.getTransitionsIndex());
+        getStatePrinterBuilder()
+                .compactMode(true)
+                .build().printTransitions(machine.getTransitionsIndex());
 
-        assertEquals(3, machine.size(), "Error building state machine");
+        assertEquals(6, machine.size(), "Error building state machine");
+        machine.remove("D");
 
-        AtomicInteger counter = new AtomicInteger(3);
-        Arrays.asList("A", "B", "C" ).forEach(s -> {
-            Optional<State> sFound = machine.find(s);
-            assertTrue(sFound.isPresent(), "Error retrieving state");
-            assertEquals(s, sFound.get().getName(), "Error retrieving state");
+        getStatePrinterBuilder()
+                .compactMode(true)
+                .title("After removing D")
+                .build().printTransitions(machine.getTransitionsIndex());
 
-            machine.remove(s);
-            assertEquals(counter.decrementAndGet(), machine.size(), "Error removing state");
-        });
+        assertEquals(5, machine.size(), "Error removing state");
+        List<State> orphanStates = machine.prune();
+
+        getStatePrinterBuilder()
+                .compactMode(true)
+                .title("After pruning")
+                .build().printTransitions(machine.getTransitionsIndex());
+
+        assertNotNull(orphanStates, "Error obtaining orphan states");
+        assertThat("Orphan states size mismatch", orphanStates.size(), is(2));
+        List<String> stateNames = orphanStates.stream().map(AbstractNode::getName).collect(Collectors.toList());
+        assertThat(stateNames, containsInAnyOrder("E", "F" ));
+
+        assertEquals(3, machine.size(), "Error removing orphan state");
+
+        machine.remove("B");
+
+        assertEquals(2, machine.size(), "Error removing state");
+        orphanStates = machine.prune();
+        assertNotNull(orphanStates, "Error obtaining orphan states");
+        assertThat("Orphan states size mismatch", orphanStates.size(), is(0));
+        assertEquals(2, machine.size(), "Error removing state");
+
+        getStatePrinterBuilder()
+                .compactMode(true)
+                .title("After removing B and pruning")
+                .build().printTransitions(machine.getTransitionsIndex());
+
+        machine.remove("A");
+        assertEquals(1, machine.size(), "Error removing state");
+        orphanStates = machine.prune();
+        assertNotNull(orphanStates, "Error obtaining orphan states");
+        assertThat("Orphan states size mismatch", orphanStates.size(), is(1));
+        assertThat("Orphan states size mismatch", orphanStates.get(0).getName(), is("C"));
+        assertEquals(0, machine.size(), "Error removing state");
+
     }
+
 
     @Test
     public void testStateMachineRemoveStateCascade() {

@@ -15,21 +15,76 @@
  */
 package com.github.pnavais.machine.model;
 
-import lombok.ToString;
-
 /**
  * The default implementation of the state
  */
-@ToString(callSuper = true)
 public class State extends AbstractState {
 
-     /**
+    /**
      * Constructor with node name
      *
      * @param name the name of the node
      */
     public State(String name) {
         super(name);
+    }
+
+    /**
+     * Static factory method to create the State
+     *
+     * @param name the name of the state
+     * @return the state builder
+     */
+    public static StateBuilder from(String name) {
+        return new StateBuilder().named(name);
+    }
+
+    /**
+     * A basic State builder
+     */
+    public static class StateBuilder {
+
+        /**
+         * The State instance to build
+         */
+        private State instance;
+
+        /**
+         * Instantiates a new State builder.
+         */
+        public StateBuilder() {
+        }
+
+        /**
+         * Named state builder.
+         *
+         * @param name the name
+         * @return the state builder
+         */
+        public StateBuilder named(String name) {
+            this.instance = new State(name);
+            return this;
+        }
+
+        /**
+         * Sets the final state
+         *
+         * @param finalState the final state
+         * @return the state builder
+         */
+        public StateBuilder isFinal(boolean finalState) {
+            this.instance.setFinal(finalState);
+            return this;
+        }
+
+        /**
+         * Retrieves the built instance
+         *
+         * @return the instance
+         */
+        public State build() {
+            return this.instance;
+        }
     }
 
 }
