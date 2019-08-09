@@ -13,36 +13,21 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.github.pnavais.machine.api;
 
-import lombok.*;
+package com.github.pnavais.machine.api.exception;
 
 /**
- * A generic contract allowing to identify
- * the target destination after processing
- * the message.
- *
- * @param <N> the type of nodes of the transition
+ * A generic exception raised when dealing with incorrect validation results
  */
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
-public abstract class Transition<N extends Node, M extends Message> {
+public class ValidationException extends RuntimeException {
 
     /**
-     * The source node of the transition
+     * Creates the exception using the given message
+     * description.
+     *
+     * @param message the message description
      */
-    private N origin;
-
-    /**
-     * The Message triggering the transition
-     */
-    private M message;
-
-    /**
-     * The target node of the transition
-     */
-    private N target;
-
+    public ValidationException(String message) {
+        super(message);
+    }
 }

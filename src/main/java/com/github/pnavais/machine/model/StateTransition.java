@@ -23,7 +23,7 @@ import com.github.pnavais.machine.api.exception.TransitionInitializationExceptio
 /**
  * Represents a simple transition between states
  */
-public class StateTransition implements Transition<State, Message> {
+public class StateTransition extends Transition<State, Message> {
 
     /** The origin of the transition */
     private final State source;

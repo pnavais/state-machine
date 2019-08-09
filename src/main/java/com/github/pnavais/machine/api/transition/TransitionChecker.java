@@ -25,7 +25,7 @@ import com.github.pnavais.machine.api.Transition;
  * The transition checker acts a validator that is used
  * by a given State Machine to allow/deny a given transition.
  */
-public interface TransitionChecker<N extends Node, M extends Message, T extends Transition<N,M>> {
+public interface TransitionChecker<N extends Node, M extends Message, T extends Transition<N, M>> {
 
     /**
      * Validates the departure from the current state upon reception
@@ -49,4 +49,5 @@ public interface TransitionChecker<N extends Node, M extends Message, T extends 
      * @return the status of the operation
      */
     Status validateArrival(TransitionIndex<N, M, T> transitionsIndex, M m, N targetState);
+
 }

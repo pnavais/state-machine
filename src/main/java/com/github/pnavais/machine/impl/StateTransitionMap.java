@@ -15,17 +15,17 @@
  */
 package com.github.pnavais.machine.impl;
 
-import com.github.pnavais.machine.api.Transition;
-import com.github.pnavais.machine.model.State;
 import com.github.pnavais.machine.api.Message;
-import com.github.pnavais.machine.api.transition.TransitionIndex;
 import com.github.pnavais.machine.api.exception.NullStateException;
-import com.github.pnavais.machine.api.exception.NullTransitionException;
+import com.github.pnavais.machine.api.transition.TransitionIndex;
+import com.github.pnavais.machine.api.validator.TransitionValidator;
+import com.github.pnavais.machine.model.State;
 import com.github.pnavais.machine.model.StateTransition;
 import lombok.Getter;
 import lombok.NonNull;
 
 import java.util.*;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
@@ -79,10 +79,44 @@ public class StateTransitionMap implements TransitionIndex<State, Message, State
     private Map<State, Map<Message, State>> transitionMap;
 
     /**
+     * The transition validator
+     */
+    private TransitionValidator<State, Message, StateTransition> transitionValidator;
+
+    /**
      * Creates the state machine.
      */
     public StateTransitionMap() {
-        this.transitionMap = new LinkedHashMap<>();
+        this(new StateTransitionValidator());
+    }
+
+    /**
+     * Creates the state machine with a given transition map.
+     *
+     * @param transitionMap the transition map
+     */
+    public StateTransitionMap(@NonNull Map<State, Map<Message, State>> transitionMap) {
+        this(transitionMap, new StateTransitionValidator());
+    }
+
+    /**
+     * Creates the state machine with a custom transition validator.
+     *
+     * @param transitionValidator transition validator
+     */
+    public StateTransitionMap(@NonNull TransitionValidator<State, Message, StateTransition> transitionValidator) {
+        this(new LinkedHashMap<>(), transitionValidator);
+    }
+
+    /**
+     * Creates the state machine with a custom transition map
+     * and validator.
+     * @param transitionMap the transition map
+     * @param transitionValidator transition validator
+     */
+    public StateTransitionMap(@NonNull Map<State, Map<Message, State>> transitionMap, @NonNull TransitionValidator<State, Message, StateTransition> transitionValidator) {
+        this.transitionMap = transitionMap;
+        this.transitionValidator = transitionValidator;
     }
 
     /**
@@ -96,7 +130,7 @@ public class StateTransitionMap implements TransitionIndex<State, Message, State
      */
     @Override
     public void add(StateTransition transition) {
-        Transition.validate(transition);
+        transitionValidator.validate(transition, this, TransitionValidator.Operation.ADD).throwOnFailure();
 
         // Retrieve the current transitions mapping
         Map<Message, State> messageStateMap = Optional.ofNullable(transitionMap.get(transition.getOrigin())).orElse(new LinkedHashMap<>());
@@ -124,10 +158,20 @@ public class StateTransitionMap implements TransitionIndex<State, Message, State
      */
     @Override
     public void remove(StateTransition transition) {
-        Transition.validate(transition, transitionMap);
+        transitionValidator.validate(transition, this, TransitionValidator.Operation.REMOVE).throwOnFailure();
 
         // Update the current transitions mapping
         Optional.ofNullable(transitionMap.get(transition.getOrigin())).ifPresent(m -> m.remove(transition.getMessage()));
+    }
+
+    /**
+     * Creates a transition exception for the given state.
+     *
+     * @param stateName the state name
+     * @return the transition exception
+     */
+    private Supplier<NullStateException> getNullTransitionException(@NonNull String stateName) {
+        return () -> new NullStateException("State [" + stateName + "] not found");
     }
 
     /**
@@ -141,7 +185,7 @@ public class StateTransitionMap implements TransitionIndex<State, Message, State
 
         // Remove transition mappings
         Map<Message, State> messageStateMap = Optional.ofNullable(transitionMap.get(state))
-                .orElseThrow(() -> new NullTransitionException("State [" + state + "] does not exist"));
+                .orElseThrow(getNullTransitionException(state.getName()));
         messageStateMap.clear();
 
         // Remove state
@@ -159,7 +203,7 @@ public class StateTransitionMap implements TransitionIndex<State, Message, State
      */
     @Override
     public void remove(@NonNull String stateName) {
-        State state = find(stateName).orElseThrow(() -> new NullStateException("State [" + stateName + "] not found"));
+        State state = find(stateName).orElseThrow(getNullTransitionException(stateName));
         remove(state);
     }
 
@@ -258,7 +302,7 @@ public class StateTransitionMap implements TransitionIndex<State, Message, State
      */
     @Override
     public Collection<StateTransition> getTransitions(String stateName) {
-        State state = find(stateName).orElseThrow(() -> new NullStateException("State [" + stateName + "] not found"));
+        State state = find(stateName).orElseThrow(getNullTransitionException(stateName));
         return getTransitions(state);
     }
 
