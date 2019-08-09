@@ -18,6 +18,7 @@ package com.github.pnavais.machine.api.transition;
 import com.github.pnavais.machine.api.Message;
 import com.github.pnavais.machine.api.Node;
 import com.github.pnavais.machine.api.Transition;
+import lombok.NonNull;
 
 import java.util.Collection;
 import java.util.List;
@@ -39,6 +40,12 @@ public interface TransitionIndex<N extends Node, M extends Message, T extends Tr
      * @param transition the transition to add
      */
     void add(T transition);
+
+    /**
+     * Adds all supplied transitions to the index.
+     * @param transitions the transitions to add
+     */
+    void addAll(@NonNull Collection<T> transitions);
 
     /**
      * Removes an existing transition from the index
@@ -130,10 +137,18 @@ public interface TransitionIndex<N extends Node, M extends Message, T extends Tr
     Collection<T> getTransitions(String name);
 
     /**
+     * Retrieve all transitions stored in the index.
+     *
+     * @return all transitions currently stored in the index
+     */
+    Collection<T> getAllTransitions();
+
+    /**
      * Retrieves the transitions as a map
      *
      * @return the transition as a map
      */
      Map<N, Map<M, N>> getTransitionsAsMap();
+
 
 }

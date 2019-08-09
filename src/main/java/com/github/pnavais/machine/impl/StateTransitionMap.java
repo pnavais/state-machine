@@ -333,4 +333,29 @@ public class StateTransitionMap implements TransitionIndex<State, Message, State
     public Map<State, Map<Message, State>> getTransitionsAsMap() {
         return transitionMap;
     }
+
+    /**
+     * Retrieve all the transitions stored in the transition map.
+     *
+     * @return the collection of transitions
+     */
+    @Override
+    public Collection<StateTransition> getAllTransitions() {
+        Collection<StateTransition> transitions = new ArrayList<>();
+        transitionMap.keySet().forEach(state -> {
+            transitionMap.get(state).keySet().stream().map(
+                    message -> new StateTransition(state, message, transitionMap.get(state).get(message))
+            ).forEachOrdered(transitions::add);
+        });
+        return transitions;
+    }
+
+    /**
+     * Adds all supplied transitions to the index.
+     * @param transitions the transitions to add
+     */
+    @Override
+    public void addAll(@NonNull Collection<StateTransition> transitions) {
+        transitions.forEach(this::add);
+    }
 }

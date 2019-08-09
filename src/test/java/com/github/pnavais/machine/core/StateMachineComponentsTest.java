@@ -97,6 +97,42 @@ public class StateMachineComponentsTest extends AbstractStateMachineTest {
     }
 
     @Test
+    public void testStateTransitionMapFromExistingMap() {
+        StateTransitionMap transitionMap = new StateTransitionMap();
+        transitionMap.add(new StateTransition("A", StringMessage.from("1"), "B"));
+        transitionMap.add(new StateTransition("B", StringMessage.from("2"), "C"));
+
+        StateTransitionMap transitionMapTarget = new StateTransitionMap(transitionMap.getTransitionMap());
+
+        assertNotNull(transitionMapTarget.getTransitionMap(), "Error initializing state transition map");
+        assertThat(transitionMapTarget.getTransitionMap().size(), is(3));
+        Arrays.asList("A", "B", "C").forEach(s -> {
+            Optional<State> state = transitionMapTarget.find(s);
+            assertTrue(state.isPresent(), "Error retrieving state");
+            assertThat("State retrieved mismatch", state.get().getName(), is(s));
+        });
+    }
+
+    @Test
+    public void testStateTransitionMapWithValidator() {
+        StateTransitionMap transitionMap = new StateTransitionMap();
+        transitionMap.add(new StateTransition("A", StringMessage.from("1"), "B"));
+        transitionMap.add(new StateTransition("B", StringMessage.from("2"), "C"));
+
+        StateTransitionMap transitionMapTarget = new StateTransitionMap(transitionMap.getTransitionValidator());
+        transitionMapTarget.addAll(transitionMap.getAllTransitions());
+
+
+        assertNotNull(transitionMapTarget.getTransitionMap(), "Error initializing state transition map");
+        assertThat(transitionMapTarget.getTransitionMap().size(), is(3));
+        Arrays.asList("A", "B", "C").forEach(s -> {
+            Optional<State> state = transitionMapTarget.find(s);
+            assertTrue(state.isPresent(), "Error retrieving state");
+            assertThat("State retrieved mismatch", state.get().getName(), is(s));
+        });
+    }
+
+    @Test
     public void testStateTransitionMapRemovalByState() {
         StateTransitionMap transitionMap = new StateTransitionMap();
         transitionMap.add(new StateTransition("A", StringMessage.from("1"), "B"));

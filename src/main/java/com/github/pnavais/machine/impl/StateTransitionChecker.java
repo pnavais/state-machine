@@ -18,14 +18,12 @@ package com.github.pnavais.machine.impl;
 
 import com.github.pnavais.machine.api.Message;
 import com.github.pnavais.machine.api.Status;
-import com.github.pnavais.machine.api.Transition;
 import com.github.pnavais.machine.api.transition.TransitionChecker;
 import com.github.pnavais.machine.api.transition.TransitionIndex;
 import com.github.pnavais.machine.model.FilteredState;
 import com.github.pnavais.machine.model.State;
 import com.github.pnavais.machine.model.StateTransition;
 
-import java.util.Collection;
 import java.util.Optional;
 
 /**
@@ -76,23 +74,4 @@ public class StateTransitionChecker implements TransitionChecker<State, Message,
                 : Status.PROCEED;
     }
 
-
-
-
-    /*static <N extends Node, M extends Message> void validate(Transition<N, M> transition, Map<N, Map<M, N>> transitionMap) {
-
-
-
-
-        boolean found = false;
-        Map<M, N> transitionsFound = transitionMap.get(transition.getOrigin());
-        if (transitionsFound != null) {
-            N target = transitionsFound.get(transition.getMessage());
-            found = transition.getTarget().equals(target);
-        }
-
-        if (!found) {
-            throw new IllegalTransitionException("Cannot find transition [" + transition.getOrigin() + " -> " + transition.getTarget() + "]");
-        }
-    }*/
 }
