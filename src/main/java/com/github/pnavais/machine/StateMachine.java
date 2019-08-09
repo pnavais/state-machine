@@ -26,6 +26,7 @@ import com.github.pnavais.machine.impl.StateTransitionChecker;
 import com.github.pnavais.machine.impl.StateTransitionMap;
 import com.github.pnavais.machine.model.State;
 import com.github.pnavais.machine.model.StateTransition;
+import com.github.pnavais.machine.model.StringMessage;
 import lombok.NonNull;
 
 import java.util.Collection;
@@ -233,6 +234,30 @@ public class StateMachine implements Transitioner<State, Message, StateTransitio
     }
 
     /**
+     * Sends a message to the state machine triggering
+     * a potential transition.
+     *
+     * @param message a string message
+     * @return the state machine for chaining purposes
+     */
+    public StateMachine send(String message) {
+        return send(StringMessage.from(message));
+    }
+
+    /**
+     * Sends a message to the state machine triggering
+     * a potential transition.
+     *
+     * @param message the message
+     * @return the state machine for chaining purposes
+     */
+    @Override
+    public StateMachine send(Message message) {
+        getNext(message);
+        return this;
+    }
+
+    /**
      * Retrieves the number of states currently
      * present in the state machine.
      *
@@ -273,4 +298,5 @@ public class StateMachine implements Transitioner<State, Message, StateTransitio
     public List<State> prune() {
         return transitionsIndex.prune();
     }
+
 }

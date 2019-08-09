@@ -19,6 +19,8 @@ package com.github.pnavais.machine.core;
 import com.github.pnavais.machine.AbstractStateMachineTest;
 import com.github.pnavais.machine.StateMachine;
 import com.github.pnavais.machine.api.AbstractNode;
+import com.github.pnavais.machine.api.Message;
+import com.github.pnavais.machine.api.exception.TransitionInitializationException;
 import com.github.pnavais.machine.model.State;
 import com.github.pnavais.machine.model.StateTransition;
 import com.github.pnavais.machine.model.StringMessage;
@@ -40,7 +42,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public class StateMachineCoreTest extends AbstractStateMachineTest {
 
-    @Test
+   @Test
     public void testStateMachineAdd() {
         StateMachine machine = new StateMachine();
 
@@ -52,6 +54,14 @@ public class StateMachineCoreTest extends AbstractStateMachineTest {
         assertEquals("A", machine.getTransitions("A").iterator().next().getOrigin().getName(), "Transition origin retrieval mismatch");
         assertEquals("B", machine.getTransitions("A").iterator().next().getTarget().getName(), "Transition target retrieval mismatch");
         assertEquals("1", machine.getTransitions("A").iterator().next().getMessage().getPayload().get(), "Transition message retrieval mismatch");
+    }
+
+    @Test
+    public void testStateMachineWrongAdd() {
+        StateMachine machine = new StateMachine();
+        expectWrongTransitionAndCheck(null, StringMessage.from("1"), new State("B"), machine);
+        expectWrongTransitionAndCheck(new State("A"), null, new State("B"), machine);
+        expectWrongTransitionAndCheck(new State("A"), StringMessage.from("1"), null, machine);
     }
 
     @Test
@@ -205,5 +215,22 @@ public class StateMachineCoreTest extends AbstractStateMachineTest {
         assertEquals(0, machine.getTransitions("A").size(), "Error retrieving transitions");
     }
 
+
+    /**
+     * Expect wrong transition and check that the initialization
+     * was not correct
+     *
+     * @param source  the source state
+     * @param message the message
+     * @param target  the target state
+     */
+    private void expectWrongTransitionAndCheck(State source, Message message, State target, StateMachine stateMachine) {
+        try {
+            stateMachine.add(new StateTransition(source, message, target));
+            fail("State Machine initialization mismatch");
+        } catch (Exception e) {
+            assertTrue(e instanceof TransitionInitializationException, "Exception mismatch");
+        }
+    }
 
 }

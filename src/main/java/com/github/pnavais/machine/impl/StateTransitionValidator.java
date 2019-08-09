@@ -20,6 +20,7 @@ import com.github.pnavais.machine.api.Message;
 import com.github.pnavais.machine.api.Transition;
 import com.github.pnavais.machine.api.exception.IllegalTransitionException;
 import com.github.pnavais.machine.api.exception.NullTransitionException;
+import com.github.pnavais.machine.api.exception.TransitionInitializationException;
 import com.github.pnavais.machine.api.transition.TransitionIndex;
 import com.github.pnavais.machine.api.validator.TransitionValidator;
 import com.github.pnavais.machine.api.validator.ValidationResult;
@@ -74,16 +75,19 @@ public class StateTransitionValidator implements TransitionValidator<State, Mess
      */
     private ValidationResult validateTransition(Transition<State, Message> transition) {
         ValidationResult.ValidationResultBuilder builder = ValidationResult.builder();
+
         if (transition == null) {
             builder.exception(new NullTransitionException("The transition cannot be null"));
-        } else if (transition.getOrigin() == null) {
-            builder.exception(new IllegalTransitionException("The transition source cannot be null"));
-        } else if (transition.getTarget() == null) {
-            builder.exception(new IllegalTransitionException("The transition target cannot be null"));
-        } else if (transition.getMessage() == null) {
-            builder.exception( new IllegalTransitionException("The transition message cannot be null"));
         } else {
-            builder.valid(true);
+            if (transition.getOrigin() == null || transition.getMessage() == null || transition.getTarget() == null) {
+                builder.exception(new TransitionInitializationException("Cannot create transitions with null components"));
+            } else {
+                if (transition.getOrigin().isFinal()) {
+                    builder.exception(new TransitionInitializationException("Cannot create transition from final state ["+transition.getOrigin().getName()+"]"));
+                } else {
+                    builder.valid(true);
+                }
+            }
         }
         return builder.build();
     }

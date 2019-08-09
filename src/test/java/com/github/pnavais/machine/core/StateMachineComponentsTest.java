@@ -52,13 +52,6 @@ public class StateMachineComponentsTest extends AbstractStateMachineTest {
     }
 
     @Test
-    public void testTransitionInitializationFail() {
-        expectWrongTransitionAndCheck(null, new StringMessage("1"), new State("B"));
-        expectWrongTransitionAndCheck(new State("A"), null, new State("B"));
-        expectWrongTransitionAndCheck(new State("A"), new StringMessage("1"), null);
-    }
-
-    @Test
     public void testStateAddToFinalState() {
         StateMachine machine = new StateMachine();
 
@@ -95,6 +88,7 @@ public class StateMachineComponentsTest extends AbstractStateMachineTest {
             assertThat("State retrieved mismatch", state.get().getName(), is(s));
         });
     }
+
 
     @Test
     public void testStateTransitionMapFromExistingMap() {
@@ -214,6 +208,5 @@ public class StateMachineComponentsTest extends AbstractStateMachineTest {
             assertTrue(e instanceof TransitionInitializationException, "Exception mismatch");
         }
     }
-
 
 }

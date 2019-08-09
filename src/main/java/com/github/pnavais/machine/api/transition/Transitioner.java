@@ -102,7 +102,16 @@ public interface Transitioner<N extends Node, M extends Message, T extends Trans
      * @param m the message
      * @return the next node
      */
-    Optional<N> getNext(Message m);
+    Optional<N> getNext(M m);
+
+    /**
+     * Sends a message to the state machine triggering
+     * a potential transition.
+     *
+     * @param message the message
+     * @return the state machine for chaining purposes
+     */
+    Transitioner<N, M, T> send(M message);
 
     /**
      * Retrieves the number of nodes currently

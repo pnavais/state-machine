@@ -18,65 +18,36 @@ package com.github.pnavais.machine.model;
 
 import com.github.pnavais.machine.api.Message;
 import com.github.pnavais.machine.api.Transition;
-import com.github.pnavais.machine.api.exception.TransitionInitializationException;
+import lombok.Getter;
 
 /**
  * Represents a simple transition between states
  */
+@Getter
 public class StateTransition extends Transition<State, Message> {
-
-    /** The origin of the transition */
-    private final State source;
-
-    /** The message received on the origin state */
-    private final Message message;
-
-    /** The target destination upon message processing */
-    private final State target;
-
-    /**
-     * Creates a new state transition with the given
-     * origin and destination state names after applying the message.
-     *
-     * @param source the origin state
-     * @param message the message
-     * @param target the destination state
-     */
-    public StateTransition(String source, Message message, String target) {
-        this(State.from(source).build(), message, State.from(target).build());
-    }
 
     /**
      * Creates a new state transition with the given
      * origin and destination states after applying the message.
      *
-     * @param source the origin state
+     * @param origin the origin state
      * @param message the message
      * @param target the destination state
      */
-    public StateTransition(State source, Message message, State target) {
-
-        if (source == null || message == null|| target == null) {
-            throw new TransitionInitializationException("Cannot create transitions with null components");
-        }
-        if (source.isFinal()) {
-            throw new TransitionInitializationException("Cannot create transition from final state ["+source.getName()+"]");
-        }
-        this.source = source;
-        this.message = message;
-        this.target = target;
+    public StateTransition(State origin, Message message, State target) {
+        super(origin, message, target);
     }
 
-    @Override
-    public Message getMessage() {
-        return message;
+    /**
+     * Creates a new state transition with the given
+     * origin and destination state names after applying the message.
+     *
+     * @param origin the origin state
+     * @param message the message
+     * @param target the destination state
+     */
+    public StateTransition(String origin, Message message, String target) {
+        super(State.from(origin).build(), message, State.from(target).build());
     }
 
-    @Override
-    public State getOrigin() { return source; }
-
-    @Override
-    public State getTarget() {
-        return target;
-    }
 }

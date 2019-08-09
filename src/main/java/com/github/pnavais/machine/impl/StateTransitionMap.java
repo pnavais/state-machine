@@ -342,11 +342,10 @@ public class StateTransitionMap implements TransitionIndex<State, Message, State
     @Override
     public Collection<StateTransition> getAllTransitions() {
         Collection<StateTransition> transitions = new ArrayList<>();
-        transitionMap.keySet().forEach(state -> {
-            transitionMap.get(state).keySet().stream().map(
-                    message -> new StateTransition(state, message, transitionMap.get(state).get(message))
-            ).forEachOrdered(transitions::add);
-        });
+        transitionMap.keySet().forEach(state ->
+                transitionMap.get(state).keySet().stream()
+                        .map(message -> new StateTransition(state, message, transitionMap.get(state).get(message))
+        ).forEachOrdered(transitions::add));
         return transitions;
     }
 

@@ -95,6 +95,16 @@ public class StateMachineTraversalTest extends AbstractStateMachineTest {
         assertThat("Error retrieving next state", next.get().getName(), is("E"));
     }
 
+    @Test
+    public void testCompleteStateTraversal() {
+        StateMachine machine = createStateMachine();
+        machine.init();
+        State current = machine.send("1b").send("2").getCurrent();
+        assertNotNull(current, "Error retrieving current state");
+        assertThat("Error retrieving", current.getName(), is("C"));
+        assertTrue(current.isFinal(), "Error retrieving last state");
+    }
+
     /**
      * Creates a state Machine for test purposes
      * with the following transitions :
@@ -119,7 +129,7 @@ public class StateMachineTraversalTest extends AbstractStateMachineTest {
         StateMachine machine = new StateMachine();
 
         machine.add(new StateTransition(new State("A"), new StringMessage("1b"), new State("B")));
-        machine.add(new StateTransition(new State("A"), new StringMessage("1c"), new State("C")));
+        machine.add(new StateTransition(new State("A"), new StringMessage("1c"), State.from("C").isFinal(true).build()));
         machine.add(new StateTransition(new State("B"), new StringMessage("2"), new State("C")));
         machine.add(new StateTransition(new State("D"), new StringMessage("3"), State.from("E").isFinal(true).build()));
 

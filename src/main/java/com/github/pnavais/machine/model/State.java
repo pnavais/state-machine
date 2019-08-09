@@ -50,12 +50,6 @@ public class State extends AbstractState {
         private State instance;
 
         /**
-         * Instantiates a new State builder.
-         */
-        public StateBuilder() {
-        }
-
-        /**
          * Named state builder.
          *
          * @param name the name
