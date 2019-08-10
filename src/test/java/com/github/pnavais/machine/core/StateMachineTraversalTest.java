@@ -125,7 +125,8 @@ public class StateMachineTraversalTest extends AbstractStateMachineTest {
      *
      * @return the test state machine
      */
-    private StateMachine createStateMachine() {
+    @Override
+    protected StateMachine createStateMachine() {
         StateMachine machine = new StateMachine();
 
         machine.add(new StateTransition(new State("A"), new StringMessage("1b"), new State("B")));

@@ -85,4 +85,9 @@ public class StringMessage implements Message {
     public int hashCode() {
         return Objects.hash(messageKey);
     }
+
+    @Override
+    public String toString() {
+        return messageKey;
+    }
 }

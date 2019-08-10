@@ -35,6 +35,9 @@ public interface TransitionValidator<N extends Node, M extends Message, T extend
     /** The possible transition operations */
     enum Operation { ADD, REMOVE }
 
+    /** The failure policy */
+    enum FailurePolicy { THROW_ON_FAILURE, PROCEED, IGNORE }
+
     /**
      * Checks the transition parameter correctness
      * with respect to current transitions on the given
@@ -44,5 +47,15 @@ public interface TransitionValidator<N extends Node, M extends Message, T extend
      * @param transitionIndex the transition index
      * @param operation the operation to accomplish
      */
-    ValidationResult validate(Transition<N, M> transition, TransitionIndex<N, M, T> transitionIndex, Operation operation);
+    ValidationResult validate(T transition, TransitionIndex<N,M,T> transitionIndex, Operation operation);
+
+    /**
+     * Retrieves the failure policy.
+     * By default, throw an exception when
+     * validation failed.
+     * @return the failure policy
+     */
+    default FailurePolicy getFailurePolicy() {
+        return FailurePolicy.THROW_ON_FAILURE;
+    }
 }

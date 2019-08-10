@@ -18,6 +18,7 @@ package com.github.pnavais.machine;
 import com.github.pnavais.machine.api.Message;
 import com.github.pnavais.machine.model.State;
 import com.github.pnavais.machine.model.StateTransition;
+import com.github.pnavais.machine.model.StringMessage;
 import com.github.pnavais.machine.utils.StateTransitionPrintOptions;
 import com.github.pnavais.machine.utils.StateTransitionPrinter;
 import org.junit.jupiter.api.BeforeAll;
@@ -34,7 +35,7 @@ public abstract class AbstractStateMachineTest {
     private static StateTransitionPrinter<State, Message, StateTransition> statePrinter;
 
     @BeforeAll
-    public static void init() {
+    protected static void init() {
         statePrinterOptions = StateTransitionPrintOptions.builder()
                 .stateFormatter(s -> s.getName()+" ["+s.getId()+"]")
                 .build().fillDefaults();
@@ -47,7 +48,7 @@ public abstract class AbstractStateMachineTest {
      *
      * @return the state printer options
      */
-    public static StateTransitionPrintOptions<State,Message> getStatePrinterOptions() {
+    protected static StateTransitionPrintOptions<State,Message> getStatePrinterOptions() {
         return statePrinterOptions;
     }
 
@@ -56,7 +57,7 @@ public abstract class AbstractStateMachineTest {
      *
      * @return the state transitions printer builder
      */
-    public static StateTransitionPrinter.StateTransitionPrinterBuilder<State, Message, StateTransition> getStatePrinterBuilder() {
+    protected static StateTransitionPrinter.StateTransitionPrinterBuilder<State, Message, StateTransition> getStatePrinterBuilder() {
          return StateTransitionPrinter.builder();
     }
 
@@ -65,7 +66,39 @@ public abstract class AbstractStateMachineTest {
      *
      * @return the state transitions printer
      */
-    public static StateTransitionPrinter<State, Message, StateTransition> getStatePrinter() {
+    protected static StateTransitionPrinter<State, Message, StateTransition> getStatePrinter() {
         return statePrinter;
+    }
+
+
+    /**
+     * Retrieves a simple State Machine with the following transitions :
+     *  +--------+---------+--------+
+     *  | Source | Message | Target |
+     *  +--------+---------+--------+
+     *  |   A    |    1    |   B    |
+     *  +--------+---------+--------+
+     *  |   B    |    2    |   C    |
+     *  +--------+---------+--------+
+     *
+     *  Which is equivalent to :
+     *  +--------+------------+
+     *  | Source |   Target   |
+     *  +--------+------------+
+     *  |   A    | [ 1 -> B ] |
+     *  +--------+------------+
+     *  |   B    | [ 2 -> C ] |
+     *  +--------+------------+
+     *  |   C    |     []     |
+     *  +--------+------------+
+     *
+     * @return the test state machine
+     */
+    protected StateMachine createStateMachine() {
+        StateMachine machine = new StateMachine();
+
+        machine.add(new StateTransition(new State("A"), new StringMessage("1"), new State("B")));
+        machine.add(new StateTransition(new State("B"), new StringMessage("2"), new State("C")));
+        return machine;
     }
 }

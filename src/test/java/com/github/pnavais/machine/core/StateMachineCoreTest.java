@@ -27,6 +27,7 @@ import com.github.pnavais.machine.model.StringMessage;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -43,7 +44,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class StateMachineCoreTest extends AbstractStateMachineTest {
 
    @Test
-    public void testStateMachineAdd() {
+    public void testAddingStates() {
         StateMachine machine = new StateMachine();
 
         machine.add(new StateTransition(new State("A"), new StringMessage("1"), new State("B")));
@@ -57,7 +58,7 @@ public class StateMachineCoreTest extends AbstractStateMachineTest {
     }
 
     @Test
-    public void testStateMachineWrongAdd() {
+    public void testWrongStateAdd() {
         StateMachine machine = new StateMachine();
         expectWrongTransitionAndCheck(null, StringMessage.from("1"), new State("B"), machine);
         expectWrongTransitionAndCheck(new State("A"), null, new State("B"), machine);
@@ -65,7 +66,7 @@ public class StateMachineCoreTest extends AbstractStateMachineTest {
     }
 
     @Test
-    public void testStateMachineDuplicateAdd() {
+    public void tesDuplicateAdd() {
         StateMachine machine = new StateMachine();
 
         machine.add(new StateTransition(new State("A"), new StringMessage("1"), new State("B")));
@@ -80,7 +81,7 @@ public class StateMachineCoreTest extends AbstractStateMachineTest {
     }
 
     @Test
-    public void testStateMachineOverrideTransitionOnAdd() {
+    public void testOverrideTransitionOnAdd() {
         StateMachine machine = new StateMachine();
 
         machine.add(new StateTransition(new State("A"), new StringMessage("1"), new State("B")));
@@ -95,11 +96,8 @@ public class StateMachineCoreTest extends AbstractStateMachineTest {
     }
 
     @Test
-    public void testStateMachineFindTransition() {
-        StateMachine machine = new StateMachine();
-
-        machine.add(new StateTransition(new State("A"), new StringMessage("1"), new State("B")));
-        machine.add(new StateTransition(new State("B"), new StringMessage("1"), new State("C")));
+    public void testFindTransition() {
+        StateMachine machine = createStateMachine();
 
         assertEquals(3, machine.size(), "Error building state machine");
         assertNotNull(machine.getTransitions("A"), "Error retrieving transitions");
@@ -112,11 +110,8 @@ public class StateMachineCoreTest extends AbstractStateMachineTest {
     }
 
     @Test
-    public void testStateMachineRemoveState() {
-        StateMachine machine = new StateMachine();
-
-        machine.add(new StateTransition(new State("A"), new StringMessage("1"), new State("B")));
-        machine.add(new StateTransition(new State("B"), new StringMessage("2"), new State("C")));
+    public void testRemoveStateByName() {
+        StateMachine machine = createStateMachine();
 
         assertEquals(3, machine.size(), "Error building state machine");
 
@@ -129,10 +124,41 @@ public class StateMachineCoreTest extends AbstractStateMachineTest {
             machine.remove(s);
             assertEquals(counter.decrementAndGet(), machine.size(), "Error removing state");
         });
+
+        assertEquals(0, machine.size(), "Error building state machine");
     }
 
     @Test
-    public void testStateMachineRemoveOrphans() {
+    public void testRemoveStates() {
+        StateMachine machine = createStateMachine();
+        assertEquals(3, machine.size(), "Error building state machine");
+
+        AtomicInteger counter = new AtomicInteger(3);
+        Arrays.asList(State.from("A").build(), State.from("B").build(), State.from("C" ).build()).forEach(s -> {
+            machine.remove(s);
+            assertEquals(counter.decrementAndGet(), machine.size(), "Error removing state");
+        });
+
+        assertEquals(0, machine.size(), "Error building state machine");
+    }
+
+    @Test
+    public void testRemoveStateTransitions() {
+        StateMachine machine = createStateMachine();
+        assertEquals(3, machine.size(), "Error building state machine");
+
+        getStatePrinterBuilder().compactMode(true).build().printTransitions(machine.getTransitionsIndex());
+        Collection<StateTransition> allTransitions = machine.getAllTransitions();
+        allTransitions.forEach(transition -> System.out.println(transition.toString()));
+        allTransitions.forEach(machine::remove);
+        getStatePrinterBuilder().title("After removing transitions").compactMode(true).build().printTransitions(machine.getTransitionsIndex());
+        assertEquals(3, machine.size(), "Error building state machine");
+        assertThat("Error removing transitions", machine.getAllTransitions().size(), is(0));
+    }
+
+
+    @Test
+    public void testRemoveOrphans() {
         StateMachine machine = new StateMachine();
 
         machine.add(new StateTransition(new State("A"), new StringMessage("1b"), new State("B")));
@@ -188,12 +214,34 @@ public class StateMachineCoreTest extends AbstractStateMachineTest {
         assertThat("Orphan states size mismatch", orphanStates.size(), is(1));
         assertThat("Orphan states size mismatch", orphanStates.get(0).getName(), is("C"));
         assertEquals(0, machine.size(), "Error removing state");
-
     }
 
+    @Test
+    public void testRemoveAllTransitions() {
+        StateMachine machine = createStateMachine();
+        assertEquals(3, machine.size(), "Error building state machine");
+        getStatePrinter().printTransitions(machine.getTransitionsIndex());
+        machine.removeAllTransitions();
+        getStatePrinterBuilder().compactMode(true).title("After removing transitions").build().printTransitions(machine.getTransitionsIndex());
+        assertEquals(3, machine.size(), "Error building state machine");
+        assertThat("Error removing transitions", machine.getAllTransitions().size(), is(0));
+        machine.prune();
+        assertEquals(0, machine.size(), "Error building state machine");
+        assertThat("Error removing transitions", machine.getAllTransitions().size(), is(0));
+    }
 
     @Test
-    public void testStateMachineRemoveStateCascade() {
+    public void testStateMachineClear() {
+        StateMachine machine = createStateMachine();
+        assertEquals(3, machine.size(), "Error building state machine");
+        getStatePrinter().printTransitions(machine.getTransitionsIndex());
+        machine.clear();
+        getStatePrinterBuilder().title("After clear").build().printTransitions(machine.getTransitionsIndex());
+        assertEquals(0, machine.size(), "Error building state machine");
+    }
+
+    @Test
+    public void testRemoveStateCascade() {
         StateMachine machine = new StateMachine();
 
         machine.add(new StateTransition(new State("A"), new StringMessage("1"), new State("B")));

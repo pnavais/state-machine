@@ -147,6 +147,22 @@ public class StateMachine implements Transitioner<State, Message, StateTransitio
     }
 
     /**
+     * Removes all existing Transitions from the state machine.
+     */
+    @Override
+    public void removeAllTransitions() {
+        this.transitionsIndex.removeAllTransitions();
+    }
+
+    /**
+     * Removes all transitions from the state machine
+     */
+    @Override
+    public void clear() {
+        this.transitionsIndex.clear();
+    }
+
+    /**
      * Finds the state referenced by the given name
      * in the state machine
      * machine.
@@ -279,6 +295,17 @@ public class StateMachine implements Transitioner<State, Message, StateTransitio
     @Override
     public Collection<StateTransition> getTransitions(String stateName) {
         return transitionsIndex.getTransitions(stateName);
+    }
+
+    /**
+     * Retrieves all state transitions currently
+     * defined.
+     *
+     * @return all defined transitions
+     */
+    @Override
+    public Collection<StateTransition> getAllTransitions() {
+        return transitionsIndex.getAllTransitions();
     }
 
     /**

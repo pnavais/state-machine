@@ -17,6 +17,8 @@ package com.github.pnavais.machine.api;
 
 import lombok.*;
 
+import java.util.Objects;
+
 /**
  * A generic contract allowing to identify
  * the target destination after processing
@@ -25,24 +27,36 @@ import lombok.*;
  * @param <N> the type of nodes of the transition
  */
 @Getter
-@Setter
 @AllArgsConstructor
-@NoArgsConstructor
 public abstract class Transition<N extends Node, M extends Message> {
 
     /**
      * The source node of the transition
      */
-    private N origin;
+    private final N origin;
 
     /**
      * The Message triggering the transition
      */
-    private M message;
+    private final M message;
 
     /**
      * The target node of the transition
      */
-    private N target;
+    private final N target;
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Transition<?, ?> that = (Transition<?, ?>) o;
+        return Objects.equals(origin, that.origin) &&
+                Objects.equals(message, that.message) &&
+                Objects.equals(target, that.target);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(origin, message, target);
+    }
 }

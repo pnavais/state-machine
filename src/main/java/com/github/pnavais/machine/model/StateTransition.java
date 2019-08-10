@@ -50,4 +50,8 @@ public class StateTransition extends Transition<State, Message> {
         super(State.from(origin).build(), message, State.from(target).build());
     }
 
+    @Override
+    public String toString() {
+        return getOrigin() + " - " + getMessage() + " -> " + getTarget();
+    }
 }

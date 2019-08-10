@@ -71,6 +71,16 @@ public interface TransitionIndex<N extends Node, M extends Message, T extends Tr
     void remove(String node);
 
     /**
+     * Removes all transitions from the map
+     */
+    void removeAllTransitions();
+
+    /**
+     * Removes all nodes & transitions
+     */
+    void clear();
+
+    /**
      * Retrieves the next node after applying the
      * message on the given source node.
      *
@@ -100,6 +110,24 @@ public interface TransitionIndex<N extends Node, M extends Message, T extends Tr
     Optional<N> find(String name);
 
     /**
+     * Checks the presence of the given node in
+     * the index.
+     *
+     * @param node the node to find
+     * @return true if node present, false otherwise
+     */
+    boolean contains(N node);
+
+    /**
+     * Checks the presence of the given transition in
+     * the index.
+     *
+     * @param transition the transition to find
+     * @return true if transition present, false otherwise
+     */
+    boolean contains(T transition);
+
+    /**
      * Retrieves the first node in the index
      *
      * @return the first element in the index or empty otherwise
@@ -114,8 +142,9 @@ public interface TransitionIndex<N extends Node, M extends Message, T extends Tr
     int size();
 
     /**
-     * Remove orphan states from the index
-     * (i.e. States that are not reachable)
+     * Remove orphan nodes from the index
+     * (i.e. Nodes that are not connected to other nodes
+     * by any transition)
      */
     List<N> prune();
 
@@ -149,6 +178,5 @@ public interface TransitionIndex<N extends Node, M extends Message, T extends Tr
      * @return the transition as a map
      */
      Map<N, Map<M, N>> getTransitionsAsMap();
-
 
 }

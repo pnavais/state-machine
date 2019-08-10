@@ -16,7 +16,6 @@
 
 package com.github.pnavais.machine.api.validator;
 
-import com.github.pnavais.machine.api.exception.ValidationException;
 import lombok.*;
 
 /**
@@ -26,7 +25,6 @@ import lombok.*;
  */
 @Getter
 @Setter
-@RequiredArgsConstructor(staticName = "of")
 @AllArgsConstructor
 @Builder
 public class ValidationResult {
@@ -54,12 +52,21 @@ public class ValidationResult {
     }
 
     /**
-     * Throws the exception (if any) on
-     * invalid validation result.
+     * Creates a successful validation result
+     *
+     * @return successful validation result
      */
-    public void throwOnFailure() {
-        if (!valid) {
-            throw (exception != null) ? exception : new ValidationException(description);
-        }
+    public static ValidationResult success() {
+        return ValidationResult.builder().valid(true).build();
     }
+
+    /**
+     * Creates an unsuccessful validation result
+     *
+     * @return unsuccessful validation result
+     */
+    public static ValidationResult fail(String message) {
+        return ValidationResult.builder().valid(false).description(message).build();
+    }
+
 }

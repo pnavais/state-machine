@@ -22,7 +22,12 @@ import com.github.pnavais.machine.api.Message;
 import com.github.pnavais.machine.api.exception.IllegalTransitionException;
 import com.github.pnavais.machine.api.exception.NullTransitionException;
 import com.github.pnavais.machine.api.exception.TransitionInitializationException;
+import com.github.pnavais.machine.api.exception.ValidationException;
+import com.github.pnavais.machine.api.transition.TransitionIndex;
+import com.github.pnavais.machine.api.validator.TransitionValidator;
+import com.github.pnavais.machine.api.validator.ValidationResult;
 import com.github.pnavais.machine.impl.StateTransitionMap;
+import com.github.pnavais.machine.impl.StateTransitionValidator;
 import com.github.pnavais.machine.model.State;
 import com.github.pnavais.machine.model.StateTransition;
 import com.github.pnavais.machine.model.StringMessage;
@@ -30,6 +35,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -46,9 +52,19 @@ public class StateMachineComponentsTest extends AbstractStateMachineTest {
         assertNotNull(transition.getTarget().getId(), "Error retrieving origin identifier");
         assertNotNull(transition.getMessage(), "Error retrieving message");
         assertNotNull(transition.getMessage().getMessageId(), "Error retrieving message identifier");
-
         assertNotNull(transition.getMessage().getPayload(), "Error obtaining message payload");
         assertEquals("1", transition.getMessage().getPayload().get().toString(), "Error obtaining message identifier");
+    }
+
+    @Test
+    public void testTransitionIdentity() {
+        StateTransition transition = new StateTransition(new State("A"), new StringMessage("1"), new State("B"));
+        StateTransition transitionAlt = new StateTransition(new State("A"), new StringMessage("1"), new State("B"));
+        StateTransition transitionNew = new StateTransition(new State("A"), new StringMessage("1"), new State("C"));
+
+        assertEquals(transition, transitionAlt, "Error comparing transitions");
+        assertEquals(transition.hashCode(), transitionAlt.hashCode(), "Error comparing hash codes");
+        assertNotEquals(transition, transitionNew, "Error comparing transitions");
     }
 
     @Test
@@ -77,12 +93,11 @@ public class StateMachineComponentsTest extends AbstractStateMachineTest {
 
     @Test
     public void testStateTransitionMapInit() {
-        StateTransitionMap transitionMap = new StateTransitionMap();
-        transitionMap.add(new StateTransition("A", StringMessage.from("1"), "B"));
-        transitionMap.add(new StateTransition("B", StringMessage.from("2"), "C"));
+        StateTransitionMap transitionMap = createStateTransitionMap();
         assertNotNull(transitionMap.getTransitionMap(), "Error initializing state transition map");
         assertThat(transitionMap.getTransitionMap().size(), is(3));
         Arrays.asList("A", "B", "C").forEach(s -> {
+            assertTrue(transitionMap.contains(State.from(s).build()));
             Optional<State> state = transitionMap.find(s);
             assertTrue(state.isPresent(), "Error retrieving state");
             assertThat("State retrieved mismatch", state.get().getName(), is(s));
@@ -91,10 +106,8 @@ public class StateMachineComponentsTest extends AbstractStateMachineTest {
 
 
     @Test
-    public void testStateTransitionMapFromExistingMap() {
-        StateTransitionMap transitionMap = new StateTransitionMap();
-        transitionMap.add(new StateTransition("A", StringMessage.from("1"), "B"));
-        transitionMap.add(new StateTransition("B", StringMessage.from("2"), "C"));
+    public void testCreateStateTransitionMapFromExistingMap() {
+        StateTransitionMap transitionMap = createStateTransitionMap();
 
         StateTransitionMap transitionMapTarget = new StateTransitionMap(transitionMap.getTransitionMap());
 
@@ -108,10 +121,29 @@ public class StateMachineComponentsTest extends AbstractStateMachineTest {
     }
 
     @Test
-    public void testStateTransitionMapWithValidator() {
-        StateTransitionMap transitionMap = new StateTransitionMap();
-        transitionMap.add(new StateTransition("A", StringMessage.from("1"), "B"));
-        transitionMap.add(new StateTransition("B", StringMessage.from("2"), "C"));
+    public void testCustomValidator() {
+        TransitionValidator<State, Message, StateTransition> validator =
+                (transition, transitionIndex, operation) -> ValidationResult.fail("Test validator");
+
+        ValidationResult result = validator.validate(null, null, TransitionValidator.Operation.ADD);
+        assertNotNull(result, "Error executing validator");
+        assertNotNull(result.getDescription(), "Error obtaining validation result description");
+        assertNull(result.getException(), "Error obtaining validation result exception");
+
+        StateTransitionMap transitionMap = new StateTransitionMap(validator);
+
+        try {
+            transitionMap.add(new StateTransition("A", new StringMessage("1"), "B"));
+            fail("Validation failed");
+        } catch (Exception e) {
+            assertTrue(e instanceof ValidationException, "Validation exception mismatch");
+            assertEquals(result.getDescription(), e.getMessage(), "Error obtaining exception description");
+        }
+    }
+
+    @Test
+    public void testStateTransitionMapWithDefaultValidator() {
+        StateTransitionMap transitionMap =  createStateTransitionMap();
 
         StateTransitionMap transitionMapTarget = new StateTransitionMap(transitionMap.getTransitionValidator());
         transitionMapTarget.addAll(transitionMap.getAllTransitions());
@@ -124,6 +156,87 @@ public class StateMachineComponentsTest extends AbstractStateMachineTest {
             assertTrue(state.isPresent(), "Error retrieving state");
             assertThat("State retrieved mismatch", state.get().getName(), is(s));
         });
+    }
+
+    @Test
+    public void testStateTransitionMapWithValidatorDisabled() {
+        StateTransitionValidator validator = new StateTransitionValidator();
+        StateTransitionMap stateTransitionMap = new StateTransitionMap(validator);
+        StateTransition aToB = new StateTransition(new State("A"), StringMessage.from("1"), State.from("B").isFinal(true).build());
+        StateTransition bToC = new StateTransition("B", StringMessage.from("1"), "C");
+        stateTransitionMap.add(aToB);
+        getStatePrinterBuilder().compactMode(true).build().printTransitions(stateTransitionMap);
+        validator.setFailurePolicy(TransitionValidator.FailurePolicy.IGNORE);
+        stateTransitionMap.add(bToC);
+        getStatePrinterBuilder().title("After bToC").compactMode(true).build().printTransitions(stateTransitionMap);
+
+        assertEquals(2, stateTransitionMap.size(), "Error adding transitions to the map");
+        assertEquals(1, stateTransitionMap.getAllTransitions().size(), "Error obtaining transitions");
+        assertEquals(aToB, stateTransitionMap.getAllTransitions().iterator().next(), "Transition mismatch");
+    }
+
+    @Test
+    public void testStateTransitionMapWithCustomValidator() {
+        // Create a custom validator avoiding transitions from state C or to state D
+        StateTransitionMap transitionMap = new StateTransitionMap((transition, transitionIndex, operation) -> {
+            ValidationResult result = ValidationResult.success();
+            if (transition.getOrigin().getName().equals("C")) {
+                result = ValidationResult.from(new ValidationException("Cannot create transition from state C"));
+            } else if (transition.getTarget().getName().equals("D")) {
+                result = ValidationResult.fail("Cannot create transition to state D");
+            }
+            return result;
+        });
+
+        transitionMap.add(new StateTransition("A", StringMessage.from("1"), "B"));
+        transitionMap.add(new StateTransition("B", StringMessage.from("2"), "C"));
+        assertEquals(3, transitionMap.size(), "Error adding transitions to the map");
+        try {
+            transitionMap.add(new StateTransition("C", StringMessage.from("3"), "D"));
+            fail("Validator mismatch");
+        } catch (Exception e) {
+            assertTrue(e instanceof ValidationException, "Validation exception mismatch");
+        } finally {
+            assertEquals(3, transitionMap.size(), "Error adding transitions to the map");
+            Arrays.asList("A", "B", "C").forEach(s -> {
+                Optional<State> state = transitionMap.find(s);
+                assertTrue(state.isPresent(), "Error retrieving state");
+                assertThat("State retrieved mismatch", state.get().getName(), is(s));
+            });
+        }
+    }
+
+    @Test
+    public void testStateTransitionMapWithCustomValidatorPolicies() {
+        // Initially ignore on failures
+        AtomicReference<TransitionValidator.FailurePolicy> policyRef = new AtomicReference<>(TransitionValidator.FailurePolicy.IGNORE);
+
+        // Create a fail all validator just to test the policy
+        TransitionValidator<State, Message, StateTransition> validator = new TransitionValidator<State, Message, StateTransition>() {
+
+            @Override
+            public ValidationResult validate(StateTransition transition, TransitionIndex<State, Message, StateTransition> transitionIndex, Operation operation) {
+                return ValidationResult.fail("Validator disabled");
+            }
+
+            @Override
+            public FailurePolicy getFailurePolicy() {
+                return policyRef.get();
+            }
+        };
+
+        // Ignore the operation
+        StateTransitionMap transitionMap = new StateTransitionMap(validator);
+        StateTransition transition = new StateTransition("A", StringMessage.from("1"), "B");
+        transitionMap.add(transition);
+        assertEquals(0, transitionMap.size(), "Map should be empty");
+
+        // Proceed with the operation
+        policyRef.set(TransitionValidator.FailurePolicy.PROCEED);
+        transitionMap.add(transition);
+        assertEquals(2, transitionMap.size(), "Error adding transitions to the map");
+        assertEquals(1, transitionMap.getAllTransitions().size(), "Error obtaining transitions");
+        assertEquals(transition, transitionMap.getAllTransitions().iterator().next(), "Transition mismatch");
     }
 
     @Test
@@ -157,7 +270,9 @@ public class StateMachineComponentsTest extends AbstractStateMachineTest {
         StateTransitionMap transitionMap = new StateTransitionMap();
         transitionMap.add(new StateTransition("A", StringMessage.from("1"), "B"));
         StateTransition aToD = new StateTransition("A", StringMessage.from("2"), "D");
+        assertFalse(transitionMap.contains(aToD), "Error adding transition");
         transitionMap.add(aToD);
+        assertTrue(transitionMap.contains(aToD), "Error adding transition");
         transitionMap.add(new StateTransition("B", StringMessage.from("3"), "D"));
         transitionMap.add(new StateTransition("C", StringMessage.from("4"), "D"));
         assertNotNull(transitionMap.getTransitionMap(), "Error initializing state transition map");
@@ -188,25 +303,28 @@ public class StateMachineComponentsTest extends AbstractStateMachineTest {
         } catch (Exception e) {
             assertTrue(e instanceof NullTransitionException, "Exception mismatch");
         }
-
-        //TODO Extract validation logic outside Transition class
     }
 
+
     /**
-     * Expect wrong transition and check that the initialization
-     * was not correct
+     * Creates a test state transition map with the following states :
      *
-     * @param source  the source state
-     * @param message the message
-     * @param target  the target state
+     *  +--------+---------+--------+
+     *  | Source | Message | Target |
+     *  +--------+---------+--------+
+     *  |   A    |    1    |   B    |
+     *  +--------+---------+--------+
+     *  |   B    |    2    |   C    |
+     *  +--------+---------+--------+
+     *
+     * @return the state transition map
      */
-    private void expectWrongTransitionAndCheck(State source, Message message, State target) {
-        try {
-            new StateTransition(source, message, target);
-            fail("State Transition initialization mismatch");
-        } catch (Exception e) {
-            assertTrue(e instanceof TransitionInitializationException, "Exception mismatch");
-        }
+    private StateTransitionMap createStateTransitionMap() {
+        StateTransitionMap stateTransitionMap = new StateTransitionMap();
+        stateTransitionMap.add(new StateTransition("A", StringMessage.from("1"), "B"));
+        stateTransitionMap.add(new StateTransition("B", StringMessage.from("2"), "C"));
+
+        return stateTransitionMap;
     }
 
 }

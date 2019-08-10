@@ -64,6 +64,16 @@ public interface Transitioner<N extends Node, M extends Message, T extends Trans
     void remove(N node);
 
     /**
+     * Removes all existing Transitions from the state machine.
+     */
+    void removeAllTransitions();
+
+    /**
+     * Removes all transitions from the state machine
+     */
+    void clear();
+
+    /**
      * Finds the node in the transition
      * associated with the give name.
      *
@@ -129,6 +139,14 @@ public interface Transitioner<N extends Node, M extends Message, T extends Trans
      * @return the transitions for the given node
      */
     Collection<T> getTransitions(String nodeName);
+
+    /**
+     * Retrieves all state transitions currently
+     * defined.
+     *
+     * @return all defined transitions
+     */
+    Collection<T> getAllTransitions();
 
     /**
      * Retrieves the transition index used

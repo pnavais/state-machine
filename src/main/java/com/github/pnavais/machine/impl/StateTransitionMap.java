@@ -17,14 +17,17 @@ package com.github.pnavais.machine.impl;
 
 import com.github.pnavais.machine.api.Message;
 import com.github.pnavais.machine.api.exception.NullStateException;
+import com.github.pnavais.machine.api.exception.ValidationException;
 import com.github.pnavais.machine.api.transition.TransitionIndex;
 import com.github.pnavais.machine.api.validator.TransitionValidator;
+import com.github.pnavais.machine.api.validator.ValidationResult;
 import com.github.pnavais.machine.model.State;
 import com.github.pnavais.machine.model.StateTransition;
 import lombok.Getter;
 import lombok.NonNull;
 
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -130,8 +133,16 @@ public class StateTransitionMap implements TransitionIndex<State, Message, State
      */
     @Override
     public void add(StateTransition transition) {
-        transitionValidator.validate(transition, this, TransitionValidator.Operation.ADD).throwOnFailure();
+        validateAndExecute(transition,TransitionValidator.Operation.ADD, this::addTransition);
+    }
 
+    /**
+     * Adds the transition to the transition map.
+     * A validation has been performed previously so it
+     * is safe to assume the transition is fine.
+     * @param transition transition to add
+     */
+    private void addTransition(StateTransition transition) {
         // Retrieve the current transitions mapping
         Map<Message, State> messageStateMap = Optional.ofNullable(transitionMap.get(transition.getOrigin())).orElse(new LinkedHashMap<>());
 
@@ -158,10 +169,27 @@ public class StateTransitionMap implements TransitionIndex<State, Message, State
      */
     @Override
     public void remove(StateTransition transition) {
-        transitionValidator.validate(transition, this, TransitionValidator.Operation.REMOVE).throwOnFailure();
-
         // Update the current transitions mapping
-        Optional.ofNullable(transitionMap.get(transition.getOrigin())).ifPresent(m -> m.remove(transition.getMessage()));
+        validateAndExecute(transition,TransitionValidator.Operation.REMOVE,
+                t -> Optional.ofNullable(transitionMap.get(transition.getOrigin())).ifPresent(m -> m.remove(transition.getMessage())));
+    }
+
+    /**
+     * Performs a validation of the transition before executing the function associated
+     * to the given operation.
+     *
+     * @param transition the transition to validate
+     * @param operation the operation to execute
+     * @param transitionFunction the function associated with the operation
+     */
+    private void validateAndExecute(StateTransition transition, TransitionValidator.Operation operation, Consumer<StateTransition> transitionFunction) {
+        ValidationResult result = transitionValidator.validate(transition, this, operation);
+        if ((result.isValid()) || (!result.isValid() && TransitionValidator.FailurePolicy.PROCEED.equals(transitionValidator.getFailurePolicy()))) {
+            transitionFunction.accept(transition);
+        } else if (!result.isValid() && TransitionValidator.FailurePolicy.THROW_ON_FAILURE.equals(transitionValidator.getFailurePolicy())) {
+            // Throws the exception on failure
+            throw (result.getException() != null) ? result.getException() : new ValidationException(result.getDescription());
+        }
     }
 
     /**
@@ -208,6 +236,22 @@ public class StateTransitionMap implements TransitionIndex<State, Message, State
     }
 
     /**
+     * Clear all transitions from the map
+     */
+    @Override
+    public void removeAllTransitions() {
+        this.transitionMap.forEach((state, messageStateMap) -> messageStateMap.clear());
+    }
+
+    /**
+     * Clear all states & transitions from the map
+     */
+    @Override
+    public void clear() {
+        this.transitionMap.clear();
+    }
+
+    /**
      * Retrieves the next state in the transition from
      * source state upon message m reception
      * @param source the origin state
@@ -216,10 +260,7 @@ public class StateTransitionMap implements TransitionIndex<State, Message, State
      * @return the next state if found or empty otherwise
      */
     @Override
-    public Optional<State> getNext(State source, Message m) {
-        Objects.requireNonNull(source, "The source state cannot be null");
-        Objects.requireNonNull(m, "The message cannot be null");
-
+    public Optional<State> getNext(@NonNull State source, @NonNull Message m) {
         return Optional.ofNullable(transitionMap.get(source)).map(messageStateMap -> messageStateMap.get(m));
     }
 
@@ -245,6 +286,31 @@ public class StateTransitionMap implements TransitionIndex<State, Message, State
     @Override
     public Optional<State> find(String stateName) {
         return transitionMap.keySet().stream().filter(state -> state.getName().compareTo(stateName) == 0).findFirst();
+    }
+
+    /**
+     * Checks the presence of the given state in
+     * the index.
+     *
+     * @param state the state to find
+     * @return true if state present, false otherwise
+     */
+    @Override
+    public boolean contains(@NonNull State state) {
+        return transitionMap.containsKey(state);
+    }
+
+    /**
+     * Checks the presence of the given transition in
+     * the index.
+     *
+     * @param transition the transition to find
+     * @return true if transition present, false otherwise
+     */
+    @Override
+    public boolean contains(@NonNull StateTransition transition) {
+        Optional<State> target = getNext(transition.getOrigin(), transition.getMessage());
+        return target.isPresent() && target.get().equals(transition.getTarget());
     }
 
     /**

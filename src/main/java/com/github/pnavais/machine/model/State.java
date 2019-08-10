@@ -81,4 +81,8 @@ public class State extends AbstractState {
         }
     }
 
+    @Override
+    public String toString() {
+        return this.getName();
+    }
 }
