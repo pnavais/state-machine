@@ -33,4 +33,9 @@ public final class MessageConstants {
      */
     public static final Message ANY = VoidMessage.createWith(() -> ANY_MESSAGE_PAYLOAD);
 
+    /**
+     * Private constructor to avoid external instantiation
+     */
+    private MessageConstants() {}
+
 }
