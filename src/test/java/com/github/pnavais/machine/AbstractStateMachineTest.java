@@ -73,6 +73,7 @@ public abstract class AbstractStateMachineTest {
 
     /**
      * Retrieves a simple State Machine with the following transitions :
+     * <pre>
      *  +--------+---------+--------+
      *  | Source | Message | Target |
      *  +--------+---------+--------+
@@ -91,7 +92,7 @@ public abstract class AbstractStateMachineTest {
      *  +--------+------------+
      *  |   C    |     []     |
      *  +--------+------------+
-     *
+     * </pre>
      * @return the test state machine
      */
     protected StateMachine createStateMachine() {

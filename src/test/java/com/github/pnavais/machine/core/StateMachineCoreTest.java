@@ -21,6 +21,7 @@ import com.github.pnavais.machine.StateMachine;
 import com.github.pnavais.machine.api.AbstractNode;
 import com.github.pnavais.machine.api.Message;
 import com.github.pnavais.machine.api.exception.TransitionInitializationException;
+import com.github.pnavais.machine.model.FilteredState;
 import com.github.pnavais.machine.model.State;
 import com.github.pnavais.machine.model.StateTransition;
 import com.github.pnavais.machine.model.StringMessage;
@@ -39,7 +40,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Unit test for State Machine core functionality
+ * Unit tests for State Machine core functionality
  */
 public class StateMachineCoreTest extends AbstractStateMachineTest {
 
@@ -55,6 +56,31 @@ public class StateMachineCoreTest extends AbstractStateMachineTest {
         assertEquals("A", machine.getTransitions("A").iterator().next().getOrigin().getName(), "Transition origin retrieval mismatch");
         assertEquals("B", machine.getTransitions("A").iterator().next().getTarget().getName(), "Transition target retrieval mismatch");
         assertEquals("1", machine.getTransitions("A").iterator().next().getMessage().getPayload().get(), "Transition message retrieval mismatch");
+    }
+
+
+    @Test
+    public void testStateAddToFinalState() {
+        StateMachine machine = new StateMachine();
+
+        State finalState = State.from("B").isFinal(true).build();
+        machine.add(new StateTransition(new State("A"), new StringMessage("1"), finalState));
+        assertEquals(2, machine.size(), "Error building state machine");
+        assertNotNull(machine.getTransitions("A"), "Error retrieving transitions");
+        assertEquals(1, machine.getTransitions("A").size(), "Transitions size mismatch");
+        assertEquals("A", machine.getTransitions("A").iterator().next().getOrigin().getName(), "Transition origin retrieval mismatch");
+        assertTrue(machine.getTransitions("A").iterator().next().getTarget().isFinal(), "Transition target retrieval mismatch");
+        assertEquals("B", machine.getTransitions("A").iterator().next().getTarget().getName(), "Transition target retrieval mismatch");
+        assertEquals("1", machine.getTransitions("A").iterator().next().getMessage().getPayload().get(), "Transition message retrieval mismatch");
+
+        getStatePrinterBuilder().compactMode(true).build().printTransitions(machine.getTransitionsIndex());
+
+        try {
+            machine.add(new StateTransition(finalState, new StringMessage("1"), new State("C")));
+            fail("State Transition initialization mismatch");
+        } catch (Exception e) {
+            assertTrue(e instanceof TransitionInitializationException, "Exception mismatch");
+        }
     }
 
     @Test
@@ -78,6 +104,33 @@ public class StateMachineCoreTest extends AbstractStateMachineTest {
         assertEquals("A", machine.getTransitions("A").iterator().next().getOrigin().getName(), "Transition origin retrieval mismatch");
         assertEquals("B", machine.getTransitions("A").iterator().next().getTarget().getName(), "Transition target retrieval mismatch");
         assertEquals("1", machine.getTransitions("A").iterator().next().getMessage().getPayload().get(), "Transition message retrieval mismatch");
+    }
+
+    @Test
+    public void tesDuplicateAddIdentity() {
+        StateMachine machine = new StateMachine();
+
+        State origin = new State("A");
+
+        StateTransition transition = new StateTransition(origin, new StringMessage("1"), new State("B"));
+        machine.add(transition);
+        StateTransition transitionAlt = new StateTransition(FilteredState.from(origin), new StringMessage("1"), new State("B"));
+        machine.add(transitionAlt);
+
+        assertEquals(2, machine.size(), "Error building state machine");
+        assertNotNull(machine.getTransitions("A"), "Error retrieving transitions");
+        assertEquals(1, machine.getTransitions("A").size(), "Transitions size mismatch");
+        assertEquals("A", machine.getTransitions("A").iterator().next().getOrigin().getName(), "Transition origin retrieval mismatch");
+        assertEquals("B", machine.getTransitions("A").iterator().next().getTarget().getName(), "Transition target retrieval mismatch");
+        assertEquals("1", machine.getTransitions("A").iterator().next().getMessage().getPayload().get(), "Transition message retrieval mismatch");
+
+        Collection<StateTransition> allTransitions = machine.getAllTransitions();
+        assertNotNull(allTransitions, "Error retrieving transitions");
+        assertEquals(1, allTransitions.size(), "Transitions size mismatch");
+        StateTransition trFound = allTransitions.iterator().next();
+        assertThat("Error comparing transitions", transition, is(trFound));
+        State originFound = trFound.getOrigin();
+        assertEquals(State.class, originFound.getClass(), "Class mismatch");
     }
 
     @Test
@@ -149,7 +202,6 @@ public class StateMachineCoreTest extends AbstractStateMachineTest {
 
         getStatePrinterBuilder().compactMode(true).build().printTransitions(machine.getTransitionsIndex());
         Collection<StateTransition> allTransitions = machine.getAllTransitions();
-        allTransitions.forEach(transition -> System.out.println(transition.toString()));
         allTransitions.forEach(machine::remove);
         getStatePrinterBuilder().title("After removing transitions").compactMode(true).build().printTransitions(machine.getTransitionsIndex());
         assertEquals(3, machine.size(), "Error building state machine");

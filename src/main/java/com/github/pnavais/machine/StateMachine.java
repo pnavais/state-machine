@@ -15,7 +15,9 @@
  */
 package com.github.pnavais.machine;
 
+import com.github.pnavais.machine.api.Envelope;
 import com.github.pnavais.machine.api.Message;
+import com.github.pnavais.machine.api.MessageConstants;
 import com.github.pnavais.machine.api.Status;
 import com.github.pnavais.machine.api.exception.NullStateException;
 import com.github.pnavais.machine.api.transition.TransitionChecker;
@@ -24,6 +26,7 @@ import com.github.pnavais.machine.api.transition.Transitioner;
 import com.github.pnavais.machine.builder.StateMachineBuilder;
 import com.github.pnavais.machine.impl.StateTransitionChecker;
 import com.github.pnavais.machine.impl.StateTransitionMap;
+import com.github.pnavais.machine.model.SimpleEnvelope;
 import com.github.pnavais.machine.model.State;
 import com.github.pnavais.machine.model.StateTransition;
 import com.github.pnavais.machine.model.StringMessage;
@@ -52,7 +55,7 @@ public class StateMachine implements Transitioner<State, Message, StateTransitio
     /**
      * The validator used to check transitions
      */
-    private TransitionChecker<State, Message, StateTransition> transitionChecker;
+    private TransitionChecker<State, Message> transitionChecker;
 
     /**
      * Creates the state machine.
@@ -74,12 +77,23 @@ public class StateMachine implements Transitioner<State, Message, StateTransitio
 
     /**
      * Creates the state machine with the given
-     * transition map.
+     * transition checker.
+     *
+     * @param transitionChecker the transition checker
+     */
+    public StateMachine( @NonNull TransitionChecker<State, Message> transitionChecker) {
+        this.transitionChecker = transitionChecker;
+    }
+
+    /**
+     * Creates the state machine with the given
+     * transition map and checker
      *
      * @param transitionIndex the transition map
+     * @param transitionChecker the transition checker
      */
     public StateMachine(@NonNull TransitionIndex<State, Message, StateTransition> transitionIndex,
-                        @NonNull TransitionChecker<State, Message, StateTransition> transitionChecker) {
+                        @NonNull TransitionChecker<State, Message> transitionChecker) {
         this.transitionsIndex = transitionIndex;
         this.transitionChecker = transitionChecker;
     }
@@ -197,11 +211,8 @@ public class StateMachine implements Transitioner<State, Message, StateTransitio
      * Sets the current state if present
      * @param state the state to set
      */
-    public State setCurrent(@NonNull State state) {
-        if (find(state.getName()).isPresent()) {
-            this.currentState = state;
-        }
-        return this.currentState;
+    public void setCurrent(@NonNull State state) {
+        setCurrent(state.getName());
     }
 
     /**
@@ -225,28 +236,64 @@ public class StateMachine implements Transitioner<State, Message, StateTransitio
      */
     @Override
     public Optional<State> getNext(Message m) {
-        Optional<State> targetState = Optional.empty();
+        // Obtain next state
+        Optional<State> targetState = obtainTargetState(m);
 
-        // Validates departure from current state
-        Status status = transitionChecker.validateDeparture(transitionsIndex, m, currentState);
+        // Create the envelope
+        SimpleEnvelope envelope = SimpleEnvelope.builder()
+                .source(currentState)
+                .target(targetState.orElse(null))
+                .message(m)
+                .transitionIndex(transitionsIndex)
+                .build();
 
-        // Validates arrival to next state
-        if (status.equals(Status.PROCEED)) {
-            targetState = transitionsIndex.getNext(currentState, m);
-            status = targetState.isPresent() ? transitionChecker.validateArrival(transitionsIndex, m, targetState.get()) : Status.ABORT;
-        }
+        // Validates departure/arrival from current state to target state
+        Status status = handleMessageFiltering(envelope);
 
         // Handles potential redirection on departure/arrival
         if (status.isRedirect()) {
             targetState = getNext(status.getMessage());
         }
 
-        // Update current state if transitions are successful
-        if (targetState.isPresent() && (status.equals(Status.PROCEED))) {
+        // Update current state only if transitions are successful
+        if (targetState.isPresent() && (Status.PROCEED.equals(status))) {
             currentState = targetState.get();
+        } else if (Status.ABORT.equals(status)) {
+            targetState = Optional.empty();
         }
 
         return targetState;
+    }
+
+    /**
+     * Applies the departure and arrival validation functions
+     * using the given envelope.
+     * @param envelope the envelope containing the message
+     * @return the status after validation
+     */
+    private Status handleMessageFiltering(Envelope<State, Message> envelope) {
+        Status status = transitionChecker.validateDeparture(envelope);
+
+        // Validates arrival to next state
+        if (status.equals(Status.PROCEED)) {
+            status = (envelope.getTarget() != null) ? transitionChecker.validateArrival(envelope) : Status.ABORT;
+        }
+
+        return status;
+    }
+
+    /**
+     * Obtains the potential target state for the given message
+     * using the optional fallback (*) in case direct transition
+     * not found.
+     * @param m the message
+     * @return the potential target state
+     */
+    private Optional<State> obtainTargetState(Message m) {
+        Optional<State> targetState = transitionsIndex.getNext(currentState, m);
+
+        // Check if ANY mapping is available as fallback
+        return !(targetState.isPresent()) ? transitionsIndex.getNext(currentState, MessageConstants.ANY) : targetState;
     }
 
     /**

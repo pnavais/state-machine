@@ -31,7 +31,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Unit test for State Machine node traversal functionality
+ * Unit tests for State Machine node traversal functionality
  */
 public class StateMachineTraversalTest extends AbstractStateMachineTest {
 
@@ -43,6 +43,20 @@ public class StateMachineTraversalTest extends AbstractStateMachineTest {
         assertNotNull(machine.getCurrent(), "Error retrieving current state");
         assertEquals("A", machine.getCurrent().getName(), "Current state name mismatch");
         getStatePrinterBuilder().title(null).compactMode(true).build().printTransitions(machine.getTransitionsIndex());
+    }
+
+    @Test
+    public void testRetrievePreviousState() {
+        StateMachine machine = createStateMachine();
+        assertNull(machine.getCurrent(), "Current state should");
+        machine.init();
+        State initial = machine.getCurrent();
+        State current = machine.send("1b").getCurrent();
+        assertNotNull(current, "Error obtaining current state");
+        assertEquals("B", current.getName(), "Error transition to next state");
+        Optional<State> previous = machine.getTransitionsIndex().getPrevious(current, StringMessage.from("1b"));
+        assertTrue(previous.isPresent(), "Error obtaining previous state");
+        assertThat("Previous state mismatch", previous.get(), is(initial));
     }
 
     @Test
@@ -108,7 +122,7 @@ public class StateMachineTraversalTest extends AbstractStateMachineTest {
     /**
      * Creates a state Machine for test purposes
      * with the following transitions :
-     *
+     *<pre>
      * +--------+-----------------------+
      * | Source |        Target         |
      * +--------+-----------------------+
@@ -122,7 +136,7 @@ public class StateMachineTraversalTest extends AbstractStateMachineTest {
      * +--------+-----------------------+
      * |   E    |          []           |
      * +--------+-----------------------+
-     *
+     *</pre>
      * @return the test state machine
      */
     @Override

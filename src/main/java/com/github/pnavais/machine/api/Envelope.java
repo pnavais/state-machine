@@ -17,20 +17,31 @@
 package com.github.pnavais.machine.api;
 
 /**
- * Provides default generic Message types
+ * This interface allows wrapping a message with the source/target information
+ * in order to be transmitted to interested parties (e.g. transition checker)
  */
-public final class MessageConstants {
-
-    public static final String ANY_MESSAGE_PAYLOAD = "*";
+public interface Envelope<N extends Node, M extends Message> {
 
     /**
-     * A void message used as marker representing an empty message
+     * Retrieves the message
+     *
+     * @return the message
      */
-    public static final Message EMPTY = VoidMessage.create();
+    M getMessage();
 
     /**
-     * A void message used as marker representing any kind of message
+     * Retrieves the source originator
+     * of the message.
+     *
+     * @return the source originator
      */
-    public static final Message ANY = VoidMessage.createWith(() -> ANY_MESSAGE_PAYLOAD);
+    N getSource();
+
+    /**
+     * Retrieves the target of the message
+     *
+     * @return the target
+     */
+    N getTarget();
 
 }

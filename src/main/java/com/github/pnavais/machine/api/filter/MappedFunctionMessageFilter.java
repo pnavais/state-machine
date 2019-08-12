@@ -17,6 +17,7 @@ package com.github.pnavais.machine.api.filter;
 
 import com.github.pnavais.machine.api.AbstractNode;
 import com.github.pnavais.machine.api.Message;
+import com.github.pnavais.machine.api.MessageConstants;
 import com.github.pnavais.machine.api.Status;
 import lombok.NonNull;
 
@@ -147,7 +148,8 @@ public class MappedFunctionMessageFilter<T extends AbstractNode> implements Mess
      */
     private Status handleMessage(Map<Message, BiFunction<Message, T, Status>> handlerMap, Message message, T state) {
         return Optional.ofNullable(handlerMap.get(message))
-                .orElse((m, t) -> Status.PROCEED)
+                .orElse(Optional.ofNullable(handlerMap.get(MessageConstants.ANY))
+                        .orElse((m, t) -> Status.PROCEED))
                 .apply(message, state);
     }
 }

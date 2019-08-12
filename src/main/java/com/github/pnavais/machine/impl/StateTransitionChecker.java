@@ -16,41 +16,37 @@
 
 package com.github.pnavais.machine.impl;
 
+import com.github.pnavais.machine.api.Envelope;
 import com.github.pnavais.machine.api.Message;
 import com.github.pnavais.machine.api.Status;
 import com.github.pnavais.machine.api.transition.TransitionChecker;
-import com.github.pnavais.machine.api.transition.TransitionIndex;
 import com.github.pnavais.machine.model.FilteredState;
 import com.github.pnavais.machine.model.State;
-import com.github.pnavais.machine.model.StateTransition;
-
-import java.util.Optional;
 
 /**
  * Implements the check between state transitions
  */
-public class StateTransitionChecker implements TransitionChecker<State, Message, StateTransition> {
+public class StateTransitionChecker implements TransitionChecker<State, Message> {
 
     /**
      * Validates the departure from the current state upon reception
      * of a given message using the specified transition index to ensure
      * transitions are accepted.
      *
-     * @param transitionsIndex the transition index
-     * @param message          the received message
-     * @param currentState     the current state
+     * @param envelope the received message
      * @return the status of the operation
      */
     @Override
-    public Status validateDeparture(TransitionIndex<State, Message, StateTransition> transitionsIndex, Message message, State currentState) {
+    public Status validateDeparture(Envelope<State,Message> envelope) {
         Status status = Status.ABORT;
+
+        State currentState = envelope.getSource();
 
         // Check initially that the state is not final
         if ((currentState!=null) && (!currentState.isFinal())) {
-            Optional<State> targetState = transitionsIndex.getNext(currentState, message);
-            status = (targetState.isPresent()) && (currentState instanceof FilteredState) ?
-                    ((FilteredState) currentState).onDispatch(message, targetState.get())
-                    : Status.PROCEED;
+                status = (currentState instanceof FilteredState) ?
+                        ((FilteredState) currentState).onDispatch(envelope.getMessage(), envelope.getTarget())
+                        : Status.PROCEED;
         }
 
         return status;
@@ -61,17 +57,14 @@ public class StateTransitionChecker implements TransitionChecker<State, Message,
      * of a given message using the specified transition index to ensure
      * transitions are accepted.
      *
-     * @param transitionsIndex the transition index
-     * @param message          the received message
-     * @param targetState      the target state
+     * @param envelope         the received message
      * @return the status of the operation
      */
     @Override
-    public Status validateArrival(TransitionIndex<State, Message, StateTransition> transitionsIndex, Message message, State targetState) {
-        Optional<State> sourceState = transitionsIndex.getPrevious(targetState, message);
-        return (sourceState.isPresent()) && (targetState instanceof FilteredState) ?
-                ((FilteredState) targetState).onReceive(message, sourceState.get())
-                : Status.PROCEED;
+    public Status validateArrival(Envelope<State, Message> envelope) {
+        return (envelope.getTarget() instanceof FilteredState) ?
+                    ((FilteredState) envelope.getTarget()).onReceive(envelope.getMessage(), envelope.getSource())
+                    : Status.PROCEED;
     }
 
 }

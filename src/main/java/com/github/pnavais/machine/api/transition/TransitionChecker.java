@@ -16,38 +16,32 @@
 
 package com.github.pnavais.machine.api.transition;
 
-import com.github.pnavais.machine.api.Message;
-import com.github.pnavais.machine.api.Node;
-import com.github.pnavais.machine.api.Status;
-import com.github.pnavais.machine.api.Transition;
+import com.github.pnavais.machine.api.*;
 
 /**
  * The transition checker acts a validator that is used
  * by a given State Machine to allow/deny a given transition.
  */
-public interface TransitionChecker<N extends Node, M extends Message, T extends Transition<N, M>> {
+public interface TransitionChecker<N extends Node, M extends Message> {
 
     /**
      * Validates the departure from the current state upon reception
      * of a given message using the specified transition index to ensure
      * transitions are accepted.
      *
-     * @param transitionsIndex the transition index
-     * @param m the received message
-     * @param currentState the current state
+     * @param envelope the envelope with the received message
      * @return the status of the operation
      */
-    Status validateDeparture(TransitionIndex<N, M, T> transitionsIndex, M m, N currentState);
+    Status validateDeparture(Envelope<N,M> envelope);
 
     /**
      * Validates the arrival to a given target state upon reception
      * of a given message using the specified transition index to ensure
      * transitions are accepted.
-     * @param transitionsIndex the transition index
-     * @param m the received message
-     * @param targetState the target state
+     *
+     * @param envelope the envelope with the received message
      * @return the status of the operation
      */
-    Status validateArrival(TransitionIndex<N, M, T> transitionsIndex, M m, N targetState);
+    Status validateArrival(Envelope<N,M> envelope);
 
 }

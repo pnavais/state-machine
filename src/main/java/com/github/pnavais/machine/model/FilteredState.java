@@ -31,10 +31,21 @@ import java.util.function.BiFunction;
 public class FilteredState extends State implements MessageFilter<State> {
 
     /** The target State. */
-    protected AbstractState state;
+    protected State state;
 
     /** The Message filter. */
     private MappedFunctionMessageFilter<State> messageFilter;
+
+    /**
+     * Static factory method to decorate the state with
+     * message filtering capabilities
+     *
+     * @param state the state to wrap
+     * @return the filtered state
+     */
+    public static FilteredState from(@NonNull State state) {
+        return new FilteredState(state);
+    }
 
     /**
      * Constructor with state
@@ -45,6 +56,38 @@ public class FilteredState extends State implements MessageFilter<State> {
         super(state.getName());
         this.state = state;
         this.messageFilter = new MappedFunctionMessageFilter<>();
+    }
+
+    /**
+     * Retrieves the name of the state
+     * @return the state's name
+     */
+    @Override
+    public String getName() {
+        return this.state.getName();
+    }
+
+    /**
+     * Sets whether the state is
+     * final or not.
+     *
+     * @param finalState the final state flag
+     */
+    @Override
+    public void setFinal(boolean finalState) {
+        this.state.setFinal(finalState);
+    }
+
+    /**
+     * Retrieves the final state condition
+     * flag. If final, no further transitions
+     * can be allowed from this state.
+     *
+     * @return the final state flag
+     */
+    @Override
+    public boolean isFinal() {
+        return this.state.isFinal();
     }
 
     /**
@@ -63,16 +106,6 @@ public class FilteredState extends State implements MessageFilter<State> {
      */
     public void setDispatchHandler(Message message, BiFunction<Message, State, Status> dispatchHandler) {
         this.messageFilter.setDispatchHandler(message, dispatchHandler);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        return state.equals(o);
-    }
-
-    @Override
-    public int hashCode() {
-        return state.hashCode();
     }
 
     /**
@@ -99,5 +132,15 @@ public class FilteredState extends State implements MessageFilter<State> {
     @Override
     public Status onReceive(Message message, State source) {
         return this.messageFilter.onReceive(message, source);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return state.equals(o);
+    }
+
+    @Override
+    public int hashCode() {
+        return state.hashCode();
     }
 }

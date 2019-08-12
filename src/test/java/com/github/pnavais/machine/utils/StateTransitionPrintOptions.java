@@ -45,7 +45,7 @@ public class StateTransitionPrintOptions<S extends State, M extends Message> {
     private static final int DEFAULT_TABLE_WIDTH = 140;
 
     /** The state formatter function */
-    @Builder.Default private Function<S, String> stateFormatter = State::getName;
+    @Builder.Default private Function<S, String> stateFormatter = s -> s.isFinal() ? s.getName()+"*" : s.getName();
 
     /** The message formatter function */
     @Builder.Default private Function<M, String> messageFormatter = message -> Optional.ofNullable(message.getPayload()).orElse(()-> "[null]").get().toString();

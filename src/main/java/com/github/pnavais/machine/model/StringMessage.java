@@ -17,6 +17,7 @@ package com.github.pnavais.machine.model;
 
 import com.github.pnavais.machine.api.Payload;
 import com.github.pnavais.machine.api.Message;
+import lombok.Setter;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -31,7 +32,8 @@ public class StringMessage implements Message {
     private String messageKey;
 
     /** The message identifier */
-    private final Payload payload;
+    @Setter
+    private Payload payload;
 
     /** The message identifier */
     private final UUID messageId;
@@ -57,6 +59,20 @@ public class StringMessage implements Message {
      */
     public static StringMessage from(String messageKey) {
         return new StringMessage(messageKey);
+    }
+
+    /**
+     * Static factory method to create a message
+     * with a message key and payload
+     *
+     * @param messageKey the message key
+     * @param payload    the payload
+     * @return the string message
+     */
+    public static StringMessage from(String messageKey, Payload payload) {
+        StringMessage msg = new StringMessage(messageKey);
+        msg.setPayload(payload);
+        return msg;
     }
 
     /**

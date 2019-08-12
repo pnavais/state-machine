@@ -210,7 +210,6 @@ public class StateTransitionMap implements TransitionIndex<State, Message, State
      */
     @Override
     public void remove(@NonNull State state) {
-
         // Remove transition mappings
         Map<Message, State> messageStateMap = Optional.ofNullable(transitionMap.get(state))
                 .orElseThrow(getNullTransitionException(state.getName()));
@@ -272,6 +271,7 @@ public class StateTransitionMap implements TransitionIndex<State, Message, State
      * @param m the message
      * @return the next node if found or empty otherwise
      */
+    @Override
     public Optional<State> getPrevious(State source, Message m) {
         return transitionMap.keySet().stream().filter(state -> source.equals(transitionMap.get(state).get(m))).findFirst();
     }
