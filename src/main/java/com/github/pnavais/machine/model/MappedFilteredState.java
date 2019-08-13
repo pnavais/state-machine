@@ -1,11 +1,11 @@
 /*
  * Copyright 2019 Pablo Navais
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,21 +18,21 @@ package com.github.pnavais.machine.model;
 
 import com.github.pnavais.machine.api.Message;
 import com.github.pnavais.machine.api.Status;
-import com.github.pnavais.machine.api.filter.FunctionMessageFilter;
+import com.github.pnavais.machine.api.filter.MappedFunctionMessageFilter;
 import lombok.Getter;
 import lombok.NonNull;
 
 import java.util.function.BiFunction;
 
 /**
- * A decorator adding message filtering functionality
+ * A decorator adding a mapped function per message filtering functionality
  * to regular states.
  */
 @Getter
-public class FilteredState extends AbstractFilteredState {
+public class MappedFilteredState extends AbstractFilteredState  {
 
-    /** The message filter */
-    private FunctionMessageFilter<State> messageFilter;
+    /** The Message filter. */
+    private MappedFunctionMessageFilter<State> messageFilter;
 
     /**
      * Static factory method to decorate the state with
@@ -41,8 +41,8 @@ public class FilteredState extends AbstractFilteredState {
      * @param state the state to wrap
      * @return the filtered state
      */
-    public static FilteredState from(@NonNull State state) {
-        return new FilteredState(state);
+    public static MappedFilteredState from(@NonNull State state) {
+        return new MappedFilteredState(state);
     }
 
     /**
@@ -50,9 +50,9 @@ public class FilteredState extends AbstractFilteredState {
      *
      * @param state the state
      */
-    public FilteredState(@NonNull State state) {
+    public MappedFilteredState(@NonNull State state) {
         super(state);
-        this.messageFilter = new FunctionMessageFilter<>();
+        this.messageFilter = new MappedFunctionMessageFilter<>();
     }
 
     /**
@@ -60,8 +60,8 @@ public class FilteredState extends AbstractFilteredState {
      *
      * @param receptionHandler the reception handler
      */
-    public void setReceptionHandler(BiFunction<Message, State, Status> receptionHandler) {
-        this.messageFilter.setReceptionHandler(receptionHandler);
+    public void setReceptionHandler(Message message, BiFunction<Message, State, Status> receptionHandler) {
+        this.messageFilter.setReceptionHandler(message, receptionHandler);
     }
 
     /**
@@ -69,8 +69,8 @@ public class FilteredState extends AbstractFilteredState {
      *
      * @param dispatchHandler the dispatch handler
      */
-    public void setDispatchHandler(BiFunction<Message, State, Status> dispatchHandler) {
-        this.messageFilter.setDispatchHandler(dispatchHandler);
+    public void setDispatchHandler(Message message, BiFunction<Message, State, Status> dispatchHandler) {
+        this.messageFilter.setDispatchHandler(message, dispatchHandler);
     }
 
     /**
@@ -98,6 +98,5 @@ public class FilteredState extends AbstractFilteredState {
     public Status onReceive(Message message, State source) {
         return this.messageFilter.onReceive(message, source);
     }
-
 
 }

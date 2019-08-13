@@ -41,6 +41,14 @@ public interface Transitioner<N extends Node, M extends Message, T extends Trans
     void add(T transition);
 
     /**
+     * Adds a collection of Transition to the state
+     * machine.
+     *
+     * @param transitions the transitions to add
+     */
+    void addAll(Collection<T> transitions);
+
+    /**
      * Removes an existing transition
      *
      * @param transition the transition to remove

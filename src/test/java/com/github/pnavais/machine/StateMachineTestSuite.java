@@ -31,6 +31,7 @@ import org.junit.runner.RunWith;
         StateTransitionMapTest.class,
         StateMachineCoreTest.class,
         StateMachineTraversalTest. class,
+        StateTransitionCheckerTest.class,
         StateMachineMessagingTest.class,
         StateMachineBuilderTest.class})
 public class StateMachineTestSuite {

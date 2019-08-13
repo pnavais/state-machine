@@ -28,7 +28,7 @@ import java.util.Objects;
  */
 @Getter
 @AllArgsConstructor
-public abstract class Transition<N extends Node, M extends Message> {
+public abstract class Transition<N extends Node, M extends Message> implements Envelope<N,M> {
 
     /**
      * The source node of the transition

@@ -16,7 +16,7 @@
 
 package com.github.pnavais.machine.model;
 
-import com.github.pnavais.machine.api.Envelope;
+import com.github.pnavais.machine.api.AbstractEnvelope;
 import com.github.pnavais.machine.api.Message;
 import com.github.pnavais.machine.api.transition.TransitionIndex;
 import lombok.Builder;
@@ -26,19 +26,20 @@ import lombok.Getter;
  * An implementation of the envelope handling state messaging.
  */
 @Getter
-@Builder
-public class SimpleEnvelope implements Envelope<State, Message> {
-
-    /** The source state */
-    private State source;
-
-    /** The target state */
-    private State target;
-
-    /** The message */
-    private Message message;
+public class SimpleEnvelope extends AbstractEnvelope<State, Message> {
 
     /** The transition index */
     private TransitionIndex<State, Message, StateTransition> transitionIndex;
+
+    @Builder
+    public SimpleEnvelope(State source, Message message, State target, TransitionIndex<State, Message, StateTransition> transitionIndex) {
+        super(source, message, target);
+        this.transitionIndex = transitionIndex;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return super.equals(o);
+    }
 
 }

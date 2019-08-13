@@ -16,9 +16,9 @@
 
 package com.github.pnavais.machine.api;
 
+import lombok.Builder;
 import lombok.Getter;
 
-import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -33,38 +33,20 @@ public class VoidMessage implements Message {
     /** The payload */
     private final Payload payload;
 
+    /** The name */
+    private final String name;
+
     /**
-     * Default constructor avoids instantiation
+     * Constructor with name and payload
+     *
+     * @param name the name
+     * @param payload the payload
      */
-    private VoidMessage(Payload payload) {
+    @Builder
+    private VoidMessage(String name, Payload payload) {
+        this.name = name;
         this.messageId = UUID.randomUUID();
         this.payload = payload;
     }
 
-    /**
-     * Retrieves the default lazy-loaded singleton instance
-     */
-    public static VoidMessage create() {
-        return new VoidMessage(null);
-    }
-
-    /**
-     * Retrieves the default lazy-loaded singleton instance
-     */
-    public static VoidMessage createWith(Payload payload) {
-        return new VoidMessage(payload);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        VoidMessage that = (VoidMessage) o;
-        return messageId.equals(that.messageId);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(messageId);
-    }
 }

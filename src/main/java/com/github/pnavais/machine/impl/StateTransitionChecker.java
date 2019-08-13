@@ -20,7 +20,7 @@ import com.github.pnavais.machine.api.Envelope;
 import com.github.pnavais.machine.api.Message;
 import com.github.pnavais.machine.api.Status;
 import com.github.pnavais.machine.api.transition.TransitionChecker;
-import com.github.pnavais.machine.model.FilteredState;
+import com.github.pnavais.machine.model.AbstractFilteredState;
 import com.github.pnavais.machine.model.State;
 
 /**
@@ -40,12 +40,12 @@ public class StateTransitionChecker implements TransitionChecker<State, Message>
     public Status validateDeparture(Envelope<State,Message> envelope) {
         Status status = Status.ABORT;
 
-        State currentState = envelope.getSource();
+        State currentState = envelope.getOrigin();
 
         // Check initially that the state is not final
         if ((currentState!=null) && (!currentState.isFinal())) {
-                status = (currentState instanceof FilteredState) ?
-                        ((FilteredState) currentState).onDispatch(envelope.getMessage(), envelope.getTarget())
+                status = (currentState instanceof AbstractFilteredState) ?
+                        ((AbstractFilteredState) currentState).onDispatch(envelope.getMessage(), envelope.getTarget())
                         : Status.PROCEED;
         }
 
@@ -62,8 +62,8 @@ public class StateTransitionChecker implements TransitionChecker<State, Message>
      */
     @Override
     public Status validateArrival(Envelope<State, Message> envelope) {
-        return (envelope.getTarget() instanceof FilteredState) ?
-                    ((FilteredState) envelope.getTarget()).onReceive(envelope.getMessage(), envelope.getSource())
+        return (envelope.getTarget() instanceof AbstractFilteredState) ?
+                    ((AbstractFilteredState) envelope.getTarget()).onReceive(envelope.getMessage(), envelope.getOrigin())
                     : Status.PROCEED;
     }
 

@@ -35,10 +35,10 @@ public interface Envelope<N extends Node, M extends Message> {
      *
      * @return the source originator
      */
-    N getSource();
+    N getOrigin();
 
     /**
-     * Retrieves the target of the message
+     * Retrieves the target of the message.
      *
      * @return the target
      */

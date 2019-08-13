@@ -31,15 +31,15 @@ import java.util.function.BiFunction;
  */
 @Getter
 @Setter
-public class FunctionMessageFilter<T extends AbstractNode> implements MessageFilter<T> {
+public class FunctionMessageFilter<N extends AbstractNode> implements MessageFilter<N> {
 
     /** The reception function */
     @NonNull
-    private BiFunction<Message, T, Status> receptionHandler;
+    private BiFunction<Message, N, Status> receptionHandler;
 
     /** The dispatch function */
     @NonNull
-    private BiFunction<Message, T, Status> dispatchHandler;
+    private BiFunction<Message, N, Status> dispatchHandler;
 
     /**
      *  Creates a {@link FunctionMessageFilter} instance
@@ -59,7 +59,7 @@ public class FunctionMessageFilter<T extends AbstractNode> implements MessageFil
      * @return the status of the operation
      */
     @Override
-    public Status onDispatch(Message message, T destination) {
+    public Status onDispatch(Message message, N destination) {
         return dispatchHandler.apply(message, destination);
     }
 
@@ -72,7 +72,7 @@ public class FunctionMessageFilter<T extends AbstractNode> implements MessageFil
      * @return the status of the operation
      */
     @Override
-    public Status onReceive(Message message, T source) {
+    public Status onReceive(Message message, N source) {
         return receptionHandler.apply(message, source);
     }
 

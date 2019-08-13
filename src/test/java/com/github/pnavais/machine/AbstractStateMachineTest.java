@@ -23,6 +23,9 @@ import com.github.pnavais.machine.utils.StateTransitionPrintOptions;
 import com.github.pnavais.machine.utils.StateTransitionPrinter;
 import org.junit.jupiter.api.BeforeAll;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 /**
  * Base class for state machine tests
  */
@@ -97,9 +100,30 @@ public abstract class AbstractStateMachineTest {
      */
     protected StateMachine createStateMachine() {
         StateMachine machine = new StateMachine();
-
-        machine.add(new StateTransition(new State("A"), new StringMessage("1"), new State("B")));
-        machine.add(new StateTransition(new State("B"), new StringMessage("2"), new State("C")));
+        machine.addAll(createStateTransitions());
         return machine;
+    }
+
+    /**
+     * Create the state transitions for the default
+     * test State Machine i.e :
+     * <pre>
+     *  +--------+---------+--------+
+     *  | Source | Message | Target |
+     *  +--------+---------+--------+
+     *  |   A    |    1    |   B    |
+     *  +--------+---------+--------+
+     *  |   B    |    2    |   C    |
+     *  +--------+---------+--------+
+     *  </pre>
+     *
+     * @return the collection of state transitions
+     */
+    protected Collection<StateTransition> createStateTransitions() {
+        Collection<StateTransition> transitions = new ArrayList<>();
+
+        transitions.add(new StateTransition(new State("A"), new StringMessage("1"), new State("B")));
+        transitions.add(new StateTransition(new State("B"), new StringMessage("2"), new State("C")));
+        return transitions;
     }
 }

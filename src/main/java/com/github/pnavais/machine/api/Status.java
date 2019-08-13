@@ -16,6 +16,7 @@
 
 package com.github.pnavais.machine.api;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -42,7 +43,7 @@ public class Status {
     public static final Status ABORT = new Status(STATUS_ABORTED);
 
     /** Proceed with the operation */
-    public static final Status PROCEED = new Status(STATUS_PROCEED);
+    public static final Status PROCEED = new Status(STATUS_PROCEED, true);
 
     /** The Status name.*/
     private String statusName;
@@ -50,12 +51,25 @@ public class Status {
     /** The emitted message */
     private Message message;
 
+    /** The validity flag */
+    private boolean valid;
+
     /**
      * Constructor with name
      * @param statusName the status name
      */
     private Status(String statusName) {
-        this.statusName = statusName;
+        this(statusName, false);
+    }
+
+    /**
+     * Constructor with name and validity flag
+     *
+     * @param statusName the status name
+     * @param validity the validity flag
+     */
+    private Status(String statusName, boolean validity) {
+        this(statusName, null, validity);
     }
 
     /**
@@ -64,8 +78,19 @@ public class Status {
      * @param message the message
      */
     private Status(String statusName, Message message) {
+        this(statusName, message, false);
+    }
+
+    /**
+     * Constructor with name and message
+     * @param statusName the status name
+     * @param message the message
+     */
+    @Builder
+    private Status(String statusName, Message message, boolean validity) {
         this.statusName = statusName;
         this.message = message;
+        this.valid = validity;
     }
 
     /**

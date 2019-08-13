@@ -18,7 +18,13 @@ package com.github.pnavais.machine.core;
 
 import com.github.pnavais.machine.AbstractStateMachineTest;
 import com.github.pnavais.machine.api.Message;
+import com.github.pnavais.machine.api.Messages;
+import com.github.pnavais.machine.api.Status;
+import com.github.pnavais.machine.api.VoidMessage;
 import com.github.pnavais.machine.api.exception.ValidationException;
+import com.github.pnavais.machine.api.filter.FunctionMessageFilter;
+import com.github.pnavais.machine.api.filter.MappedFunctionMessageFilter;
+import com.github.pnavais.machine.api.filter.MessageFilter;
 import com.github.pnavais.machine.api.validator.TransitionValidator;
 import com.github.pnavais.machine.api.validator.ValidationResult;
 import com.github.pnavais.machine.impl.StateTransitionMap;
@@ -26,6 +32,11 @@ import com.github.pnavais.machine.model.State;
 import com.github.pnavais.machine.model.StateTransition;
 import com.github.pnavais.machine.model.StringMessage;
 import org.junit.jupiter.api.Test;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -78,5 +89,167 @@ public class StateMachineComponentsTest extends AbstractStateMachineTest {
             assertEquals(result.getDescription(), e.getMessage(), "Error obtaining exception description");
         }
     }
+
+    @Test
+    public void testFunctionMessageFilterInit() {
+        FunctionMessageFilter<State> messageFilter = new FunctionMessageFilter<>();
+        Status status = messageFilter.onDispatch(Messages.ANY, null);
+        assertNotNull(status, "Error retrieving default status");
+        assertTrue(status.isValid(), "Error obtaining default status validity");
+
+        BiFunction<Message, State, Status> dispatchHandler = messageFilter.getDispatchHandler();
+        assertNotNull(dispatchHandler, "Error retrieving dispatch handler");
+
+        BiFunction<Message, State, Status> receptionHandler = messageFilter.getReceptionHandler();
+        assertNotNull(receptionHandler, "Error retrieving reception handler");
+    }
+
+    @Test
+    public void testNullFunctionMessageFilter() {
+        FunctionMessageFilter<State> messageFilter = new FunctionMessageFilter<>();
+        try {
+            messageFilter.setDispatchHandler(null);
+            fail("Error setting null dispatch handler");
+        } catch (Exception e) {
+            assertTrue(e instanceof NullPointerException, "Exception class mismatch");
+        }
+
+        try {
+            messageFilter.setReceptionHandler(null);
+            fail("Error setting null reception handler");
+        } catch (Exception e) {
+            assertTrue(e instanceof NullPointerException, "Exception class mismatch");
+        }
+    }
+
+    @Test
+    public void testMappedFunctionMessageFilterInit() {
+        List<Message> receivedMessages = new ArrayList<>();
+        MappedFunctionMessageFilter<State> messageFilter = new MappedFunctionMessageFilter<>();
+
+        BiFunction<Message, State, Status> handler = (message, state) -> {
+            receivedMessages.add(message);
+            return state.getName().equals("B") ? Status.ABORT : Status.PROCEED;
+        };
+
+        messageFilter.setDispatchHandler(StringMessage.from("m1"), handler);
+        messageFilter.setReceptionHandler(StringMessage.from("m1"), handler);
+
+        testMessageFilter(messageFilter,
+                messageFilter::onDispatch,
+                receivedMessages);
+
+        testMessageFilter(messageFilter,
+                messageFilter::onReceive,
+                receivedMessages);
+    }
+
+    @Test
+    public void testFunctionMessageFilterCustomMessage() {
+        List<Message> receivedMessages = new ArrayList<>();
+        FunctionMessageFilter<State> messageFilter = new FunctionMessageFilter<>();
+        VoidMessage custom_message = VoidMessage.builder().name("CUSTOM_MESSAGE").build();
+
+        BiFunction<Message, State, Status> handler = (message, state) -> {
+            if (Messages.ANY.equals(message)) {
+                receivedMessages.add(message);
+                return Status.PROCEED;
+            } else if (custom_message.getName().equals(message.getPayload().get())) {
+                return custom_message.getMessageId() != message.getMessageId() ? Status.PROCEED : Status.ABORT;
+            } else {
+                return Status.ABORT;
+            }
+        };
+
+        messageFilter.setDispatchHandler(handler);
+        Status status = messageFilter.onDispatch(StringMessage.from("A"), null);
+        assertNotNull(status, "Error obtaining status");
+        assertEquals(Status.ABORT, status, "Status mismatch");
+
+        status = messageFilter.onDispatch(Messages.ANY, null);
+        assertNotNull(status, "Error obtaining status");
+        assertEquals(Status.PROCEED, status, "Status mismatch");
+
+        status = messageFilter.onDispatch(StringMessage.from("CUSTOM_MESSAGE"), null);
+        assertNotNull(status, "Error obtaining status");
+        assertEquals(Status.PROCEED, status, "Status mismatch");
+    }
+
+    @Test
+    public void testMappedFunctionMessageFilterRemoval() {
+        MappedFunctionMessageFilter<State> messageFilter = new MappedFunctionMessageFilter<>();
+
+        BiFunction<Message, State, Status> customHandler = (message, state) -> Status.builder().message(StringMessage.from("testMessage")).statusName("TEST_STATUS").validity(false).build();
+        BiFunction<Message, State, Status> abortHandler = (message, state) -> Status.ABORT;
+
+        messageFilter.setDispatchHandler(Messages.ANY, abortHandler);
+        messageFilter.setDispatchHandler(StringMessage.from("A"), customHandler);
+        messageFilter.setReceptionHandler(Messages.ANY, abortHandler);
+        messageFilter.setReceptionHandler(StringMessage.from("A"), customHandler);
+
+        testRemovalOfMessageFilter(messageFilter, MappedFunctionMessageFilter::removeDispatchHandler, messageFilter::onDispatch);
+
+        testRemovalOfMessageFilter(messageFilter, MappedFunctionMessageFilter::removeReceptionHandler, messageFilter::onReceive);
+
+    }
+
+    /**
+     * Test the effects of removing a dispatch/reception handler from a given
+     * message filter
+     * @param messageFilter the message filter
+     * @param removalHandler the removal handler
+     * @param handler the dispatch/reception handler
+     * @param <S> the node type
+     * @param <F> the filter type
+     */
+    private <S extends State, F extends MessageFilter<S>> void testRemovalOfMessageFilter(F messageFilter, BiConsumer<F, Message> removalHandler, BiFunction<Message, State, Status> handler) {
+        Status status = handler.apply(StringMessage.from("A"), null);
+        assertNotNull(status, "Error obtaining status");
+        assertEquals("TEST_STATUS", status.getStatusName(), "Status mismatch");
+        assertEquals("testMessage", status.getMessage().getPayload().get(), "Status message mismatch");
+
+        status = handler.apply(Messages.ANY, null);
+        assertNotNull(status, "Error obtaining status");
+        assertEquals(Status.ABORT, status, "Status mismatch");
+
+        removalHandler.accept(messageFilter, StringMessage.from("A"));
+        status = handler.apply(StringMessage.from("A"), null);
+        assertNotNull(status, "Error obtaining status");
+        assertEquals(Status.ABORT, status, "Status mismatch");
+
+        removalHandler.accept(messageFilter, Messages.ANY);
+        status = handler.apply(StringMessage.from("A"), null);
+        assertNotNull(status, "Error obtaining status");
+        assertTrue(status.isValid(),"Status mismatch");
+    }
+
+    /**
+     * Test messages filter message reception.
+     *
+     * @param messageFilter    the message filter
+     * @param handler          the handler
+     * @param receivedMessages the received messages
+     */
+    private void testMessageFilter(MessageFilter<State> messageFilter, BiFunction <Message, State, Status> handler, List<Message> receivedMessages) {
+        receivedMessages.clear();
+
+        Status status = messageFilter.onDispatch(StringMessage.from("m2"), State.from("C").build());
+        assertNotNull(status, "Error obtaining status");
+        assertTrue(status.isValid(), "Error obtaining validity");
+        assertEquals(0, receivedMessages.size(), "Error receiving messages");
+
+        status = messageFilter.onDispatch(StringMessage.from("m1"), State.from("C").build());
+        assertTrue(status.isValid(), "Error obtaining validity");
+        assertEquals(1, receivedMessages.size(), "Error receiving messages");
+        assertEquals(StringMessage.from("m1"), receivedMessages.get(0), "Received message mismatch");
+
+        receivedMessages.clear();
+        status = messageFilter.onDispatch(StringMessage.from("m1"), State.from("B").build());
+        assertFalse(status.isValid(), "Error obtaining validity");
+        assertEquals(1, receivedMessages.size(), "Error receiving messages");
+        assertEquals(StringMessage.from("m1"), receivedMessages.get(0), "Received message mismatch");
+    }
+
+
 
 }

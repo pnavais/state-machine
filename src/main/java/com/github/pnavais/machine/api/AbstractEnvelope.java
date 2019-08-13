@@ -16,26 +16,26 @@
 
 package com.github.pnavais.machine.api;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
 /**
- * Provides default generic Message types
+ * Base class for {@link Envelope} implementors.
+ *
+ * @param <N> the type of the node
+ * @param <M> the type of message
  */
-public final class MessageConstants {
+@Getter
+@AllArgsConstructor
+public abstract class AbstractEnvelope<N extends Node, M extends Message> implements Envelope<N,M> {
 
-    public static final String ANY_MESSAGE_PAYLOAD = "*";
+    /** The source node */
+    protected N origin;
 
-    /**
-     * A void message used as marker representing an empty message
-     */
-    public static final Message EMPTY = VoidMessage.create();
+    /** The message */
+    protected M message;
 
-    /**
-     * A void message used as marker representing any kind of message
-     */
-    public static final Message ANY = VoidMessage.createWith(() -> ANY_MESSAGE_PAYLOAD);
-
-    /**
-     * Private constructor to avoid external instantiation
-     */
-    private MessageConstants() {}
+    /* The target node */
+    protected N target;
 
 }

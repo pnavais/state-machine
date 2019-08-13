@@ -17,7 +17,7 @@ package com.github.pnavais.machine;
 
 import com.github.pnavais.machine.api.Envelope;
 import com.github.pnavais.machine.api.Message;
-import com.github.pnavais.machine.api.MessageConstants;
+import com.github.pnavais.machine.api.Messages;
 import com.github.pnavais.machine.api.Status;
 import com.github.pnavais.machine.api.exception.NullStateException;
 import com.github.pnavais.machine.api.transition.TransitionChecker;
@@ -61,8 +61,7 @@ public class StateMachine implements Transitioner<State, Message, StateTransitio
      * Creates the state machine.
      */
     public StateMachine() {
-        this.transitionsIndex = new StateTransitionMap();
-        this.transitionChecker = new StateTransitionChecker();
+        this(new StateTransitionMap());
     }
 
     /**
@@ -72,7 +71,7 @@ public class StateMachine implements Transitioner<State, Message, StateTransitio
      * @param transitionIndex the transition map
      */
     public StateMachine(@NonNull TransitionIndex<State, Message, StateTransition> transitionIndex) {
-        this.transitionsIndex = transitionIndex;
+        this(transitionIndex, new StateTransitionChecker());
     }
 
     /**
@@ -81,8 +80,8 @@ public class StateMachine implements Transitioner<State, Message, StateTransitio
      *
      * @param transitionChecker the transition checker
      */
-    public StateMachine( @NonNull TransitionChecker<State, Message> transitionChecker) {
-        this.transitionChecker = transitionChecker;
+    public StateMachine(@NonNull TransitionChecker<State, Message> transitionChecker) {
+        this(new StateTransitionMap(), transitionChecker);
     }
 
     /**
@@ -118,6 +117,18 @@ public class StateMachine implements Transitioner<State, Message, StateTransitio
     @Override
     public void add(StateTransition transition) {
         this.transitionsIndex.add(transition);
+    }
+
+    /**
+     * Adds a collection of Transition to the state
+     * machine. If already present, they are
+     * replaced silently.
+     *
+     * @param transitions the transition to add
+     */
+    @Override
+    public void addAll(@NonNull Collection<StateTransition> transitions) {
+        this.transitionsIndex.addAll(transitions);
     }
 
     /**
@@ -256,11 +267,9 @@ public class StateMachine implements Transitioner<State, Message, StateTransitio
         }
 
         // Update current state only if transitions are successful
-        if (targetState.isPresent() && (Status.PROCEED.equals(status))) {
-            currentState = targetState.get();
-        } else if (Status.ABORT.equals(status)) {
+        if (!status.isValid()) {
             targetState = Optional.empty();
-        }
+        } else targetState.ifPresent(state -> currentState = state);
 
         return targetState;
     }
@@ -293,7 +302,7 @@ public class StateMachine implements Transitioner<State, Message, StateTransitio
         Optional<State> targetState = transitionsIndex.getNext(currentState, m);
 
         // Check if ANY mapping is available as fallback
-        return !(targetState.isPresent()) ? transitionsIndex.getNext(currentState, MessageConstants.ANY) : targetState;
+        return !(targetState.isPresent()) ? transitionsIndex.getNext(currentState, Messages.ANY) : targetState;
     }
 
     /**
