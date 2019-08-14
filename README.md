@@ -29,6 +29,7 @@ StateMachine stateMachine = StateMachine.newBuilder()
  ```
  
 Creates a new State Machine as per the following diagram : 
+
 ![alt text](simple_graph.png "Logo Title Text 1")
 
  
