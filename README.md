@@ -1,5 +1,5 @@
 # state-machine
-Generic State Machine implementation
+Generic State Machine implementation for Java 8+
 <p align="center">
     <a href="https://travis-ci.org/pnavais/state-machine">
         <img src="https://img.shields.io/travis/pnavais/state-machine.svg"
