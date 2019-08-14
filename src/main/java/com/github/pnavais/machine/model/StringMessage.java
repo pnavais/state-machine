@@ -17,6 +17,7 @@ package com.github.pnavais.machine.model;
 
 import com.github.pnavais.machine.api.Payload;
 import com.github.pnavais.machine.api.Message;
+import lombok.NonNull;
 import lombok.Setter;
 
 import java.util.Objects;
@@ -43,8 +44,7 @@ public class StringMessage implements Message {
      *
      * @param messageKey the message identifier
      */
-    public StringMessage(String messageKey) {
-        Objects.requireNonNull(messageKey);
+    public StringMessage(@NonNull String messageKey) {
         this.messageKey = messageKey;
         this.messageId = UUID.randomUUID();
         this.payload = () -> this.messageKey;

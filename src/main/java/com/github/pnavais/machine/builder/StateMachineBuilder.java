@@ -17,12 +17,12 @@ package com.github.pnavais.machine.builder;
 
 import com.github.pnavais.machine.StateMachine;
 import com.github.pnavais.machine.api.Message;
+import com.github.pnavais.machine.api.Messages;
+import com.github.pnavais.machine.impl.StateTransitionMap;
 import com.github.pnavais.machine.model.State;
 import com.github.pnavais.machine.model.StateTransition;
-import com.github.pnavais.machine.impl.StateTransitionMap;
 import com.github.pnavais.machine.model.StringMessage;
-
-import java.util.Objects;
+import lombok.NonNull;
 
 /**
  * A simple builder for {@link StateMachine} instances
@@ -69,8 +69,7 @@ public class StateMachineBuilder {
      * @param transition the transition to add
      * @return the builder transitionMap for chaining purposes.
      */
-    public StateMachineBuilder add(StateTransition transition) {
-        Objects.requireNonNull(transition, "Cannot add null transition");
+    public StateMachineBuilder add(@NonNull StateTransition transition) {
         this.transitionMap.add(transition);
         return this;
     }
@@ -98,14 +97,16 @@ public class StateMachineBuilder {
     }
 
     /**
-     * Creates a new transitionMap from the
-     * transition map currently built.
+     * Creates and initializes a State Machine
+     * from the transition map currently built.
      *
-     * @return the new srcState machine with the current
+     * @return the new state machine initialized with the current
      * transitions.
      */
     public StateMachine build() {
-        return new StateMachine(transitionMap);
+        StateMachine stateMachine = new StateMachine(transitionMap);
+        stateMachine.init();
+        return stateMachine;
     }
 
     /**
@@ -191,6 +192,61 @@ public class StateMachineBuilder {
             this.srcState = srcState;
             this.targetState = targetState;
             this.builder = builder;
+        }
+
+        /**
+         * Starts a new transition from the given
+         * state name using an empty
+         * message for the current transition.
+         *
+         * @param state the next source state
+         * @return the from builder
+         */
+        public FromBuilder from(String state) {
+            return on(Messages.EMPTY).from(state);
+        }
+
+        /**
+         * Starts a new transition from the given
+         * state using an empty
+         * message for the current transition.
+         *
+         * @param state the next source state
+         * @return the from builder
+         */
+        public FromBuilder from(State state) {
+            return on(Messages.EMPTY).from(state);
+        }
+
+        /**
+         * Creates a self loop for the state
+         * specified by the given name.
+         *
+         * @param state the state name
+         * @return the from builder
+         */
+        public ToBuilder selfLoop(String state) {
+            return on(Messages.EMPTY).selfLoop(state);
+        }
+
+        /**
+         * Creates a self loop for the given state.
+         *
+         * @param state the state
+         * @return the from builder
+         */
+        public ToBuilder selfLoop(State state) {
+            return on(Messages.EMPTY).selfLoop(state);
+        }
+
+        /**
+         * Finish the current transition and retrieves
+         * the current state machine built instance.
+         *
+         * @return the current state machine instance
+         */
+        public StateMachine build() {
+            return on(Messages.EMPTY).build();
         }
 
         /**

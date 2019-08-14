@@ -326,6 +326,15 @@ public class StateMachine implements Transitioner<State, Message, StateTransitio
     }
 
     /**
+     * Sends a void message to the state machine triggering
+     * a potential transition.
+     */
+    @Override
+    public StateMachine next() {
+        return send(Messages.EMPTY);
+    }
+
+    /**
      * Sends a message to the state machine triggering
      * a potential transition.
      *

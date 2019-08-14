@@ -18,13 +18,16 @@ package com.github.pnavais.machine.core;
 
 import com.github.pnavais.machine.AbstractStateMachineTest;
 import com.github.pnavais.machine.StateMachine;
+import com.github.pnavais.machine.api.Status;
 import com.github.pnavais.machine.api.exception.NullStateException;
+import com.github.pnavais.machine.model.FilteredState;
 import com.github.pnavais.machine.model.State;
 import com.github.pnavais.machine.model.StateTransition;
 import com.github.pnavais.machine.model.StringMessage;
 import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -117,6 +120,39 @@ public class StateMachineTraversalTest extends AbstractStateMachineTest {
         assertNotNull(current, "Error retrieving current state");
         assertThat("Error retrieving", current.getName(), is("C"));
         assertTrue(current.isFinal(), "Error retrieving last state");
+    }
+
+    @Test
+    public void testLoopStateTraversal() {
+        AtomicBoolean loopComplete = new AtomicBoolean(false);
+        StateMachine machine = createStateMachine();
+        FilteredState stateF = new FilteredState(new State("F"));
+        stateF.setReceptionHandler((message, state) -> {
+            if (state.getName().equals("F")) {
+                loopComplete.set(true);
+            }
+            return Status.PROCEED;
+        });
+
+        machine.add(new StateTransition(stateF, StringMessage.from("self"), stateF));
+        machine.add(new StateTransition("F", StringMessage.from("toA"), "A"));
+        machine.add(new StateTransition("A", StringMessage.from("toF"), "F"));
+
+        machine.setCurrent("F");
+        State current = machine.send("toA").getCurrent();
+        assertNotNull(current, "Error retrieving current state");
+        assertThat("Error retrieving", current.getName(), is("A"));
+        assertFalse(loopComplete.get(), "Error checking self loop");
+
+        current = machine.send("toF").getCurrent();
+        assertNotNull(current, "Error retrieving current state");
+        assertThat("Error retrieving", current.getName(), is("F"));
+        assertFalse(loopComplete.get(), "Error checking self loop");
+
+        current = machine.send("self").getCurrent();
+        assertNotNull(current, "Error retrieving current state");
+        assertThat("Error retrieving", current.getName(), is("F"));
+        assertTrue(loopComplete.get(), "Error checking self loop");
     }
 
     /**
