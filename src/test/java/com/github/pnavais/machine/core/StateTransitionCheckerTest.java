@@ -52,7 +52,8 @@ public class StateTransitionCheckerTest extends AbstractStateMachineTest {
 
     @Test
     public void testInitStateMachineWithCustomChecker() {
-        TransitionChecker<State, Message> transitionChecker = createTransitionChecker();       StateMachine machine = new StateMachine(transitionChecker);
+        TransitionChecker<State, Message> transitionChecker = createTransitionChecker();
+        StateMachine machine = new StateMachine(transitionChecker);
         Collection<StateTransition> stateTransitions = createStateTransitions();
         machine.addAll(stateTransitions);
         machine.init();
@@ -72,8 +73,8 @@ public class StateTransitionCheckerTest extends AbstractStateMachineTest {
             assertEquals(messages[i], envelope.getMessage().getPayload().get().toString(), "Message mismatch");
             assertTrue(envelope instanceof SimpleEnvelope, "Error obtaining envelope instance");
             assertEquals(stateTransitions, ((SimpleEnvelope) envelope).getTransitionIndex().getAllTransitions(), "Transition index mismatch");
-
             assertEquals(envelopesDeparture.get(i), envelopesArrival.get(i), "Envelops mismatch");
+            assertEquals(envelopesDeparture.get(i).hashCode(), envelopesArrival.get(i).hashCode(), "Envelops mismatch");
         });
 
     }

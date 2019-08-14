@@ -26,10 +26,7 @@ import com.github.pnavais.machine.api.transition.Transitioner;
 import com.github.pnavais.machine.builder.StateMachineBuilder;
 import com.github.pnavais.machine.impl.StateTransitionChecker;
 import com.github.pnavais.machine.impl.StateTransitionMap;
-import com.github.pnavais.machine.model.SimpleEnvelope;
-import com.github.pnavais.machine.model.State;
-import com.github.pnavais.machine.model.StateTransition;
-import com.github.pnavais.machine.model.StringMessage;
+import com.github.pnavais.machine.model.*;
 import lombok.NonNull;
 
 import java.util.Collection;
@@ -247,29 +244,50 @@ public class StateMachine implements Transitioner<State, Message, StateTransitio
      */
     @Override
     public Optional<State> getNext(Message m) {
+        return getNext(m, true);
+    }
+
+    /**
+     * Retrieves the next state upon
+     * message reception. In case
+     * the current state is not defined
+     * or no next state is defined , an empty state
+     * is returned.
+     *
+     * @param m the message
+     * @param handleDeparture flag to control departure handling
+     *
+     * @return the next state or empty if not found
+     */
+    private Optional<State> getNext(Message m, boolean handleDeparture) {
         // Obtain next state
         Optional<State> targetState = obtainTargetState(m);
 
-        // Create the envelope
-        SimpleEnvelope envelope = SimpleEnvelope.builder()
-                .source(currentState)
-                .target(targetState.orElse(null))
-                .message(m)
-                .transitionIndex(transitionsIndex)
-                .build();
+        // If available do the processing
+        if (targetState.isPresent()) {
+            // Create the envelope
+            SimpleEnvelope envelope = SimpleEnvelope.builder()
+                    .source(currentState)
+                    .target(targetState.get())
+                    .message(m)
+                    .transitionIndex(transitionsIndex)
+                    .build();
 
-        // Validates departure/arrival from current state to target state
-        Status status = handleMessageFiltering(envelope);
+            // Validates departure/arrival from current state to target state
+            InfoStatus infoStatus = handleMessageFiltering(envelope, handleDeparture);
 
-        // Handles potential redirection on departure/arrival
-        if (status.isRedirect()) {
-            targetState = getNext(status.getMessage());
+            // Handles potential redirection on departure/arrival
+            if (infoStatus.getStatus().isRedirect()) {
+                // Update state before redirection
+                currentState = (infoStatus.getEvent() != InfoStatus.Event.DEPARTURE) ? targetState.get() : currentState;
+                targetState = getNext(infoStatus.getStatus().getMessage(), (infoStatus.getEvent() != InfoStatus.Event.DEPARTURE));
+            }
+
+            // Update current state only if transitions are successful
+            if (!infoStatus.getStatus().isValid()) {
+                targetState = Optional.empty();
+            } else targetState.ifPresent(state -> currentState = state);
         }
-
-        // Update current state only if transitions are successful
-        if (!status.isValid()) {
-            targetState = Optional.empty();
-        } else targetState.ifPresent(state -> currentState = state);
 
         return targetState;
     }
@@ -280,15 +298,17 @@ public class StateMachine implements Transitioner<State, Message, StateTransitio
      * @param envelope the envelope containing the message
      * @return the status after validation
      */
-    private Status handleMessageFiltering(Envelope<State, Message> envelope) {
-        Status status = transitionChecker.validateDeparture(envelope);
+    private InfoStatus handleMessageFiltering(Envelope<State, Message> envelope, boolean handleDeparture) {
+        InfoStatus.Event event = InfoStatus.Event.DEPARTURE;
+        Status status = handleDeparture ? transitionChecker.validateDeparture(envelope) : Status.PROCEED;
 
         // Validates arrival to next state
-        if (status.equals(Status.PROCEED)) {
-            status = (envelope.getTarget() != null) ? transitionChecker.validateArrival(envelope) : Status.ABORT;
+        if (status.isValid() && !status.isRedirect()) {
+            status = transitionChecker.validateArrival(envelope);
+            event = InfoStatus.Event.ARRIVAL;
         }
 
-        return status;
+        return InfoStatus.from(status, event);
     }
 
     /**

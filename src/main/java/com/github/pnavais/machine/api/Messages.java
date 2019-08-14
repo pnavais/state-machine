@@ -27,15 +27,26 @@ public final class Messages {
     /** The payload string of the ANY void message */
     public static final String ANY_MESSAGE_PAYLOAD = "*";
 
+    /** The identifier of the EMPTY void message */
+    public static final String EMPTY_MESSAGE_ID = "EMPTY";
+
+    /** The payload string of the EMPTY void message */
+    public static final String EMPTY_MESSAGE_PAYLOAD = "_";
+
     /**
      * A void message used as marker representing an empty message
      */
-    public static final Message EMPTY = VoidMessage.builder().build();
+    public static final Message NULL = VoidMessage.createNew();
+
+    /**
+     * A void message used as marker representing an empty message
+     */
+    public static final Message EMPTY = VoidMessage.createWith(EMPTY_MESSAGE_ID , () -> EMPTY_MESSAGE_PAYLOAD);
 
     /**
      * A void message used as marker representing any kind of message
      */
-    public static final Message ANY = VoidMessage.builder().name(ANY_MESSAGE_ID).payload(() -> ANY_MESSAGE_PAYLOAD).build();
+    public static final Message ANY = VoidMessage.createWith(ANY_MESSAGE_ID, () -> ANY_MESSAGE_PAYLOAD);
 
     /**
      * Private constructor to avoid external instantiation

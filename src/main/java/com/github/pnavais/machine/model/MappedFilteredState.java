@@ -99,4 +99,9 @@ public class MappedFilteredState extends AbstractFilteredState  {
         return this.messageFilter.onReceive(message, source);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        return super.equals(o);
+    }
+
 }

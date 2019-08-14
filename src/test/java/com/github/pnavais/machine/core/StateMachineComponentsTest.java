@@ -148,7 +148,7 @@ public class StateMachineComponentsTest extends AbstractStateMachineTest {
     public void testFunctionMessageFilterCustomMessage() {
         List<Message> receivedMessages = new ArrayList<>();
         FunctionMessageFilter<State> messageFilter = new FunctionMessageFilter<>();
-        VoidMessage custom_message = VoidMessage.builder().name("CUSTOM_MESSAGE").build();
+        VoidMessage custom_message = VoidMessage.createWith("CUSTOM_MESSAGE");
 
         BiFunction<Message, State, Status> handler = (message, state) -> {
             if (Messages.ANY.equals(message)) {
@@ -165,21 +165,29 @@ public class StateMachineComponentsTest extends AbstractStateMachineTest {
         Status status = messageFilter.onDispatch(StringMessage.from("A"), null);
         assertNotNull(status, "Error obtaining status");
         assertEquals(Status.ABORT, status, "Status mismatch");
+        assertEquals(0, receivedMessages.size(), "Error obtaining received message size");
 
         status = messageFilter.onDispatch(Messages.ANY, null);
         assertNotNull(status, "Error obtaining status");
         assertEquals(Status.PROCEED, status, "Status mismatch");
+        assertEquals(1, receivedMessages.size(), "Error obtaining received message size");
 
         status = messageFilter.onDispatch(StringMessage.from("CUSTOM_MESSAGE"), null);
         assertNotNull(status, "Error obtaining status");
         assertEquals(Status.PROCEED, status, "Status mismatch");
+        assertEquals(1, receivedMessages.size(), "Error obtaining received message size");
     }
 
     @Test
     public void testMappedFunctionMessageFilterRemoval() {
         MappedFunctionMessageFilter<State> messageFilter = new MappedFunctionMessageFilter<>();
 
-        BiFunction<Message, State, Status> customHandler = (message, state) -> Status.builder().message(StringMessage.from("testMessage")).statusName("TEST_STATUS").validity(false).build();
+        BiFunction<Message, State, Status> customHandler = (message, state) -> Status.builder().
+                message(StringMessage.from("testMessage"))
+                .statusName("TEST_STATUS")
+                .validity(false)
+                .build();
+
         BiFunction<Message, State, Status> abortHandler = (message, state) -> Status.ABORT;
 
         messageFilter.setDispatchHandler(Messages.ANY, abortHandler);
@@ -188,9 +196,7 @@ public class StateMachineComponentsTest extends AbstractStateMachineTest {
         messageFilter.setReceptionHandler(StringMessage.from("A"), customHandler);
 
         testRemovalOfMessageFilter(messageFilter, MappedFunctionMessageFilter::removeDispatchHandler, messageFilter::onDispatch);
-
         testRemovalOfMessageFilter(messageFilter, MappedFunctionMessageFilter::removeReceptionHandler, messageFilter::onReceive);
-
     }
 
     /**
@@ -249,7 +255,5 @@ public class StateMachineComponentsTest extends AbstractStateMachineTest {
         assertEquals(1, receivedMessages.size(), "Error receiving messages");
         assertEquals(StringMessage.from("m1"), receivedMessages.get(0), "Received message mismatch");
     }
-
-
 
 }

@@ -128,6 +128,29 @@ public class StateMachineMessagingTest extends AbstractStateMachineTest {
     }
 
     @Test
+    public void testDepartureOnEmptyMessage() {
+        StateMachine machine = createStateMachine();
+        machine.init();
+
+        State current = machine.send(Messages.EMPTY).getCurrent();
+        assertNotNull(current, "Error retrieving current state");
+        assertEquals(1, messageBuffer.size(), "Error obtaining messages from buffer");
+        assertEquals("Departing from A to E on [_]", messageBuffer.get(0), "Error obtaining departure message");
+    }
+
+    @Test
+    public void testDepartureOnNullMessage() {
+        StateMachine machine = createStateMachine();
+        machine.add(new StateTransition("A", Messages.NULL, "F"));
+        machine.init();
+
+        State current = machine.send(Messages.NULL).getCurrent();
+        assertNotNull(current, "Error retrieving current state");
+        assertEquals(1, messageBuffer.size(), "Error obtaining messages from buffer");
+        assertEquals("Departing from A to F on []", messageBuffer.get(0), "Error obtaining departure message");
+    }
+
+    @Test
     public void testDepartureOnFinalFilteredState() {
         StateMachine machine = createStateMachine();
 
@@ -168,6 +191,82 @@ public class StateMachineMessagingTest extends AbstractStateMachineTest {
         assertEquals("Arriving to B from D on [3]", messageBuffer.get(4), "Error obtaining departure message");
     }
 
+    @Test
+    public void testMessageRedirectOnReception() {
+        StateMachine machine = createStateMachine();
+
+        // Add a redirection state depending on the message
+        FilteredState stateRedirect = new FilteredState(new State("F"));
+        stateRedirect.setReceptionHandler((message, state) -> message.getPayload().get().equals("8") ? Status.forward(StringMessage.from("8")) : Status.PROCEED);
+
+        machine.add(new StateTransition(new State("A"), Messages.ANY, stateRedirect));
+        machine.add(new StateTransition("F", StringMessage.from("8"), "G"));
+
+        machine.init();
+        State current = machine.send("7").getCurrent();
+        assertNotNull(current, "Error retrieving current state");
+        assertEquals("F", current.getName(), "Target state name mismatch");
+
+        machine.init();
+        current = machine.send("8").getCurrent();
+        assertNotNull(current, "Error retrieving current state");
+        assertEquals("G", current.getName(), "Target state name mismatch");
+    }
+
+    @Test
+    public void testMessageRedirectOnDeparture() {
+        StateMachine machine = createStateMachine();
+
+        // Add a redirection state depending on the message
+        FilteredState stateRedirect = new FilteredState(new State("F"));
+        stateRedirect.setDispatchHandler((message, state) -> Status.forward(StringMessage.from("9")));
+
+        machine.add(new StateTransition(new State("A"), Messages.ANY, stateRedirect));
+        machine.add(new StateTransition("F", StringMessage.from("8"), "G"));
+        machine.add(new StateTransition("F", StringMessage.from("9"), "H"));
+
+        machine.init();
+        State current = machine.send("7").getCurrent();
+        assertNotNull(current, "Error retrieving current state");
+        assertEquals("F", current.getName(), "Target state name mismatch");
+
+        current = machine.send("8").getCurrent();
+        assertNotNull(current, "Error retrieving current state");
+        assertEquals("H", current.getName(), "Target state name mismatch");
+    }
+
+    @Test
+    public void testChainedMessageRedirection() {
+        StateMachine machine = createStateMachine();
+
+        // Add a redirection state depending on the message
+        FilteredState firstHop = new FilteredState(new State("F"));
+        firstHop.setDispatchHandler((message, state) -> Status.forward(StringMessage.from("9")));
+
+        FilteredState secondHop = new FilteredState(new State("G"));
+        secondHop.setReceptionHandler((message, state) -> Status.forward(StringMessage.from("10")));
+
+        machine.add(new StateTransition(firstHop, StringMessage.from("1"), new State("Z")));
+
+        machine.setCurrent("F");
+        State current = machine.send("1").getCurrent();
+        assertNotNull(current, "Error retrieving current state");
+        assertEquals("F", current.getName(), "Target state name mismatch");
+
+        // Add second hop
+        machine.add(new StateTransition(firstHop, StringMessage.from("9"), secondHop));
+        current = machine.send("1").getCurrent();
+        assertNotNull(current, "Error retrieving current state");
+        assertEquals("G", current.getName(), "Target state name mismatch");
+
+        // Full circle
+        System.out.println("------ FULL CIRCLE ------");
+        machine.add(new StateTransition(secondHop, StringMessage.from("10"), firstHop));
+        machine.setCurrent("F");
+        current = machine.send("1").getCurrent();
+        assertNotNull(current, "Error retrieving current state");
+    }
+
     /**
      * Creates a state machine with the following transitions :
      * <pre>
@@ -180,6 +279,8 @@ public class StateMachineMessagingTest extends AbstractStateMachineTest {
      * +--------+---------+--------+
      * |   A    |    4    |   D    |
      * +--------+---------+--------+
+     * |   A    |    _    |   E    |
+     * +--------+---------+--------+
      * |   B    |    2    |   C*   |
      * +--------+---------+--------+
      * |   D    |    2    |   C*   |
@@ -189,17 +290,19 @@ public class StateMachineMessagingTest extends AbstractStateMachineTest {
      * </pre>
      * Which is equivalent to :
      * <pre>
-     * +--------+-------------------------------+
-     * | Source |            Target             |
-     * +--------+-------------------------------+
-     * |   A    | [ * -> C* , 1 -> B , 4 -> D ] |
-     * +--------+-------------------------------+
-     * |   C*   |              []               |
-     * +--------+-------------------------------+
-     * |   B    |          [ 2 -> C* ]          |
-     * +--------+-------------------------------+
-     * |   D    |     [ 2 -> C* , 3 -> B ]      |
-     * +--------+-------------------------------+
+     * +--------+-----------------------------------------+
+     * | Source |            Target                       |
+     * +--------+-----------------------------------------+
+     * |   A    | [ * -> C* , 1 -> B , 4 -> D , _ -> E ]  |
+     * +--------+-----------------------------------------+
+     * |   C*   |              []                         |
+     * +--------+-----------------------------------------+
+     * |   B    |          [ 2 -> C* ]                    |
+     * +--------+-----------------------------------------+
+     * |   D    |     [ 2 -> C* , 3 -> B ]                |
+     * +--------+-----------------------------------------+
+     * |   E    |              []                         |
+     * +--------+-----------------------------------------+
      * </pre>
      *
      * Additionally adds a mapped message filter for the departure from A on ANY (*) message
@@ -227,6 +330,7 @@ public class StateMachineMessagingTest extends AbstractStateMachineTest {
         machine.add(new StateTransition(stateA, StringMessage.from("4"), stateD));
         machine.add(new StateTransition(stateD, StringMessage.from("2"), stateC));
         machine.add(new StateTransition(stateD, StringMessage.from("3"), stateB));
+        machine.add(new StateTransition(stateA, Messages.EMPTY, new State("E")));
         return machine;
     }
 
@@ -240,7 +344,7 @@ public class StateMachineMessagingTest extends AbstractStateMachineTest {
 
         // Dispatch handler for State A
         stateA.setDispatchHandler(Messages.ANY, (message, state) -> {
-            messageBuffer.add(String.format("Departing from A to %s on [%s]", state.getName(), message.getPayload().get()));
+            messageBuffer.add(String.format("Departing from A to %s on [%s]", state.getName(), message.getPayload()!=null? message.getPayload().get() : ""));
             return Status.PROCEED;
         });
 

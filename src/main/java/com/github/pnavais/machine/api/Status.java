@@ -18,16 +18,12 @@ package com.github.pnavais.machine.api;
 
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
 
 /**
  * The status represents the possible outcome of a given movement
  * between nodes.
  */
 @Getter
-@Setter
-@ToString
 public class Status {
 
     /** The aborted status keyword */
@@ -40,54 +36,29 @@ public class Status {
     public static final String STATUS_FORWARD = "FORWARD";
 
     /** Abort the operation */
-    public static final Status ABORT = new Status(STATUS_ABORTED);
+    public static final Status ABORT = Status.builder().statusName(STATUS_ABORTED).build();
 
     /** Proceed with the operation */
-    public static final Status PROCEED = new Status(STATUS_PROCEED, true);
+    public static final Status PROCEED = Status.builder().statusName(STATUS_PROCEED).validity(true).build();
 
     /** The Status name.*/
-    private String statusName;
+    protected String statusName;
 
     /** The emitted message */
-    private Message message;
+    protected Message message;
 
     /** The validity flag */
-    private boolean valid;
+    protected boolean valid;
 
     /**
-     * Constructor with name
-     * @param statusName the status name
-     */
-    private Status(String statusName) {
-        this(statusName, false);
-    }
-
-    /**
-     * Constructor with name and validity flag
+     * Constructor with name, message and validity.
      *
      * @param statusName the status name
-     * @param validity the validity flag
-     */
-    private Status(String statusName, boolean validity) {
-        this(statusName, null, validity);
-    }
-
-    /**
-     * Constructor with name and message
-     * @param statusName the status name
      * @param message the message
-     */
-    private Status(String statusName, Message message) {
-        this(statusName, message, false);
-    }
-
-    /**
-     * Constructor with name and message
-     * @param statusName the status name
-     * @param message the message
+     * @param validity the validity
      */
     @Builder
-    private Status(String statusName, Message message, boolean validity) {
+    protected Status(String statusName, Message message, boolean validity) {
         this.statusName = statusName;
         this.message = message;
         this.valid = validity;
@@ -101,7 +72,7 @@ public class Status {
      * @return the status
      */
     public static Status forward(Message message) {
-        return new Status(STATUS_FORWARD, message);
+        return new Status(STATUS_FORWARD, message, true);
     }
 
     /**
@@ -111,6 +82,6 @@ public class Status {
      * @return tue if redirection needed, false otherwise
      */
     public boolean isRedirect() {
-        return statusName.equals(STATUS_FORWARD) && (this.message!=null);
+        return statusName.equals(STATUS_FORWARD) && (this.message!=null) && (this.valid);
     }
 }
