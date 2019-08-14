@@ -18,3 +18,18 @@ Generic State Machine implementation
              alt="Quality Gate"/>
     </a>
 </p>
+
+## Basic usage
+
+
+```java
+StateMachine stateMachine = StateMachine.newBuilder()
+                .from("A").to("B").on("1")
+                .from("B").to("C").on("2")                
+                .build()
+ ```
+ 
+ Creates a new State Machine as per the following diagram : 
+ 
+ ## Advanced usage
+ ### Self loops
