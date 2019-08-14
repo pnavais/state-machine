@@ -21,7 +21,6 @@ Generic State Machine implementation
 
 ## Basic usage
 
-
 ```java
 StateMachine stateMachine = StateMachine.newBuilder()
                 .from("A").to("B").on("1")
@@ -29,7 +28,9 @@ StateMachine stateMachine = StateMachine.newBuilder()
                 .build()
  ```
  
- Creates a new State Machine as per the following diagram : 
+Creates a new State Machine as per the following diagram : 
+![alt text](simple_graph.png "Logo Title Text 1")
+
  
  ## Advanced usage
  ### Self loops
