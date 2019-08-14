@@ -35,3 +35,7 @@ Creates a new State Machine as per the following diagram :
  
  ## Advanced usage
  ### Self loops
+ 
+ ### Final states
+ 
+ ### Message filtering
