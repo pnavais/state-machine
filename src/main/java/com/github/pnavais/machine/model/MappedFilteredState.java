@@ -73,32 +73,6 @@ public class MappedFilteredState extends AbstractFilteredState  {
         this.messageFilter.setDispatchHandler(message, dispatchHandler);
     }
 
-    /**
-     * Intercepts a message to be dispatched to the
-     * given destination.
-     *
-     * @param message     the message to be dispatched
-     * @param destination the target node
-     * @return whether the operation shall continue or not
-     */
-    @Override
-    public Status onDispatch(Message message, State destination) {
-        return this.messageFilter.onDispatch(message, destination);
-    }
-
-    /**
-     * Intercepts a message to be received from the
-     * given origin.
-     *
-     * @param message the message to be dispatched
-     * @param source  the source node
-     * @return whether the operation shall continue or not
-     */
-    @Override
-    public Status onReceive(Message message, State source) {
-        return this.messageFilter.onReceive(message, source);
-    }
-
     @Override
     public boolean equals(Object o) {
         return super.equals(o);

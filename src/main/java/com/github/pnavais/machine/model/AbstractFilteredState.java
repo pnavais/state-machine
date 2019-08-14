@@ -16,6 +16,8 @@
 
 package com.github.pnavais.machine.model;
 
+import com.github.pnavais.machine.api.Message;
+import com.github.pnavais.machine.api.Status;
 import com.github.pnavais.machine.api.filter.MessageFilter;
 import lombok.NonNull;
 
@@ -73,6 +75,33 @@ public abstract class AbstractFilteredState extends State implements MessageFilt
     @Override
     public boolean isFinal() {
         return this.state.isFinal();
+    }
+
+
+    /**
+     * Intercepts a message to be dispatched to the
+     * given destination.
+     *
+     * @param message     the message to be dispatched
+     * @param destination the target node
+     * @return whether the operation shall continue or not
+     */
+    @Override
+    public Status onDispatch(Message message, State destination) {
+        return getMessageFilter().onDispatch(message, destination);
+    }
+
+    /**
+     * Intercepts a message to be received from the
+     * given origin.
+     *
+     * @param message the message to be dispatched
+     * @param source  the source node
+     * @return whether the operation shall continue or not
+     */
+    @Override
+    public Status onReceive(Message message, State source) {
+        return getMessageFilter().onReceive(message, source);
     }
 
     @Override
