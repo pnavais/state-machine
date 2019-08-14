@@ -104,4 +104,9 @@ public class FilteredState extends AbstractFilteredState {
         return super.equals(o);
     }
 
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
 }
