@@ -39,3 +39,5 @@ Creates a new State Machine as per the following diagram :
  ### Final states
  
  ### Message filtering
+ 
+ ### Custom messages
