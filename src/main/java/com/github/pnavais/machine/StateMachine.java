@@ -15,11 +15,12 @@
  */
 package com.github.pnavais.machine;
 
-import com.github.pnavais.machine.api.Envelope;
-import com.github.pnavais.machine.api.Message;
-import com.github.pnavais.machine.api.Messages;
-import com.github.pnavais.machine.api.Status;
+import com.github.pnavais.machine.api.*;
 import com.github.pnavais.machine.api.exception.NullStateException;
+import com.github.pnavais.machine.api.message.Envelope;
+import com.github.pnavais.machine.api.message.Event;
+import com.github.pnavais.machine.api.message.Message;
+import com.github.pnavais.machine.api.message.Messages;
 import com.github.pnavais.machine.api.transition.TransitionChecker;
 import com.github.pnavais.machine.api.transition.TransitionIndex;
 import com.github.pnavais.machine.api.transition.Transitioner;
@@ -279,8 +280,8 @@ public class StateMachine implements Transitioner<State, Message, StateTransitio
             // Handles potential redirection on departure/arrival
             if (infoStatus.getStatus().isRedirect()) {
                 // Update state before redirection
-                currentState = (infoStatus.getEvent() != InfoStatus.Event.DEPARTURE) ? targetState.get() : currentState;
-                targetState = getNext(infoStatus.getStatus().getMessage(), (infoStatus.getEvent() != InfoStatus.Event.DEPARTURE));
+                currentState = (infoStatus.getEvent() != Event.DEPARTURE) ? targetState.get() : currentState;
+                targetState = getNext(infoStatus.getStatus().getMessage(), (infoStatus.getEvent() != Event.DEPARTURE));
             }
 
             // Update current state only if transitions are successful
@@ -299,13 +300,13 @@ public class StateMachine implements Transitioner<State, Message, StateTransitio
      * @return the status after validation
      */
     private InfoStatus handleMessageFiltering(Envelope<State, Message> envelope, boolean handleDeparture) {
-        InfoStatus.Event event = InfoStatus.Event.DEPARTURE;
+        Event event = Event.DEPARTURE;
         Status status = handleDeparture ? transitionChecker.validateDeparture(envelope) : Status.PROCEED;
 
         // Validates arrival to next state
         if (status.isValid() && !status.isRedirect()) {
             status = transitionChecker.validateArrival(envelope);
-            event = InfoStatus.Event.ARRIVAL;
+            event = Event.ARRIVAL;
         }
 
         return InfoStatus.from(status, event);

@@ -13,18 +13,31 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.github.pnavais.machine.api;
+package com.github.pnavais.machine.api.message;
+
+import java.util.UUID;
 
 /**
- * Represents any item present in a directed graph
+ * Represents a message passed to a given state
+ * in the state machine.
+ * The message is represented by a unique identifier
+ * and contains any generic information (payload).
+ *
  */
-public interface Node {
+public interface Message {
 
     /**
-     * Retrieves the name of the node
+     * Retrieves the Message Identifier
      *
-     * @return the name of the node
+     * @return the message identifier
      */
-    String getName();
+    UUID getMessageId();
 
+    /**
+     * Retrieves the payload contents
+     * of the message.
+     *
+     * @return the payload contents
+     */
+    Payload getPayload();
 }

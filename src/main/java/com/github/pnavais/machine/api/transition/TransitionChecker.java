@@ -17,6 +17,8 @@
 package com.github.pnavais.machine.api.transition;
 
 import com.github.pnavais.machine.api.*;
+import com.github.pnavais.machine.api.message.Envelope;
+import com.github.pnavais.machine.api.message.Message;
 
 /**
  * The transition checker acts a validator that is used

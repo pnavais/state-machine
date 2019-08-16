@@ -16,12 +16,14 @@
 
 package com.github.pnavais.machine.impl;
 
-import com.github.pnavais.machine.api.Envelope;
-import com.github.pnavais.machine.api.Message;
+import com.github.pnavais.machine.api.message.Envelope;
+import com.github.pnavais.machine.api.message.Event;
+import com.github.pnavais.machine.api.message.Message;
 import com.github.pnavais.machine.api.Status;
 import com.github.pnavais.machine.api.transition.TransitionChecker;
 import com.github.pnavais.machine.model.AbstractFilteredState;
 import com.github.pnavais.machine.model.State;
+import com.github.pnavais.machine.model.StateContext;
 
 /**
  * Implements the check between state transitions
@@ -45,7 +47,7 @@ public class StateTransitionChecker implements TransitionChecker<State, Message>
         // Check initially that the state is not final
         if ((currentState!=null) && (!currentState.isFinal())) {
                 status = (currentState instanceof AbstractFilteredState) ?
-                        ((AbstractFilteredState) currentState).onDispatch(envelope.getMessage(), envelope.getTarget())
+                        ((AbstractFilteredState) currentState).onDispatch(createContext(Event.DEPARTURE, envelope))
                         : Status.PROCEED;
         }
 
@@ -63,8 +65,24 @@ public class StateTransitionChecker implements TransitionChecker<State, Message>
     @Override
     public Status validateArrival(Envelope<State, Message> envelope) {
         return (envelope.getTarget() instanceof AbstractFilteredState) ?
-                    ((AbstractFilteredState) envelope.getTarget()).onReceive(envelope.getMessage(), envelope.getOrigin())
+                    ((AbstractFilteredState) envelope.getTarget()).onReceive(createContext(Event.ARRIVAL, envelope))
                     : Status.PROCEED;
+    }
+
+    /**
+     * Creates the State context from the current event and envelope
+     *
+     * @param event the event
+     * @param envelope the envelope
+     * @return the build state context
+     */
+    private StateContext createContext(Event event, Envelope<State, Message> envelope) {
+        return StateContext.builder()
+                .event(event)
+                .source(envelope.getOrigin())
+                .message(envelope.getMessage())
+                .target(envelope.getTarget())
+                .build();
     }
 
 }

@@ -16,7 +16,6 @@
 package com.github.pnavais.machine.api.filter;
 
 import com.github.pnavais.machine.api.AbstractNode;
-import com.github.pnavais.machine.api.Message;
 import com.github.pnavais.machine.api.Status;
 
 /**
@@ -24,25 +23,23 @@ import com.github.pnavais.machine.api.Status;
  * logic upon reception or dispatch of messages deciding
  * whether the operation can continue or not.
  */
-public interface MessageFilter<T extends AbstractNode> {
+public interface MessageFilter<T extends AbstractNode, C extends Context<T>> {
 
     /**
      * Intercepts a message to be dispatched to the
      * given destination.
      *
-     * @param message the message to be dispatched
-     * @param destination the target node
+     * @param context the context
      * @return whether the operation shall continue or not
      */
-    Status onDispatch(Message message, T destination);
+    Status onDispatch(C context);
 
     /**
      * Intercepts a message to be received from the
      * given origin.
      *
-     * @param message the message to be dispatched
-     * @param source the source node
+     * @param context the context
      * @return whether the operation shall continue or not
      */
-    Status onReceive(Message message, T source);
+    Status onReceive(C context);
 }

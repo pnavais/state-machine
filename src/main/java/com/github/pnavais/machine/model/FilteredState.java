@@ -1,11 +1,11 @@
 /*
  * Copyright 2019 Pablo Navais
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,23 +16,24 @@
 
 package com.github.pnavais.machine.model;
 
-import com.github.pnavais.machine.api.Message;
 import com.github.pnavais.machine.api.Status;
 import com.github.pnavais.machine.api.filter.FunctionMessageFilter;
+import com.github.pnavais.machine.api.message.Message;
+import com.github.pnavais.machine.api.message.Messages;
 import lombok.Getter;
 import lombok.NonNull;
 
-import java.util.function.BiFunction;
+import java.util.function.Function;
 
 /**
- * A decorator adding message filtering functionality
+ * A decorator adding a mapped function per message filtering functionality
  * to regular states.
  */
 @Getter
-public class FilteredState extends AbstractFilteredState {
+public class FilteredState extends AbstractFilteredState  {
 
-    /** The message filter */
-    private FunctionMessageFilter<State> messageFilter;
+    /** The Message filter. */
+    private FunctionMessageFilter<State, StateContext> messageFilter;
 
     /**
      * Static factory method to decorate the state with
@@ -56,12 +57,30 @@ public class FilteredState extends AbstractFilteredState {
     }
 
     /**
+     * Sets the reception handler for ANY message
+     *
+     * @param receptionHandler the reception handler
+     */
+    public void setReceptionHandler(Function<StateContext, Status> receptionHandler) {
+        this.messageFilter.setReceptionHandler(Messages.ANY, receptionHandler);
+    }
+
+    /**
      * Sets the reception handler for the given message
      *
      * @param receptionHandler the reception handler
      */
-    public void setReceptionHandler(BiFunction<Message, State, Status> receptionHandler) {
-        this.messageFilter.setReceptionHandler(receptionHandler);
+    public void setReceptionHandler(Message message, Function<StateContext, Status> receptionHandler) {
+        this.messageFilter.setReceptionHandler(message, receptionHandler);
+    }
+
+    /**
+     * Sets the dispatch handler for ANY message
+     *
+     * @param dispatchHandler the dispatch handler
+     */
+    public void setDispatchHandler(Function<StateContext, Status> dispatchHandler) {
+        this.messageFilter.setDispatchHandler(Messages.ANY, dispatchHandler);
     }
 
     /**
@@ -69,8 +88,27 @@ public class FilteredState extends AbstractFilteredState {
      *
      * @param dispatchHandler the dispatch handler
      */
-    public void setDispatchHandler(BiFunction<Message, State, Status> dispatchHandler) {
-        this.messageFilter.setDispatchHandler(dispatchHandler);
+    public void setDispatchHandler(Message message, Function<StateContext, Status> dispatchHandler) {
+        this.messageFilter.setDispatchHandler(message, dispatchHandler);
+    }
+
+    /**
+     * Adds the filter mappings from the given
+     * state to the current instance.
+     *
+     * @param state the state to merge
+     * @return the merged state
+     */
+    @Override
+    public AbstractState merge(AbstractState state) {
+        super.merge(state);
+        if (state instanceof FilteredState) {
+            // Add or override dispatch/reception handlers mappings from the given state
+            FunctionMessageFilter<State, StateContext> filter = ((FilteredState)state).getMessageFilter();
+            filter.getDispatchHandlers().forEach((message, handler) -> this.messageFilter.setDispatchHandler(message, handler));
+            filter.getReceptionHandlers().forEach((message, handler) -> this.messageFilter.setReceptionHandler(message, handler));
+        }
+        return this;
     }
 
     @Override
@@ -82,5 +120,4 @@ public class FilteredState extends AbstractFilteredState {
     public int hashCode() {
         return super.hashCode();
     }
-
 }

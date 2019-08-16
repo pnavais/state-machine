@@ -17,7 +17,7 @@
 package com.github.pnavais.machine.core;
 
 import com.github.pnavais.machine.AbstractStateMachineTest;
-import com.github.pnavais.machine.api.Message;
+import com.github.pnavais.machine.api.message.Message;
 import com.github.pnavais.machine.api.exception.IllegalTransitionException;
 import com.github.pnavais.machine.api.exception.NullTransitionException;
 import com.github.pnavais.machine.api.exception.ValidationException;

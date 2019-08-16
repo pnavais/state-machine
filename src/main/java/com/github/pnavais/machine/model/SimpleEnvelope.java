@@ -16,8 +16,8 @@
 
 package com.github.pnavais.machine.model;
 
-import com.github.pnavais.machine.api.AbstractEnvelope;
-import com.github.pnavais.machine.api.Message;
+import com.github.pnavais.machine.api.message.AbstractEnvelope;
+import com.github.pnavais.machine.api.message.Message;
 import com.github.pnavais.machine.api.transition.TransitionIndex;
 import lombok.Builder;
 import lombok.Getter;

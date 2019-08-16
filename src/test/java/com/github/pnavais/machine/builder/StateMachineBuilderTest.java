@@ -18,10 +18,13 @@ package com.github.pnavais.machine.builder;
 
 import com.github.pnavais.machine.AbstractStateMachineTest;
 import com.github.pnavais.machine.StateMachine;
+import com.github.pnavais.machine.api.message.Messages;
 import com.github.pnavais.machine.api.Status;
 import com.github.pnavais.machine.impl.StateTransitionMap;
 import com.github.pnavais.machine.model.FilteredState;
 import com.github.pnavais.machine.model.State;
+import com.github.pnavais.machine.model.StateTransition;
+import com.github.pnavais.machine.model.StringMessage;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -47,7 +50,8 @@ public class StateMachineBuilderTest extends AbstractStateMachineTest {
                 .from("A").to("B").on("1")
                 .from("A").to("C").on("2")
                 .from("B").to("C").on("3")
-                .from("B").to("D").on("4");
+                .from("B").to("D").on("4")
+                .builder();
 
         StateTransitionMap transitionMap = stateMachineBuilder.getTransitionMap();
         assertNotNull(transitionMap, "Error obtaining transition map");
@@ -110,7 +114,7 @@ public class StateMachineBuilderTest extends AbstractStateMachineTest {
 
         AtomicInteger counter = new AtomicInteger();
         FilteredState stateB = new FilteredState(new State("B"));
-        stateB.setReceptionHandler((message, state) -> { counter.getAndIncrement(); return Status.PROCEED; });
+        stateB.setReceptionHandler(context -> { counter.getAndIncrement(); return Status.PROCEED; });
 
         StateMachine stateMachine = StateMachine.newBuilder()
                 .from("A").to(stateB)
@@ -171,7 +175,7 @@ public class StateMachineBuilderTest extends AbstractStateMachineTest {
     public void testTransitionMapIdentity() {
         StateMachineBuilder builder = StateMachine.newBuilder()
                 .from("A").to("B").on("1")
-                .from("A").to("C").on("1");
+                .from("A").to("C").on("1").builder();
 
         StateMachine firstMachine = builder.build();
         StateMachine secondMachine = builder.build();
@@ -183,11 +187,138 @@ public class StateMachineBuilderTest extends AbstractStateMachineTest {
     public void testTransitionMapModification() {
         StateMachineBuilder builder = StateMachine.newBuilder()
                 .from("A").to("B").on("1")
-                .from("A").to("C").on("1");
+                .from("A").to("C").on("1").builder();
 
         StateMachine firstMachine = builder.build();
         StateMachine secondMachine = builder.build();
 
         assertEquals(firstMachine.getTransitionsIndex(), secondMachine.getTransitionsIndex(), "Transition index mismatch");
+    }
+
+    /**
+     * Tests the initialization of the State Machine
+     * with filtering capabilities
+     */
+    @Test
+    public void testMachineBuilderWithFiltering() {
+        AtomicInteger counter = new AtomicInteger();
+        StateMachine stateMachine = StateMachine.newBuilder()
+                .from("A").to("B").on("1").leaving(context -> {
+                    counter.getAndIncrement();
+                    return Status.PROCEED;
+                })
+                .from("B").to("C").on("2").arriving(context -> {
+                    counter.getAndIncrement();
+                    return Status.PROCEED;})
+        .build();
+
+        getStatePrinter().printTransitions(stateMachine.getTransitionsIndex());
+        State current = stateMachine.send("1").getCurrent();
+        assertNotNull(current, "Error retrieving current state");
+        assertThat(current.getName(), is("B"));
+        assertThat("Error executing departure function", counter.get(), is(1));
+        current = stateMachine.send("2").getCurrent();
+        assertNotNull(current, "Error retrieving current state");
+        assertThat(current.getName(), is("C"));
+        assertThat("Error executing departure function", counter.get(), is(2));
+    }
+
+    /**
+     * Tests the initialization of the State Machine
+     * with filtering capabilities
+     */
+    @Test
+    public void testMachineBuilderWithFilteringOnEmpty() {
+        AtomicInteger counter = new AtomicInteger();
+        StateMachine stateMachine = StateMachine.newBuilder()
+                .from("A").to("B").leaving(context -> {
+                    counter.getAndIncrement();
+                    return Status.PROCEED;
+                }).arriving(context -> {
+                    counter.getAndIncrement();
+                    return Status.PROCEED;
+                })
+                .build();
+
+        getStatePrinter().printTransitions(stateMachine.getTransitionsIndex());
+        State current = stateMachine.next().getCurrent();
+        assertNotNull(current, "Error retrieving current state");
+        assertThat(current.getName(), is("B"));
+        assertThat("Error executing departure function", counter.get(), is(2));
+
+        stateMachine.init();
+        current = stateMachine.send(Messages.EMPTY).getCurrent();
+        assertNotNull(current, "Error retrieving current state");
+        assertThat(current.getName(), is("B"));
+        assertThat("Error executing departure function", counter.get(), is(4));
+    }
+
+    /**
+     * Tests the initialization of the State Machine
+     * with filtering capabilities
+     */
+    @Test
+    public void testMachineBuilderWithFilteringOverride() {
+        AtomicInteger counter = new AtomicInteger();
+        FilteredState filteredC = FilteredState.from(new State("C"));
+        filteredC.setReceptionHandler(context -> Status.PROCEED);
+        StateMachine stateMachine = StateMachine.newBuilder()
+                .from("A").to("B").on("1").leaving(context -> {
+                    counter.getAndIncrement();
+                    return Status.PROCEED;
+                }).leaving(context -> Status.ABORT)
+                .from("B").to(filteredC).on("2").arriving(context -> Status.ABORT)
+                .from("C").to("D").arriving(context -> {
+                    if (context.getMessage().equals(Messages.EMPTY)) { counter.getAndIncrement(); }
+                    return Status.PROCEED; })
+                .build();
+
+        getStatePrinter().printTransitions(stateMachine.getTransitionsIndex());
+        State current = stateMachine.send("1").getCurrent();
+        assertNotNull(current, "Error retrieving current state");
+        assertThat(current.getName(), is("A"));
+        assertThat("Error executing departure function", counter.get(), is(0));
+
+        stateMachine.setCurrent("B");
+        current = stateMachine.send("2").getCurrent();
+        assertNotNull(current, "Error retrieving current state");
+        assertThat(current.getName(), is("B"));
+
+        stateMachine.setCurrent("C");
+        current = stateMachine.next().getCurrent();
+        assertNotNull(current, "Error retrieving current state");
+        assertThat(current.getName(), is("D"));
+        assertThat("Error executing departure function", counter.get(), is(1));
+    }
+
+    /**
+     * Tests the initialization of the State Machine
+     * from a builder using existing transitions
+     */
+    @Test
+    public void testMachineBuilderWithTransition() {
+        StateMachine stateMachine = StateMachine.newBuilder()
+                .add(new StateTransition("A","1", "B"))
+                .add(new StateTransition("A", StringMessage.from("2"), "C"))
+                .add(new StateTransition(new State("A"), StringMessage.from("3"), new State("D")))
+                .add(new StateTransition("A", StringMessage.from("4"), "E"))
+                .add(new StateTransition("A", StringMessage.from("5"), State.from("F").build()))
+                .add(new StateTransition("A", StringMessage.from("6"), State.from("G").build()))
+                .add(new StateTransition(State.from("A").build(), "7", State.from("H").build()))
+                .add(new StateTransition("A", "8", State.from("I").build()))
+                .add(new StateTransition(State.from("A").build(), "9", "J"))
+                .add(new StateTransition(State.from("A").build(), StringMessage.from("10"), "K"))
+                .build();
+
+        assertNotNull(stateMachine, "Error building state machine");
+        assertThat("Size mismatch", stateMachine.size(), is(11));
+
+        String[] targets = { "B", "C", "D", "E", "F", "G", "H", "I", "J", "K" };
+        IntStream.range(1, 11).forEach(i -> {
+            stateMachine.init();
+            State current = stateMachine.send(String.valueOf(i)).getCurrent();
+            assertNotNull(current, "Error obtaining target state");
+            assertThat("Target mismatch", current.getName(), is(targets[i-1]));
+        });
     }
 }

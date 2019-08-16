@@ -15,7 +15,7 @@
  */
 package com.github.pnavais.machine;
 
-import com.github.pnavais.machine.api.Message;
+import com.github.pnavais.machine.api.message.Message;
 import com.github.pnavais.machine.model.State;
 import com.github.pnavais.machine.model.StateTransition;
 import com.github.pnavais.machine.model.StringMessage;

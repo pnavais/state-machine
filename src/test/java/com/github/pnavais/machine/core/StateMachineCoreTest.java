@@ -19,7 +19,7 @@ package com.github.pnavais.machine.core;
 import com.github.pnavais.machine.AbstractStateMachineTest;
 import com.github.pnavais.machine.StateMachine;
 import com.github.pnavais.machine.api.AbstractNode;
-import com.github.pnavais.machine.api.Message;
+import com.github.pnavais.machine.api.message.Message;
 import com.github.pnavais.machine.api.exception.TransitionInitializationException;
 import com.github.pnavais.machine.model.*;
 import org.junit.jupiter.api.Test;
@@ -111,7 +111,7 @@ public class StateMachineCoreTest extends AbstractStateMachineTest {
 
         StateTransition transition = new StateTransition(origin, new StringMessage("1"), new State("B"));
         machine.add(transition);
-        StateTransition transitionAlt = new StateTransition(MappedFilteredState.from(origin), new StringMessage("1"), new State("B"));
+        StateTransition transitionAlt = new StateTransition(FilteredState.from(origin), new StringMessage("1"), new State("B"));
         machine.add(transitionAlt);
         transitionAlt = new StateTransition(FilteredState.from(origin), new StringMessage("1"), new State("B"));
         machine.add(transitionAlt);

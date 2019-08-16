@@ -15,8 +15,7 @@
  */
 package com.github.pnavais.machine.api.transition;
 
-import com.github.pnavais.machine.StateMachine;
-import com.github.pnavais.machine.api.Message;
+import com.github.pnavais.machine.api.message.Message;
 import com.github.pnavais.machine.api.Node;
 import com.github.pnavais.machine.api.Transition;
 
@@ -128,7 +127,7 @@ public interface Transitioner<N extends Node, M extends Message, T extends Trans
      * a potential transition in case the current node
      * supports empty messages.
      */
-    StateMachine next();
+    Transitioner<N, M, T> next();
 
     /**
      * Sends a message to the transitioner triggering

@@ -16,7 +16,7 @@
 
 package com.github.pnavais.machine.api.validator;
 
-import com.github.pnavais.machine.api.Message;
+import com.github.pnavais.machine.api.message.Message;
 import com.github.pnavais.machine.api.Node;
 import com.github.pnavais.machine.api.Transition;
 import com.github.pnavais.machine.api.transition.TransitionIndex;

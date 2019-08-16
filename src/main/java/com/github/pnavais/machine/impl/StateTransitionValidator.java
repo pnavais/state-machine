@@ -17,7 +17,7 @@
 package com.github.pnavais.machine.impl;
 
 import com.github.pnavais.machine.api.AbstractNode;
-import com.github.pnavais.machine.api.Message;
+import com.github.pnavais.machine.api.message.Message;
 import com.github.pnavais.machine.api.Transition;
 import com.github.pnavais.machine.api.exception.IllegalTransitionException;
 import com.github.pnavais.machine.api.exception.NullTransitionException;
@@ -146,7 +146,7 @@ public class StateTransitionValidator implements TransitionValidator<State, Mess
             if (transition.getOrigin() == null || transition.getMessage() == null || transition.getTarget() == null) {
                 builder.exception(new TransitionInitializationException("Cannot create transitions with null components"));
             } else {
-                if (transition.getOrigin().isFinal()) {
+                if (Boolean.TRUE.equals(transition.getOrigin().isFinal())) {
                     builder.exception(new TransitionInitializationException("Cannot create transition from final state ["+transition.getOrigin().getName()+"]"));
                 } else {
                     builder.valid(true);

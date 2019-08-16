@@ -16,6 +16,7 @@
 
 package com.github.pnavais.machine.model;
 
+import com.github.pnavais.machine.api.message.Event;
 import com.github.pnavais.machine.api.Status;
 import lombok.Getter;
 import lombok.NonNull;
@@ -26,8 +27,6 @@ import lombok.NonNull;
  */
 @Getter
 public class InfoStatus {
-
-    public enum Event { ARRIVAL, DEPARTURE }
 
     /** The wrapper instance */
     private final Status status;

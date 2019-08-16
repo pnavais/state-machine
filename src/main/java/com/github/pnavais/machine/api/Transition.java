@@ -15,6 +15,8 @@
  */
 package com.github.pnavais.machine.api;
 
+import com.github.pnavais.machine.api.message.Envelope;
+import com.github.pnavais.machine.api.message.Message;
 import lombok.*;
 
 import java.util.Objects;
@@ -33,17 +35,17 @@ public abstract class Transition<N extends Node, M extends Message> implements E
     /**
      * The source node of the transition
      */
-    private final N origin;
+    protected N origin;
 
     /**
      * The Message triggering the transition
      */
-    private final M message;
+    protected M message;
 
     /**
      * The target node of the transition
      */
-    private final N target;
+    protected N target;
 
     @Override
     public boolean equals(Object o) {

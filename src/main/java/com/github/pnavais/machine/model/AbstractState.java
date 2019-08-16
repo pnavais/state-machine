@@ -17,12 +17,13 @@
 package com.github.pnavais.machine.model;
 
 import com.github.pnavais.machine.api.AbstractNode;
+import com.github.pnavais.machine.api.Mergeable;
 
 /**
  * An state represents an arbitrary node in a state machine
  * containing its transitions.
  */
-public abstract class AbstractState extends AbstractNode {
+public abstract class AbstractState extends AbstractNode implements Mergeable<AbstractState> {
 
     /** Flag to control whether the state is final or not */
     private boolean finalState;
@@ -63,5 +64,20 @@ public abstract class AbstractState extends AbstractNode {
      */
     public boolean isFinal() {
         return this.finalState;
+    }
+
+    /**
+     * Merges the information of the given state
+     * into the current instance.
+     *
+     * @param state the state to merge
+     * @return the merged state instance
+     */
+    @Override
+    public AbstractState merge(AbstractState state) {
+        if (state != null) {
+            finalState = (state.isFinal() || finalState);
+        }
+        return this;
     }
 }

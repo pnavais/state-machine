@@ -16,6 +16,7 @@
 
 package com.github.pnavais.machine.api;
 
+import com.github.pnavais.machine.api.message.Message;
 import lombok.Builder;
 import lombok.Getter;
 

@@ -13,18 +13,13 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.github.pnavais.machine.api;
+package com.github.pnavais.machine.api.message;
+
+import java.util.function.Supplier;
 
 /**
- * Represents any item present in a directed graph
+ * A simple marker interface representing
+ * the information contained by transition messages.
  */
-public interface Node {
-
-    /**
-     * Retrieves the name of the node
-     *
-     * @return the name of the node
-     */
-    String getName();
-
+public interface Payload extends Supplier<Object> {
 }

@@ -16,13 +16,14 @@
 package com.github.pnavais.machine.builder;
 
 import com.github.pnavais.machine.StateMachine;
-import com.github.pnavais.machine.api.Message;
-import com.github.pnavais.machine.api.Messages;
+import com.github.pnavais.machine.api.message.Message;
+import com.github.pnavais.machine.api.message.Messages;
+import com.github.pnavais.machine.api.Status;
 import com.github.pnavais.machine.impl.StateTransitionMap;
-import com.github.pnavais.machine.model.State;
-import com.github.pnavais.machine.model.StateTransition;
-import com.github.pnavais.machine.model.StringMessage;
+import com.github.pnavais.machine.model.*;
 import lombok.NonNull;
+
+import java.util.function.Function;
 
 /**
  * A simple builder for {@link StateMachine} instances
@@ -256,7 +257,7 @@ public class StateMachineBuilder {
          * @param message the string message to add
          * @return the initial builder
          */
-        public StateMachineBuilder on(String message) {
+        public OnBuilder on(String message) {
             return on(new StringMessage((message)));
         }
 
@@ -267,7 +268,161 @@ public class StateMachineBuilder {
          * @param message the custom message to add
          * @return the initial builder
          */
-        private StateMachineBuilder on(Message message) {
+        private OnBuilder on(Message message) {
+            return new OnBuilder(builder, srcState, message, targetState);
+        }
+
+        /**
+         * Adds a filtering function for triggering messages from origin state
+         * of the transition by transforming the current origin state into
+         * a {@link FilteredState}.
+         *
+         * @param handler the handler function to execute when leaving origin
+         */
+        public OnBuilder leaving(Function<StateContext, Status> handler) {
+            return on(Messages.EMPTY).leaving(handler);
+        }
+
+        /**
+         * Adds a filtering function for incoming messages in target state
+         * of the transition by transforming the current target state into
+         * a {@link FilteredState}.
+         *
+         * @param handler the handler function to execute when arriving target
+         */
+        public OnBuilder arriving(@NonNull Function<StateContext, Status> handler) {
+            return on(Messages.EMPTY).arriving(handler);
+        }
+    }
+
+    /**
+     * Internal builder class to optionally add
+     * message filtering before ending the definition
+     * of a new transition.
+     */
+    public static class OnBuilder {
+
+        /** The builder instance */
+        private final StateMachineBuilder builder;
+
+        /** The source state */
+        private State srcState;
+
+        /** The message */
+        private final Message message;
+
+        /** The target state */
+        private State targetState;
+
+        /**
+         * Creates a new ToBuilder clause for the builder
+         * using the given source and target states.
+         *
+         * @param builder the builder
+         * @param srcState the source state
+         * @param targetState the target state
+         */
+        private OnBuilder(StateMachineBuilder builder, State srcState, Message message, State targetState) {
+            this.builder = builder;
+            this.srcState = srcState;
+            this.message = message;
+            this.targetState = targetState;
+        }
+
+        /**
+         * Adds a filtering function for triggering messages from origin state
+         * of the transition by transforming the current origin state into
+         * a {@link FilteredState}.
+         *
+         * @param handler the handler function to execute when leaving origin
+         */
+        public OnBuilder leaving(Function<StateContext, Status> handler) {
+            if (srcState instanceof AbstractFilteredState) {
+                srcState = ((AbstractFilteredState)srcState).getState();
+            }
+            srcState = FilteredState.from(srcState);
+            ((FilteredState)srcState).setDispatchHandler(message, handler);
+            return this;
+        }
+
+        /**
+         * Adds a filtering function for incoming messages in target state
+         * of the transition by transforming the current target state into
+         * a {@link FilteredState}.
+         *
+         * @param handler the handler function to execute when arriving target
+         */
+        public OnBuilder arriving(@NonNull Function<StateContext, Status> handler) {
+            if (targetState instanceof AbstractFilteredState) {
+                targetState = ((AbstractFilteredState)targetState).getState();
+            }
+            targetState = FilteredState.from(targetState);
+            ((FilteredState)targetState).setReceptionHandler(message, handler);
+            return this;
+        }
+
+        /**
+         * Starts a new transition from the given
+         * state name using an empty
+         * message for the current transition.
+         *
+         * @param state the next source state
+         * @return the from builder
+         */
+        public FromBuilder from(String state) {
+            return builder().from(state);
+        }
+
+        /**
+         * Starts a new transition from the given
+         * state using an empty
+         * message for the current transition.
+         *
+         * @param state the next source state
+         * @return the from builder
+         */
+        public FromBuilder from(State state) {
+            return builder().from(state);
+        }
+
+        /**
+         * Creates a self loop for the state
+         * specified by the given name.
+         *
+         * @param state the state name
+         * @return the from builder
+         */
+        public ToBuilder selfLoop(String state) {
+            return builder().selfLoop(state);
+        }
+
+        /**
+         * Creates a self loop for the given state.
+         *
+         * @param state the state
+         * @return the from builder
+         */
+        public ToBuilder selfLoop(State state) {
+            return builder().selfLoop(state);
+        }
+
+        /**
+         * Finish the current transition and retrieves
+         * the current state machine built instance.
+         *
+         * @return the current state machine instance
+         */
+        public StateMachine build() {
+            builder.add(new StateTransition(srcState, message, targetState));
+            return builder.build();
+        }
+
+        /**
+         * Retrieves the current State Machine builder
+         *
+         * @return the State machine builder
+         */
+        public StateMachineBuilder builder() {
             builder.add(new StateTransition(srcState, message, targetState));
             return builder;
         }

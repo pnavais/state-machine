@@ -15,7 +15,7 @@
  */
 package com.github.pnavais.machine.impl;
 
-import com.github.pnavais.machine.api.Message;
+import com.github.pnavais.machine.api.message.Message;
 import com.github.pnavais.machine.api.exception.NullStateException;
 import com.github.pnavais.machine.api.exception.ValidationException;
 import com.github.pnavais.machine.api.transition.TransitionIndex;
@@ -158,6 +158,32 @@ public class StateTransitionMap implements TransitionIndex<State, Message, State
         if (!transitionMap.containsKey(transition.getTarget())) {
             transitionMap.put(transition.getTarget(), new LinkedHashMap<>());
         }
+
+        // Merge the states information from the transition
+        mergeStates(transition);
+    }
+
+    /**
+     * Merges the states information from the transition
+     * to their counterparts currently stored in the index.
+     *
+     * @param transition the transition
+     */
+    private void mergeStates(StateTransition transition) {
+        findAndMerge(transition.getOrigin());
+        findAndMerge(transition.getTarget());
+    }
+
+    /**
+     * Merge the current state if found
+     * in the index.
+     *
+     * @param state the state to merge
+     */
+    private void findAndMerge(State state) {
+        transitionMap.keySet().stream()
+                .filter(s -> s.equals(state))
+                .findFirst().ifPresent(s -> s.merge(state));
     }
 
     /**
@@ -320,7 +346,7 @@ public class StateTransitionMap implements TransitionIndex<State, Message, State
      */
     @Override
     public Optional<State> getFirst() {
-        return Optional.ofNullable(transitionMap.keySet().iterator().next());
+        return Optional.ofNullable(!transitionMap.isEmpty() ? transitionMap.keySet().iterator().next() : null);
     }
 
     /**
@@ -423,4 +449,5 @@ public class StateTransitionMap implements TransitionIndex<State, Message, State
     public void addAll(@NonNull Collection<StateTransition> transitions) {
         transitions.forEach(this::add);
     }
+
 }

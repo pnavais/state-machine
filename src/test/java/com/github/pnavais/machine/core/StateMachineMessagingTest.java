@@ -18,8 +18,8 @@ package com.github.pnavais.machine.core;
 
 import com.github.pnavais.machine.AbstractStateMachineTest;
 import com.github.pnavais.machine.StateMachine;
-import com.github.pnavais.machine.api.Messages;
-import com.github.pnavais.machine.api.Payload;
+import com.github.pnavais.machine.api.message.Messages;
+import com.github.pnavais.machine.api.message.Payload;
 import com.github.pnavais.machine.api.Status;
 import com.github.pnavais.machine.api.filter.MessageFilter;
 import com.github.pnavais.machine.model.*;
@@ -30,7 +30,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -53,7 +56,7 @@ public class StateMachineMessagingTest extends AbstractStateMachineTest {
         assertNotNull(transitions, "Error retrieving initial state");
         transitions.forEach(stateTransition -> {
             assertTrue(stateTransition.getOrigin() instanceof AbstractFilteredState, "Error obtaining transition origin filtered class");
-            MessageFilter<State> messageFilter = ((AbstractFilteredState) stateTransition.getOrigin()).getMessageFilter();
+            MessageFilter<State, StateContext> messageFilter = ((AbstractFilteredState) stateTransition.getOrigin()).getMessageFilter();
             assertNotNull(messageFilter, "Error retrieving message filter");
         });
     }
@@ -128,6 +131,17 @@ public class StateMachineMessagingTest extends AbstractStateMachineTest {
     }
 
     @Test
+    public void testDepartureOnAnyMessageNotMapped() {
+        StateMachine machine = createStateMachine();
+        machine.setCurrent("B");
+
+        State current = machine.send(Messages.ANY).getCurrent();
+        assertNotNull(current, "Error retrieving current state");
+        assertThat("Error retrieving current state", current.getName(), is("B"));
+        assertEquals(0, messageBuffer.size(), "Error obtaining messages from buffer");
+    }
+
+    @Test
     public void testDepartureOnEmptyMessage() {
         StateMachine machine = createStateMachine();
         machine.init();
@@ -136,6 +150,17 @@ public class StateMachineMessagingTest extends AbstractStateMachineTest {
         assertNotNull(current, "Error retrieving current state");
         assertEquals(1, messageBuffer.size(), "Error obtaining messages from buffer");
         assertEquals("Departing from A to E on [_]", messageBuffer.get(0), "Error obtaining departure message");
+    }
+
+    @Test
+    public void testDepartureOnEmptyMessageNotMapped() {
+        StateMachine machine = createStateMachine();
+        machine.setCurrent("B");
+
+        State current = machine.send(Messages.EMPTY).getCurrent();
+        assertNotNull(current, "Error retrieving current state");
+        assertThat("Error retrieving current state", current.getName(), is("B"));
+        assertEquals(0, messageBuffer.size(), "Error obtaining messages from buffer");
     }
 
     @Test
@@ -197,7 +222,8 @@ public class StateMachineMessagingTest extends AbstractStateMachineTest {
 
         // Add a redirection state depending on the message
         FilteredState stateRedirect = new FilteredState(new State("F"));
-        stateRedirect.setReceptionHandler((message, state) -> message.getPayload().get().equals("8") ? Status.forward(StringMessage.from("8")) : Status.PROCEED);
+        assertEquals(stateRedirect.getState(), new State("F"), "Error wrapping state");
+        stateRedirect.setReceptionHandler(c -> c.getMessage().getPayload().get().equals("8") ? Status.forward(StringMessage.from("8")) : Status.PROCEED);
 
         machine.add(new StateTransition(new State("A"), Messages.ANY, stateRedirect));
         machine.add(new StateTransition("F", StringMessage.from("8"), "G"));
@@ -219,7 +245,7 @@ public class StateMachineMessagingTest extends AbstractStateMachineTest {
 
         // Add a redirection state depending on the message
         FilteredState stateRedirect = new FilteredState(new State("F"));
-        stateRedirect.setDispatchHandler((message, state) -> Status.forward(StringMessage.from("9")));
+        stateRedirect.setDispatchHandler(c -> Status.forward(StringMessage.from("9")));
 
         machine.add(new StateTransition(new State("A"), Messages.ANY, stateRedirect));
         machine.add(new StateTransition("F", StringMessage.from("8"), "G"));
@@ -241,10 +267,10 @@ public class StateMachineMessagingTest extends AbstractStateMachineTest {
 
         // Add a redirection state depending on the message
         FilteredState firstHop = new FilteredState(new State("F"));
-        firstHop.setDispatchHandler((message, state) -> Status.forward(StringMessage.from("9")));
+        firstHop.setDispatchHandler(c -> Status.forward(StringMessage.from("9")));
 
         FilteredState secondHop = new FilteredState(new State("G"));
-        secondHop.setReceptionHandler((message, state) -> Status.forward(StringMessage.from("10")));
+        secondHop.setReceptionHandler(c -> Status.forward(StringMessage.from("10")));
 
         machine.add(new StateTransition(firstHop, StringMessage.from("1"), new State("Z")));
 
@@ -265,6 +291,28 @@ public class StateMachineMessagingTest extends AbstractStateMachineTest {
         machine.setCurrent("F");
         current = machine.send("1").getCurrent();
         assertNotNull(current, "Error retrieving current state");
+    }
+
+    @Test
+    public void testOverrideState() {
+        AtomicInteger counter = new AtomicInteger();
+        FilteredState initial = new FilteredState(new State("A"));
+        initial.setDispatchHandler(context -> Status.ABORT);
+        FilteredState modified = new FilteredState(new State("A"));
+        modified.setDispatchHandler(context -> {
+            counter.getAndIncrement();
+            return Status.PROCEED;
+        });
+
+        StateMachine stateMachine = new StateMachine();
+        stateMachine.add(new StateTransition(initial, "1", "B"));
+        stateMachine.add(new StateTransition(modified, "2", "C"));
+        stateMachine.add(new StateTransition("A", "3", "D"));
+        stateMachine.init();
+        State current = stateMachine.send("2").getCurrent();
+        assertNotNull(current, "Error obtaining current state");
+        assertThat("Target State mismatch", current.getName(), is("C"));
+        assertThat("Error executing dispatch handler", counter.get(), is(1));
     }
 
     /**
@@ -316,9 +364,9 @@ public class StateMachineMessagingTest extends AbstractStateMachineTest {
     @Override
     protected StateMachine createStateMachine() {
         StateMachine machine = new StateMachine();
-        MappedFilteredState stateA = MappedFilteredState.from(new State("A"));
-        MappedFilteredState stateB = MappedFilteredState.from(new State("B"));
-        MappedFilteredState stateC = MappedFilteredState.from(new State("C"));
+        FilteredState stateA = FilteredState.from(new State("A"));
+        FilteredState stateB = FilteredState.from(new State("B"));
+        FilteredState stateC = FilteredState.from(new State("C"));
         FilteredState stateD = FilteredState.from(new State("D"));
         stateC.setFinal(true);
 
@@ -340,17 +388,17 @@ public class StateMachineMessagingTest extends AbstractStateMachineTest {
      * @param stateB the B state
      * @param stateD the D state
      */
-    private void configureMessageFilters(MappedFilteredState stateA, MappedFilteredState stateB, FilteredState stateD) {
+    private void configureMessageFilters(FilteredState stateA, FilteredState stateB, FilteredState stateD) {
 
         // Dispatch handler for State A
-        stateA.setDispatchHandler(Messages.ANY, (message, state) -> {
-            messageBuffer.add(String.format("Departing from A to %s on [%s]", state.getName(), message.getPayload()!=null? message.getPayload().get() : ""));
+        stateA.setDispatchHandler(Messages.ANY, context -> {
+            messageBuffer.add(String.format("Departing from A to %s on [%s]", context.getTarget().getName(), context.getMessage().getPayload()!=null? context.getMessage().getPayload().get() : ""));
             return Status.PROCEED;
         });
 
         // Dispatch handler for State B
-        stateB.setDispatchHandler(StringMessage.from("2"), (message, state) -> {
-            Payload payload = message.getPayload();
+        stateB.setDispatchHandler(StringMessage.from("2"), context -> {
+            Payload payload = context.getMessage().getPayload();
             boolean proceed = false;
             if (payload != null) {
                 if (Boolean.class.isAssignableFrom(payload.get().getClass())) {
@@ -359,27 +407,27 @@ public class StateMachineMessagingTest extends AbstractStateMachineTest {
             }
             // Append only on successful transition
             if (proceed) {
-                messageBuffer.add(String.format("Departing from B to %s on [%s]", state.getName(), message));
+                messageBuffer.add(String.format("Departing from B to %s on [%s]", context.getTarget().getName(), context.getMessage()));
             }
 
             return proceed ? Status.PROCEED : Status.ABORT;
         });
 
         // Reception handler for State B
-        stateB.setReceptionHandler(Messages.ANY, (message, state) -> {
-            messageBuffer.add(String.format("Arriving to B from %s on [%s]", state.getName(), message.getPayload().get()));
+        stateB.setReceptionHandler(Messages.ANY, context -> {
+            messageBuffer.add(String.format("Arriving to B from %s on [%s]", context.getSource().getName(), context.getMessage().getPayload().get()));
             return Status.PROCEED;
         });
 
         // Dispatch handler for State D
-        stateD.setDispatchHandler((message, state) -> {
-            messageBuffer.add(String.format("Departing from D to %s on [%s]", state.getName(), message.getPayload().get()));
+        stateD.setDispatchHandler(context -> {
+            messageBuffer.add(String.format("Departing from D to %s on [%s]", context.getTarget().getName(), context.getMessage().getPayload().get()));
             return Status.PROCEED;
         });
 
         // Reception handler for State D
-        stateD.setReceptionHandler((message, state) -> {
-            messageBuffer.add(String.format("Arriving to D from %s on [%s]", state.getName(), message.getPayload().get()));
+        stateD.setReceptionHandler(context -> {
+            messageBuffer.add(String.format("Arriving to D from %s on [%s]", context.getSource().getName(), context.getMessage().getPayload().get()));
             return Status.PROCEED;
         });
     }

@@ -13,31 +13,9 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.github.pnavais.machine.api;
 
-import java.util.UUID;
+package com.github.pnavais.machine.api.message;
 
-/**
- * Represents a message passed to a given state
- * in the state machine.
- * The message is represented by a unique identifier
- * and contains any generic information (payload).
- *
- */
-public interface Message {
-
-    /**
-     * Retrieves the Message Identifier
-     *
-     * @return the message identifier
-     */
-    UUID getMessageId();
-
-    /**
-     * Retrieves the payload contents
-     * of the message.
-     *
-     * @return the payload contents
-     */
-    Payload getPayload();
+public enum Event {
+    ARRIVAL, DEPARTURE
 }

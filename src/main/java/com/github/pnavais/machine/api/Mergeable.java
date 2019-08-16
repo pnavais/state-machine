@@ -13,14 +13,24 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+
 package com.github.pnavais.machine.api;
 
-import java.util.function.Supplier;
-
 /**
- * A simple marker interface representing
- * the information contained by transition messages.
+ * Defines the method to be implemented by
+ * classes interested in merging its current
+ * state (i.e. model) with a given Node one.
+ *
+ * @param <N>
  */
-public interface Payload extends Supplier<Object> {
+public interface Mergeable<N extends Node> {
 
+    /**
+     * Merges the information contained by the given node
+     * returning a merged node.
+     *
+     * @param node the node to be merged
+     * @return the merged node
+     */
+    N merge(N node);
 }

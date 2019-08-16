@@ -1,11 +1,11 @@
 /*
  * Copyright 2019 Pablo Navais
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,18 +16,20 @@
 
 package com.github.pnavais.machine.model;
 
-import com.github.pnavais.machine.api.Message;
 import com.github.pnavais.machine.api.Status;
 import com.github.pnavais.machine.api.filter.MessageFilter;
+import lombok.Getter;
 import lombok.NonNull;
 
 /**
  * Base class for all Message filter state decorators
  */
-public abstract class AbstractFilteredState extends State implements MessageFilter<State>  {
+public abstract class AbstractFilteredState extends State implements MessageFilter<State, StateContext> {
 
     /** The target State. */
-    private State state;
+    @Getter
+    protected State state;
+
     /**
      * Constructor with the state to wrap
      *
@@ -43,7 +45,31 @@ public abstract class AbstractFilteredState extends State implements MessageFilt
      *
      * @return the message filter
      */
-    public abstract MessageFilter<State> getMessageFilter();
+    public abstract MessageFilter<State, StateContext> getMessageFilter();
+
+    /**
+     * Intercepts a message to be dispatched to the
+     * given destination.
+     *
+     * @param context the context
+     * @return whether the operation shall continue or not
+     */
+    @Override
+    public Status onDispatch(StateContext context) {
+        return getMessageFilter().onDispatch(context);
+    }
+
+    /**
+     * Intercepts a message to be received from the
+     * given origin.
+     *
+     * @param context the context
+     * @return whether the operation shall continue or not
+     */
+    @Override
+    public Status onReceive(StateContext context) {
+        return getMessageFilter().onReceive(context);
+    }
 
     /**
      * Retrieves the name of the state
@@ -77,33 +103,6 @@ public abstract class AbstractFilteredState extends State implements MessageFilt
         return this.state.isFinal();
     }
 
-
-    /**
-     * Intercepts a message to be dispatched to the
-     * given destination.
-     *
-     * @param message     the message to be dispatched
-     * @param destination the target node
-     * @return whether the operation shall continue or not
-     */
-    @Override
-    public Status onDispatch(Message message, State destination) {
-        return getMessageFilter().onDispatch(message, destination);
-    }
-
-    /**
-     * Intercepts a message to be received from the
-     * given origin.
-     *
-     * @param message the message to be dispatched
-     * @param source  the source node
-     * @return whether the operation shall continue or not
-     */
-    @Override
-    public Status onReceive(Message message, State source) {
-        return getMessageFilter().onReceive(message, source);
-    }
-
     @Override
     public boolean equals(Object o) {
         return state.equals(o);
@@ -113,4 +112,5 @@ public abstract class AbstractFilteredState extends State implements MessageFilt
     public int hashCode() {
         return state.hashCode();
     }
+
 }

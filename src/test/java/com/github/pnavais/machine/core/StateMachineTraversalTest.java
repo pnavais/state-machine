@@ -20,10 +20,7 @@ import com.github.pnavais.machine.AbstractStateMachineTest;
 import com.github.pnavais.machine.StateMachine;
 import com.github.pnavais.machine.api.Status;
 import com.github.pnavais.machine.api.exception.NullStateException;
-import com.github.pnavais.machine.model.FilteredState;
-import com.github.pnavais.machine.model.State;
-import com.github.pnavais.machine.model.StateTransition;
-import com.github.pnavais.machine.model.StringMessage;
+import com.github.pnavais.machine.model.*;
 import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
@@ -127,16 +124,19 @@ public class StateMachineTraversalTest extends AbstractStateMachineTest {
         AtomicBoolean loopComplete = new AtomicBoolean(false);
         StateMachine machine = createStateMachine();
         FilteredState stateF = new FilteredState(new State("F"));
-        stateF.setReceptionHandler((message, state) -> {
-            if (state.getName().equals("F")) {
+        stateF.setReceptionHandler(context -> {
+            if (context.getSource().getName().equals("F")) {
                 loopComplete.set(true);
             }
             return Status.PROCEED;
         });
 
+
         machine.add(new StateTransition(stateF, StringMessage.from("self"), stateF));
         machine.add(new StateTransition("F", StringMessage.from("toA"), "A"));
         machine.add(new StateTransition("A", StringMessage.from("toF"), "F"));
+
+        getStatePrinterBuilder().compactMode(true).build().printTransitions(machine.getTransitionsIndex());
 
         machine.setCurrent("F");
         State current = machine.send("toA").getCurrent();
@@ -159,19 +159,19 @@ public class StateMachineTraversalTest extends AbstractStateMachineTest {
      * Creates a state Machine for test purposes
      * with the following transitions :
      *<pre>
-     * +--------+-----------------------+
-     * | Source |        Target         |
-     * +--------+-----------------------+
-     * |   A    | [ 1b -> B , 1c -> C ] |
-     * +--------+-----------------------+
-     * |   B    |      [ 2 -> C ]       |
-     * +--------+-----------------------+
-     * |   C    |          []           |
-     * +--------+-----------------------+
-     * |   D    |      [ 3 -> E ]       |
-     * +--------+-----------------------+
-     * |   E    |          []           |
-     * +--------+-----------------------+
+     * +--------+------------------------+
+     * | Source |        Target          |
+     * +--------+------------------------+
+     * |   A    | [ 1b -> B , 1c -> C* ] |
+     * +--------+------------------------+
+     * |   B    |      [ 2 -> C* ]       |
+     * +--------+------------------------+
+     * |   C*   |          []            |
+     * +--------+------------------------+
+     * |   D    |      [ 3 -> E* ]       |
+     * +--------+------------------------+
+     * |   E*   |          []            |
+     * +--------+------------------------+
      *</pre>
      * @return the test state machine
      */
