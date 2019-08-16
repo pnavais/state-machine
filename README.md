@@ -1,5 +1,4 @@
 # state-machine
-Generic State Machine implementation for Java 8+
 <p align="center">
     <a href="https://travis-ci.org/pnavais/state-machine">
         <img src="https://img.shields.io/travis/pnavais/state-machine.svg"
@@ -18,6 +17,8 @@ Generic State Machine implementation for Java 8+
              alt="Quality Gate"/>
     </a>
 </p>
+
+<p align="center"><sup><strong>Generic State Machine implementation for Java 8+</strong></sup></p>
 
 ## Basic usage
 
