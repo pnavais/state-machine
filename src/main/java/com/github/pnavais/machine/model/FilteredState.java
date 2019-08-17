@@ -61,6 +61,7 @@ public class FilteredState extends AbstractFilteredState {
      *
      * @param receptionHandler the reception handler
      */
+    @Override
     public void setReceptionHandler(Function<StateContext, Status> receptionHandler) {
         this.messageFilter.setReceptionHandler(Messages.ANY, receptionHandler);
     }
@@ -70,6 +71,7 @@ public class FilteredState extends AbstractFilteredState {
      *
      * @param receptionHandler the reception handler
      */
+    @Override
     public void setReceptionHandler(Message message, Function<StateContext, Status> receptionHandler) {
         this.messageFilter.setReceptionHandler(message, receptionHandler);
     }
@@ -79,6 +81,7 @@ public class FilteredState extends AbstractFilteredState {
      *
      * @param dispatchHandler the dispatch handler
      */
+    @Override
     public void setDispatchHandler(Function<StateContext, Status> dispatchHandler) {
         this.messageFilter.setDispatchHandler(Messages.ANY, dispatchHandler);
     }
@@ -88,6 +91,7 @@ public class FilteredState extends AbstractFilteredState {
      *
      * @param dispatchHandler the dispatch handler
      */
+    @Override
     public void setDispatchHandler(Message message, Function<StateContext, Status> dispatchHandler) {
         this.messageFilter.setDispatchHandler(message, dispatchHandler);
     }

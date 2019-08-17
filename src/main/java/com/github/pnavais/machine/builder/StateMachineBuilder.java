@@ -17,6 +17,7 @@ package com.github.pnavais.machine.builder;
 
 import com.github.pnavais.machine.StateMachine;
 import com.github.pnavais.machine.api.Status;
+import com.github.pnavais.machine.api.message.Event;
 import com.github.pnavais.machine.api.message.Message;
 import com.github.pnavais.machine.api.message.Messages;
 import com.github.pnavais.machine.impl.StateTransitionMap;
@@ -141,6 +142,54 @@ public class StateMachineBuilder {
     }
 
     /**
+     * Initializes the builder to add a global
+     * filter for departures for the state
+     * specified by the given name.
+     *
+     * @param stateName the state name
+     * @return the filter builder
+     */
+    public FilterBuilder leaving(String stateName) {
+        return leaving(new State(stateName));
+
+    }
+
+    /**
+     * Initializes the builder to add a global
+     * filter for departures for the given state.
+     *
+     * @param state the state
+     * @return the filter builder
+     */
+    public FilterBuilder leaving(State state) {
+        return new FilterBuilder(this, state, Event.DEPARTURE);
+    }
+
+    /**
+     * Initializes the builder to add a global
+     * filter for arrivals for the state
+     * specified by the given name.
+     *
+     * @param stateName the state name
+     * @return the filter builder
+     */
+    public FilterBuilder arriving(String stateName) {
+        return arriving(new State(stateName));
+
+    }
+
+    /**
+     * Initializes the builder to add a global
+     * filter for arrivals for the given state.
+     *
+     * @param state the state
+     * @return the filter builder
+     */
+    public FilterBuilder arriving(State state) {
+        return new FilterBuilder(this, state, Event.ARRIVAL);
+    }
+
+    /**
      * Creates and initializes a State Machine
      * from the transition map currently built.
      *
@@ -167,6 +216,62 @@ public class StateMachineBuilder {
      */
     public StateTransitionMap getTransitionMap() {
         return transitionMap;
+    }
+
+    /**
+     * Internal builder class to begin the definition
+     * of a new filter.
+     */
+    public static class FilterBuilder {
+
+        /** The builder instance */
+        private final StateMachineBuilder builder;
+
+        /** The source state */
+        private State srcState;
+
+        /** The event */
+        private final Event event;
+
+        /**
+         * Creates a new Filter builder clause for the
+         * State Machine builder using the given state as source.
+         *
+         * @param builder  the builder
+         * @param srcState the source state
+         * @param event    the event
+         */
+        private FilterBuilder(StateMachineBuilder builder, State srcState, Event event) {
+            this.builder = builder;
+            this.srcState = srcState;
+            this.event = event;
+        }
+
+        /**
+         * Adds the global filter to the current state for the
+         * corresponding event (departure/arrival)
+         *
+         * @param handler the handler
+         * @return the builder
+         */
+        public StateMachineBuilder execute(@NonNull Function<StateContext, Status> handler) {
+            // Update source state if not accepting filters
+            if (!(srcState instanceof AbstractFilteredState)) {
+                srcState = FilteredState.from(srcState);
+            }
+
+            // Sets the global filter (*) for departure/Arrival
+            if (event == Event.DEPARTURE) {
+                ((AbstractFilteredState)srcState).setDispatchHandler(handler);
+            } else if (event == Event.ARRIVAL) {
+                ((AbstractFilteredState)srcState).setReceptionHandler(handler);
+            }
+
+            // Find state and update
+            builder.findAndUpdate(this.srcState);
+            return builder;
+        }
+
     }
 
     /**
@@ -387,10 +492,10 @@ public class StateMachineBuilder {
          * @param handler the handler function to execute when leaving origin
          */
         public OnBuilder leaving(Function<StateContext, Status> handler) {
-            if (!(srcState instanceof FilteredState)) {
+            if (!(srcState instanceof AbstractFilteredState)) {
                 srcState = FilteredState.from(srcState);
             }
-            ((FilteredState)srcState).setDispatchHandler(message, handler);
+            ((AbstractFilteredState)srcState).setDispatchHandler(message, handler);
             return this;
         }
 
@@ -406,7 +511,7 @@ public class StateMachineBuilder {
                 targetState = FilteredState.from(targetState);
             }
 
-            ((FilteredState)targetState).setReceptionHandler(message, handler);
+            ((AbstractFilteredState)targetState).setReceptionHandler(message, handler);
             return this;
         }
 

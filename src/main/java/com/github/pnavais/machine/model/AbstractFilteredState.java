@@ -18,7 +18,11 @@ package com.github.pnavais.machine.model;
 
 import com.github.pnavais.machine.api.Status;
 import com.github.pnavais.machine.api.filter.MessageFilter;
+import com.github.pnavais.machine.api.message.Message;
+import com.github.pnavais.machine.api.message.Messages;
 import lombok.NonNull;
+
+import java.util.function.Function;
 
 /**
  * Base class for all Message filter state decorators
@@ -40,6 +44,34 @@ public abstract class AbstractFilteredState extends AbstractWrappedState impleme
      * @return the message filter
      */
     public abstract MessageFilter<State, StateContext> getMessageFilter();
+
+    /**
+     * Sets the reception handler for ANY message
+     *
+     * @param receptionHandler the reception handler
+     */
+    public abstract void setReceptionHandler(Function<StateContext, Status> receptionHandler);
+
+    /**
+     * Sets the reception handler for the given message
+     *
+     * @param receptionHandler the reception handler
+     */
+    public abstract void setReceptionHandler(Message message, Function<StateContext, Status> receptionHandler);
+
+    /**
+     * Sets the dispatch handler for ANY message
+     *
+     * @param dispatchHandler the dispatch handler
+     */
+    public abstract void setDispatchHandler(Function<StateContext, Status> dispatchHandler);
+
+    /**
+     * Sets the dispatch handler for the given message
+     *
+     * @param dispatchHandler the dispatch handler
+     */
+    public abstract void setDispatchHandler(Message message, Function<StateContext, Status> dispatchHandler);
 
     /**
      * Intercepts a message to be dispatched to the

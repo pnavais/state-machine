@@ -28,6 +28,8 @@ import com.github.pnavais.machine.model.StringMessage;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
@@ -323,7 +325,8 @@ public class StateMachineBuilderTest extends AbstractStateMachineTest {
 
     /**
      * Tests the initialization of the State Machine
-     * from a builder using global filters
+     * from a builder overriding current states by
+     * adding additional filters.
      */
     @Test
     public void testOverrideFilter() {
@@ -339,8 +342,6 @@ public class StateMachineBuilderTest extends AbstractStateMachineTest {
                 .add(new StateTransition("A", "1","B"));
 
         StateMachine stateMachine = stateMachineBuilder.build();
-        State current = stateMachine.send("1").getCurrent();
-        System.out.println("CURRENT >> "+current);
 
         stateMachine = stateMachineBuilder
                 .add(new StateTransition("A", "2", filteredStateB))
@@ -350,9 +351,100 @@ public class StateMachineBuilderTest extends AbstractStateMachineTest {
         assertTrue(stateB.isPresent(), "Error obtaining state B");
         assertTrue(stateB.get().isFinal(), "Error obtaining final property");
 
+        State current = stateMachine.send("1").getCurrent();
+        assertThat("Error obtaining next target", current.getName(), is("B"));
+        assertTrue(current.isFinal(), "Error overriding final property");
+        assertThat("Error executing the reception handler", counter.get(), is(1));
+
+        FilteredState newFilteredStateB = FilteredState.from(new State("B"));
+
+        newFilteredStateB.setReceptionHandler(StringMessage.from("3"), context -> {
+            counter.getAndDecrement();
+            return Status.PROCEED;
+        });
+
+        stateMachine = stateMachineBuilder
+                .add(new StateTransition("A", "3", newFilteredStateB))
+                .build();
+
         current = stateMachine.send("1").getCurrent();
         assertThat("Error obtaining next target", current.getName(), is("B"));
         assertTrue(current.isFinal(), "Error overriding final property");
         assertThat("Error executing the reception handler", counter.get(), is(1));
+
+        stateMachine.init();
+        current = stateMachine.send("3").getCurrent();
+        assertThat("Error obtaining next target", current.getName(), is("B"));
+        assertTrue(current.isFinal(), "Error overriding final property");
+        assertThat("Error executing the reception handler", counter.get(), is(0));
+
+        // Override global reception handler
+        FilteredState globalStateB = FilteredState.from(new State("B"));
+
+        globalStateB.setReceptionHandler(context -> {
+            counter.set(100);
+            return Status.PROCEED;
+        });
+
+        stateMachine = stateMachineBuilder
+                .add(new StateTransition("A", "4", globalStateB))
+                .build();
+
+        stateMachine.init();
+        current = stateMachine.send("1").getCurrent();
+        assertThat("Error obtaining next target", current.getName(), is("B"));
+        assertTrue(current.isFinal(), "Error overriding final property");
+        assertThat("Error executing the reception handler", counter.get(), is(100));
+
+    }
+
+    /**
+     * Tests the initialization of the State Machine
+     * from a builder using global filters.
+     */
+    @Test
+    public void testGlobalFiltering() {
+
+        List<String> messages = new ArrayList<>();
+
+        StateMachineBuilder stateMachineBuilder = StateMachine.newBuilder()
+                .add(new StateTransition("A", "1","B"))
+                .add(new StateTransition("A", "2","C"))
+                .leaving("A").execute(c -> {
+                    messages.add(String.format("Departing from [%s] to [%s] on [%s]", c.getSource(), c.getTarget(), c.getMessage()));
+                    return Status.PROCEED;
+                });
+
+        StateMachine stateMachine = stateMachineBuilder.build();
+        State current = stateMachine.send("1").getCurrent();
+        assertNotNull(current, "Error retrieving current state");
+        assertThat("Error obtaining current state",current.getName(), is("B"));
+        assertThat("Error obtaining messages size", messages.size(), is(1));
+        assertThat("Messages mismatch", messages.get(0), is("Departing from [A] to [B] on [1]"));
+
+        stateMachine.init();
+        messages.clear();
+        current = stateMachine.send("2").getCurrent();
+        assertNotNull(current, "Error retrieving current state");
+        assertThat("Error obtaining current state", current.getName(), is("C"));
+        assertThat("Error obtaining messages size", messages.size(), is(1));
+        assertThat("Messages mismatch", messages.get(0), is("Departing from [A] to [C] on [2]"));
+
+        // Abort transition on C arrival
+        stateMachine = stateMachineBuilder.arriving("C").execute(c -> Status.ABORT).build();
+        messages.clear();
+        current = stateMachine.send("2").getCurrent();
+        assertNotNull(current, "Error retrieving current state");
+        assertThat("Error obtaining current state", current.getName(), is("A"));
+        assertThat("Error obtaining messages size", messages.size(), is(1));
+        assertThat("Messages mismatch", messages.get(0), is("Departing from [A] to [C] on [2]"));
+
+        // B Transition still works as expected
+        messages.clear();
+        current = stateMachine.send("1").getCurrent();
+        assertNotNull(current, "Error retrieving current state");
+        assertThat("Error obtaining current state", current.getName(), is("B"));
+        assertThat("Error obtaining messages size", messages.size(), is(1));
+        assertThat("Messages mismatch", messages.get(0), is("Departing from [A] to [B] on [1]"));
     }
 }
