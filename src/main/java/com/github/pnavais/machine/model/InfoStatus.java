@@ -16,8 +16,8 @@
 
 package com.github.pnavais.machine.model;
 
-import com.github.pnavais.machine.api.message.Event;
 import com.github.pnavais.machine.api.Status;
+import com.github.pnavais.machine.api.message.Event;
 import lombok.Getter;
 import lombok.NonNull;
 

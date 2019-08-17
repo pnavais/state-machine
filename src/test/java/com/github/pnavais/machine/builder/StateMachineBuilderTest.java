@@ -18,8 +18,8 @@ package com.github.pnavais.machine.builder;
 
 import com.github.pnavais.machine.AbstractStateMachineTest;
 import com.github.pnavais.machine.StateMachine;
-import com.github.pnavais.machine.api.message.Messages;
 import com.github.pnavais.machine.api.Status;
+import com.github.pnavais.machine.api.message.Messages;
 import com.github.pnavais.machine.impl.StateTransitionMap;
 import com.github.pnavais.machine.model.FilteredState;
 import com.github.pnavais.machine.model.State;
@@ -111,7 +111,6 @@ public class StateMachineBuilderTest extends AbstractStateMachineTest {
      */
     @Test
     public void testMachineBuilderInitWithSelfLoops() {
-
         AtomicInteger counter = new AtomicInteger();
         FilteredState stateB = new FilteredState(new State("B"));
         stateB.setReceptionHandler(context -> { counter.getAndIncrement(); return Status.PROCEED; });
@@ -261,7 +260,7 @@ public class StateMachineBuilderTest extends AbstractStateMachineTest {
     public void testMachineBuilderWithFilteringOverride() {
         AtomicInteger counter = new AtomicInteger();
         FilteredState filteredC = FilteredState.from(new State("C"));
-        filteredC.setReceptionHandler(context -> Status.PROCEED);
+        filteredC.setDispatchHandler(context -> Status.PROCEED);
         StateMachine stateMachine = StateMachine.newBuilder()
                 .from("A").to("B").on("1").leaving(context -> {
                     counter.getAndIncrement();
@@ -320,5 +319,40 @@ public class StateMachineBuilderTest extends AbstractStateMachineTest {
             assertNotNull(current, "Error obtaining target state");
             assertThat("Target mismatch", current.getName(), is(targets[i-1]));
         });
+    }
+
+    /**
+     * Tests the initialization of the State Machine
+     * from a builder using global filters
+     */
+    @Test
+    public void testOverrideFilter() {
+        AtomicInteger counter = new AtomicInteger();
+        FilteredState filteredStateB = new FilteredState(new State("B"));
+        filteredStateB.setFinal(true);
+        filteredStateB.setReceptionHandler(context -> {
+            counter.getAndIncrement();
+            return Status.PROCEED;
+        });
+
+        StateMachineBuilder stateMachineBuilder = StateMachine.newBuilder()
+                .add(new StateTransition("A", "1","B"));
+
+        StateMachine stateMachine = stateMachineBuilder.build();
+        State current = stateMachine.send("1").getCurrent();
+        System.out.println("CURRENT >> "+current);
+
+        stateMachine = stateMachineBuilder
+                .add(new StateTransition("A", "2", filteredStateB))
+                .build();
+
+        Optional<State> stateB = stateMachine.find("B");
+        assertTrue(stateB.isPresent(), "Error obtaining state B");
+        assertTrue(stateB.get().isFinal(), "Error obtaining final property");
+
+        current = stateMachine.send("1").getCurrent();
+        assertThat("Error obtaining next target", current.getName(), is("B"));
+        assertTrue(current.isFinal(), "Error overriding final property");
+        assertThat("Error executing the reception handler", counter.get(), is(1));
     }
 }

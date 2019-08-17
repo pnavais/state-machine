@@ -16,13 +16,17 @@
 package com.github.pnavais.machine.builder;
 
 import com.github.pnavais.machine.StateMachine;
+import com.github.pnavais.machine.api.Status;
 import com.github.pnavais.machine.api.message.Message;
 import com.github.pnavais.machine.api.message.Messages;
-import com.github.pnavais.machine.api.Status;
 import com.github.pnavais.machine.impl.StateTransitionMap;
 import com.github.pnavais.machine.model.*;
 import lombok.NonNull;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.function.Function;
 
 /**
@@ -30,14 +34,22 @@ import java.util.function.Function;
  */
 public class StateMachineBuilder {
 
-    /** The transitions map */
+    /** The built transitions map */
     private StateTransitionMap transitionMap;
+
+    /** The current states */
+    private Map<String, WrappedState> currentStates;
+
+    /** The current transitions */
+    private Collection<WrappedStateTransition> stateTransitions;
 
     /**
      * The constructor
      */
     public StateMachineBuilder() {
         transitionMap = new StateTransitionMap();
+        currentStates = new LinkedHashMap<>();
+        stateTransitions = new ArrayList<>();
     }
 
     /**
@@ -71,8 +83,39 @@ public class StateMachineBuilder {
      * @return the builder transitionMap for chaining purposes.
      */
     public StateMachineBuilder add(@NonNull StateTransition transition) {
-        this.transitionMap.add(transition);
+
+        // Find and update origin
+        WrappedState origin = findAndUpdate(transition.getOrigin());
+        WrappedState target = findAndUpdate(transition.getTarget());
+
+        this.stateTransitions.add(new WrappedStateTransition(origin, transition.getMessage(), target));
         return this;
+    }
+
+    /**
+     * Find the current state in the temporary map
+     * and update its wrapped counterpart.
+     *
+     * @param state the state
+     * @return the wrapped state
+     */
+    private WrappedState findAndUpdate(State state) {
+
+        // Change the pointed instance to give preference
+        // to filtered states and merge the contents
+        currentStates.computeIfPresent(state.getName(), (s, w) -> {
+            if (w.getState() instanceof AbstractFilteredState) {
+                w.getState().merge(state);
+            } else {
+                state.merge(w.getState());
+                w.setState(state);
+            }
+            return w;
+        });
+
+        currentStates.putIfAbsent(state.getName(), WrappedState.from(state));
+
+        return currentStates.get(state.getName());
     }
 
     /**
@@ -105,6 +148,13 @@ public class StateMachineBuilder {
      * transitions.
      */
     public StateMachine build() {
+        // Clear the current transitions
+        transitionMap.clear();
+
+        // Unwrap state transitions and add them to the map
+        stateTransitions.forEach(wrappedStateTransition -> transitionMap.add(wrappedStateTransition.unwrap()));
+
+        // Create and initialize the machine with the built transitions
         StateMachine stateMachine = new StateMachine(transitionMap);
         stateMachine.init();
         return stateMachine;
@@ -337,10 +387,9 @@ public class StateMachineBuilder {
          * @param handler the handler function to execute when leaving origin
          */
         public OnBuilder leaving(Function<StateContext, Status> handler) {
-            if (srcState instanceof AbstractFilteredState) {
-                srcState = ((AbstractFilteredState)srcState).getState();
+            if (!(srcState instanceof FilteredState)) {
+                srcState = FilteredState.from(srcState);
             }
-            srcState = FilteredState.from(srcState);
             ((FilteredState)srcState).setDispatchHandler(message, handler);
             return this;
         }
@@ -353,10 +402,10 @@ public class StateMachineBuilder {
          * @param handler the handler function to execute when arriving target
          */
         public OnBuilder arriving(@NonNull Function<StateContext, Status> handler) {
-            if (targetState instanceof AbstractFilteredState) {
-                targetState = ((AbstractFilteredState)targetState).getState();
+            if (!(targetState instanceof AbstractFilteredState)) {
+                targetState = FilteredState.from(targetState);
             }
-            targetState = FilteredState.from(targetState);
+
             ((FilteredState)targetState).setReceptionHandler(message, handler);
             return this;
         }
@@ -426,6 +475,69 @@ public class StateMachineBuilder {
             builder.add(new StateTransition(srcState, message, targetState));
             return builder;
         }
+
+    }
+
+    /**
+     * A simple wrapper for states allowing
+     * to switch the current stored instance.
+     */
+    private static class WrappedState extends AbstractWrappedState {
+
+        /**
+         * Constructor with the state to wrap
+         *
+         * @param state the state to wrap
+         */
+        public WrappedState(@NonNull State state) {
+            super(state);
+        }
+
+        /**
+         * Static factory method to create the wrapped state instance
+         *
+         * @param state the state to wrap
+         * @return the wrapped state
+         */
+        public static WrappedState from(@NonNull State state) {
+            return new WrappedState(state);
+        }
+
+        /**
+         * Sets the wrapped instance
+         *
+         * @param state the instance to wrap
+         */
+        public void setState(@NonNull State state) {
+            this.state = state;
+        }
+    }
+
+    /**
+     * A state transition allowing to store temporary wrapped
+     * instances.
+     */
+    private static class WrappedStateTransition extends StateTransition {
+
+        /**
+         * Default constructor with wrapped states.
+         *
+         * @param origin the origin
+         * @param message the message
+         * @param target the target
+         */
+        public WrappedStateTransition(WrappedState origin, Message message, WrappedState target) {
+            super(origin, message, target);
+        }
+
+        /**
+         * Sets the current elements of the transition
+         * to point to the actual wrapped ones.
+         */
+        public StateTransition unwrap() {
+            return new StateTransition(((WrappedState)this.origin).getState(), message, ((WrappedState)this.target).getState());
+        }
+
     }
 
 }

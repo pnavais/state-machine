@@ -16,9 +16,9 @@
 
 package com.github.pnavais.machine.model;
 
+import com.github.pnavais.machine.api.filter.Context;
 import com.github.pnavais.machine.api.message.Event;
 import com.github.pnavais.machine.api.message.Message;
-import com.github.pnavais.machine.api.filter.Context;
 import lombok.Builder;
 
 /**

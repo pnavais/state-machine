@@ -15,8 +15,8 @@
  */
 package com.github.pnavais.machine.model;
 
-import com.github.pnavais.machine.api.message.Payload;
 import com.github.pnavais.machine.api.message.Message;
+import com.github.pnavais.machine.api.message.Payload;
 import lombok.NonNull;
 import lombok.Setter;
 
