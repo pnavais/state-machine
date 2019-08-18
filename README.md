@@ -176,9 +176,89 @@ StateMachine stateMachine = StateMachine.newBuilder()
  
  ### Message filtering
  
+Custom handlers can be specified globally of message-scoped to intercept transitions occurring in the State Machine which are in turn triggered by incoming messages. These handlers can be specified at either departure or arrival of the transition. 
+ 
+ See the following examples to have a better understanding of the concept.
+   
+ #### Global filters
+ 
+ Just add a "leaving" or "arriving" clause to the builder specified the handler to be executed on departure/arrival to the states involved in the current transition.
+ 
+ ```java
+ // Adds a global handler to filter any depature from state A
+  StateMachineBuilder stateMachineBuilder = StateMachine.newBuilder()
+                .add(new StateTransition("A", "1","B"))
+                .add(new StateTransition("A", "2","C"))
+                .leaving("A").execute(c -> {
+                    messages.add(String.format("Departing from [%s] to [%s] on [%s]", c.getSource(), c.getTarget(),c.getMessage()));
+                    return Status.PROCEED;
+                }).build();
+ ```
+ 
+In this case, the lambda function specified when leaving state A will be executed for any message received. The transition can be either accepted/rejected depending on the supplied Status (predefined PROCEED/ABORT or custom with a given valid status).
+ 
+#### Message-scoped filters
+ 
+The handlers can be also specified on a per message basis as described below :
+
+```java
+StateMachine stateMachine = StateMachine.newBuilder()
+                .from("A").to("B").on("1").arriving(context -> {
+                    return doSomeProcessing(); // Do wathever you want and return a Status
+                })
+```
+
+In this case, the lambda function will only be executed when the "1" message is sent for a transition from A to B.
+ 
  ### Custom messages
  
+State Machine supports by default an special implementation of the ```Message``` interface ```StringMessage``` which only contains a message identifier as payload but any special Message can be specied.
+
+The following example specifies a Message with a custom payload : 
+
+```java
+AtomicInteger counter = new AtomicInteger(100);
+
+Message customMessage = new Message() {
+    @Override
+    public UUID getMessageId() {
+        return UUID.randomUUID();
+    }
+
+    @Override
+    public Payload getPayload() {
+        return () -> counter;
+    }
+};
+
+StateMachine stateMachine = StateMachine.newBuilder()
+        .from("A").to("B").on(customMessage)
+        .from("A").to("C")
+        .leaving("A").execute(context -> {
+            System.out.println("Counter >> "+context.getMessage().getPayload().get());
+            return Status.PROCEED;
+        }).build();
+
+stateMachine.init();
+stateMachine.send(message).getCurrent(); // Counter >> 100 (The integer payload)
+
+stateMachine.init();
+System.out.println(stateMachine.next().getCurrent()); // Counter >> _ (Empty payload)
+```
+ 
+ ### Custom properties
+ 
+State instances can optionally contain any arbitrary String property attached to them (this is specially useful when exporting the state machine to an output format.
+
+```java
+State state = new State("A");
+state.addProperty("prop", "value"); // To add the property with the given value
+state.removeProperty("prop");       // To remove it
+```
+  
  ### Merging states
+ 
+As already mentioned previously, in case a new state to be added to the State Machine already exists, the information of both states (existing and new) is merged automatically. This implies preserving the final state value and copying/overriding properties and message filters (if any).
  
  ### Exporting to GraphViz DOT language format
  
