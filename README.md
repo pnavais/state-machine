@@ -176,7 +176,7 @@ StateMachine stateMachine = StateMachine.newBuilder()
  
  ### Message filtering
  
-Custom handlers can be specified globally of message-scoped to intercept transitions occurring in the State Machine which are in turn triggered by incoming messages. These handlers can be specified at either departure or arrival of the transition. 
+Custom handlers can be specified globally or message-scoped to intercept transitions occurring in the State Machine which are in turn triggered by incoming messages. These handlers can be specified at either departure or arrival of the transition. 
  
  See the following examples to have a better understanding of the concept.
    
