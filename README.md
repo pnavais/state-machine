@@ -39,19 +39,19 @@ A transition can be specified without a named message :
 
 ```java
 StateMachine stateMachine = StateMachine.newBuilder()
-                .from("A").to("B").build;
+                .from("A").to("B").build();
  ```
 
 which is a shorthand equivalent to : 
 ```java
 StateMachine stateMachine = StateMachine.newBuilder()
-                .from("A").to("B").on(Messages.EMPTY).build;
+                .from("A").to("B").on(Messages.EMPTY).build();
 ```
  
 Transitions for any message can be specified using : 
  ```java
 StateMachine stateMachine = StateMachine.newBuilder()
-                .from("A").to("B").on(Messages.ANY).build;
+                .from("A").to("B").on(Messages.ANY).build();
  ```
 
 ### Traversal
@@ -72,8 +72,37 @@ State current = stateMachine.next().getCurrent();
 System.out.println(current.getName()); // --> "B"
 ```
 
+Additionally wildcard messages can also be sent (if transitions supporting wildcards were added) : 
+
+ ```java
+StateMachine stateMachine = StateMachine.newBuilder()
+                .from("A").to("B").on(Messages.ANY)
+                .from("A").to("C").on("3").build();
+ ```
+
  
  ## Advanced usage
+ 
+  ### Initializiation without the Builder
+  
+  The State Machine can also be initialized directly without the builder fluent language this way : 
+  
+  ```java
+  StateMachine stateMachine = new StateMachine();
+  
+  stateMachine.add(new StateTransition("a", "0.2", "b"));
+  stateMachine.add(new StateTransition("a", "0.4", "c"));
+  stateMachine.add(new StateTransition("c", "0.6", "b"));
+  stateMachine.add(new StateTransition("c", "0.6", "e"));
+  stateMachine.add(new StateTransition("e", "0.1", "e"));
+  stateMachine.add(new StateTransition("e", "0.7", "b"));
+  
+  ```
+  
+  Which leads to the following : 
+  
+  ![alt text](manual_graph.png "Manual State machine creation graph diagram")
+  
  
  ### Initializiation using State Transitions
  
@@ -108,8 +137,21 @@ StateMachine stateMachine = StateMachine.newBuilder()
  
  ### Final states
  
+ States can be flagged as final in order to avoid potential transitions from them : 
+ 
+ ```java
+StateMachine stateMachine = StateMachine.newBuilder()
+                .from("A").to("B")
+                .from("B").to(State.from("C").isFinal(true).build())
+                .build();
+ ```
+ 
+ In case a transition is later added from a final state an IllegalTransitionException is raised.
+ 
  ### Message filtering
  
  ### Custom messages
  
  ### Merging states
+ 
+ ### Exporting to GraphViz DOT language format
