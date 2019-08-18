@@ -287,3 +287,6 @@ dot -Tpng graph.gv -o graph.png
 
  ![alt text](images/exported_graph.png "Exported DOT graph")
  
+ <div><sup>Icon made by <a href="https://www.flaticon.com/authors/smashicons" title="Smashicons">Smashicons</a> from <a href="http://www.flaticon.com" title="Flaticon">www.flaticon.com</a></sup></div>
+
+ 
