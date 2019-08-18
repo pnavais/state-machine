@@ -80,8 +80,24 @@ StateMachine stateMachine = StateMachine.newBuilder()
                 .from("A").to("C").on("3").build();
  ```
 
-In case the current state does not support the message sent, the latter will be silently ignored and thus no transition is made.
-Be aware that an **empty message is not similar to wildcard message** (i.e. Messages.EMPTY != Messages.ANY) and thus a transition defined with no message is only triggered by an empty message.
+Wildcard messages are used as fallback if the state does not support a direct transition for the given message i.e. : 
+
+```java
+stateMachine.getNext("3"); // --> C
+stateMachinne.init();      // --> A again
+stateMachine.getNext("4")  // --> B
+```
+
+In case the current state does not support the message sent, the latter will be silently ignored and thus no transition will be made.
+Be aware that an **empty message is not similar to a wildcard message** (i.e. Messages.EMPTY != Messages.ANY) and thus a transition defined with no message is only triggered by an empty message.
+
+The state can be initialized to any existing state at any time : 
+```java
+stateMachine.setCurrent("A");
+State next = stateMachine.getNext("3"); // --> C
+```
+
+In case the state is not recognized a NullStateException is raised.
  
  ## Advanced usage
    
@@ -165,3 +181,26 @@ StateMachine stateMachine = StateMachine.newBuilder()
  ### Merging states
  
  ### Exporting to GraphViz DOT language format
+ 
+ A very basic DOT exporter is also provided allowing to export a given State Machine to the DOT language : 
+ 
+```java
+StateMachine stateMachine = StateMachine.newBuilder()
+                .from("A").to("B").on("3")
+                .selfLoop("C").on("3")
+                .from("B").to("C").on("4")
+                .selfLoop("A").on(Messages.ANY)
+                .from("B").to(State.from("D").isFinal(true).build())
+                .build();
+
+DOTExporter.builder().build().exportToFile(stateMachine, "graph.gv");
+```
+
+Which eventually can be later processed by the DOT tool to produce and image :
+
+```
+dot -Tpng graph.gv -o graph.png
+```
+
+ ![alt text](exported_graph.png "Exported DOT graph")
+ 
