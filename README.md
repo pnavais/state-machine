@@ -104,7 +104,7 @@ StateMachine stateMachine = StateMachine.newBuilder()
  
  Which is equivalent to the following state machine diagram : 
  
- ![alt text](graph_with_loops "Graph with loops")
+ ![alt text](graph_with_loops.png "Graph with loops")
  
  ### Final states
  
