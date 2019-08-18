@@ -80,8 +80,17 @@ StateMachine stateMachine = StateMachine.newBuilder()
                 .from("A").to("C").on("3").build();
  ```
 
+In case the current state does not support the message sent, the latter will be silently ignored and thus no transition is made.
+Be aware that an **empty message is not similar to wildcard message** (i.e. Messages.EMPTY != Messages.ANY) and thus a transition defined with no message is only triggered by an empty message.
  
  ## Advanced usage
+   
+ ### Initializiation using State Transitions
+ 
+ State transitions can be used directly when building the machine :
+ ```java
+ StateMachine stateMachine = StateMachine.newBuilder().add(new StateTransition("A", "1", "B")).build();
+ ```
  
   ### Initializiation without the Builder
   
@@ -99,25 +108,15 @@ StateMachine stateMachine = StateMachine.newBuilder()
   
   ```
   
-  Which leads to the following : 
+  Which leads to the following diagram : 
   
   ![alt text](manual_graph.png "Manual State machine creation graph diagram")
   
- 
- ### Initializiation using State Transitions
- 
- State transitions can be used directly when building the machine :
- ```java
- StateMachine stateMachine = StateMachine.newBuilder().add(new StateTransition("A", "1", "B")).build();
- ```
- 
-### Initializiation using States
-
+Please notice that the current state machine after manual creation must be specified manually 
 ```java
-State initialState = new State("A");
-StateMachine stateMachine = StateMachine.newBuilder().from(initialState).to("B").build();
+stateMachine.init(); // --> Initializes to the first state added to the machine (i.e. a)
+stateMachine.setCurrent("b");
 ```
-When adding states to the machine, the name is used to verify if the state is already in place. In that case no additional state is added but rather merged to the existing one (See [Merging states](#Merging-states) section for more information).
   
  ### Self loops
  
@@ -135,6 +134,16 @@ StateMachine stateMachine = StateMachine.newBuilder()
  
  ![alt text](graph_with_loops.png "Graph with loops")
  
+ 
+### Initializiation using custom States
+
+```java
+State initialState = new State("A");
+StateMachine stateMachine = StateMachine.newBuilder().from(initialState).to("B").build();
+```
+When adding states to the machine, the name is used to verify if the state is already in place. In that case no additional state is added but rather merged to the existing one (See [Merging states](#Merging-states) section for more information).
+
+ 
  ### Final states
  
  States can be flagged as final in order to avoid potential transitions from them : 
@@ -147,6 +156,7 @@ StateMachine stateMachine = StateMachine.newBuilder()
  ```
  
  In case a transition is later added from a final state an IllegalTransitionException is raised.
+  
  
  ### Message filtering
  
