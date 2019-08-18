@@ -1,4 +1,7 @@
-# state-machine
+<p align="center">
+    <img src="images/logo.png"/>
+</p>
+
 <p align="center">
     <a href="https://travis-ci.org/pnavais/state-machine">
         <img src="https://img.shields.io/travis/pnavais/state-machine.svg"
