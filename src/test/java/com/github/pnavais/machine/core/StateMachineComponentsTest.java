@@ -17,7 +17,7 @@
 package com.github.pnavais.machine.core;
 
 import com.github.pnavais.machine.AbstractStateMachineTest;
-import com.github.pnavais.machine.api.*;
+import com.github.pnavais.machine.api.Status;
 import com.github.pnavais.machine.api.exception.ValidationException;
 import com.github.pnavais.machine.api.filter.Context;
 import com.github.pnavais.machine.api.filter.FunctionMessageFilter;
@@ -37,10 +37,14 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.stream.IntStream;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -203,6 +207,47 @@ public class StateMachineComponentsTest extends AbstractStateMachineTest {
         testRemovalOfMessageFilter(messageFilter, FunctionMessageFilter::removeReceptionHandler, messageFilter::onReceive);
     }
 
+
+    @Test
+    public void testAddPropertiesToState() {
+        State state = new State("A");
+        assertFalse(state.hasProperties(), "Error obtaining properties count");
+
+        IntStream.range(1, 5).forEach(i -> state.addProperty("prop"+i, "value"+i));
+        assertTrue(state.hasProperties(), "Error obtaining properties count");
+        assertThat("Error retrieving properties", state.getProperties().size(), is(4));
+
+        IntStream.range(1, 5).forEach(i -> {
+            assertTrue(state.hasProperty("prop"+i), "Error obtaining property");
+            Optional<String> property = state.getProperty("prop" + i);
+            assertTrue((property.isPresent()), "Property cannot be empty");
+            assertThat("Property value mismatch", property.get(), is("value"+i));
+        });
+
+        assertThat("Error obtaining non existing property", state.getProperty("prop" + 5), is(Optional.empty()));
+    }
+
+    @Test
+    public void testRemovePropertiesFromState() {
+        State state = new State("A");
+        assertFalse(state.hasProperties(), "Error obtaining properties count");
+
+        IntStream.range(1, 5).forEach(i -> state.addProperty("prop"+i, "value"+i));
+        assertTrue(state.hasProperties(), "Error obtaining properties count");
+        assertThat("Error retrieving properties", state.getProperties().size(), is(4));
+
+        IntStream.range(1, 5).forEach(i -> {
+            state.removeProperty("prop"+i);
+            assertFalse(state.hasProperty("prop"+i), "Error removing property");
+            Optional<String> property = state.getProperty("prop" + i);
+            assertFalse((property.isPresent()), "Property should be empty");
+            assertThat("Error obtaining non existing property", property, is(Optional.empty()));
+            assertThat("Error removing property", state.getProperties().size(), is(4-i));
+        });
+
+        assertThat("Error obtaining non existing property", state.getProperty("prop" + 5), is(Optional.empty()));
+    }
+
     /**
      * Test the effects of removing a dispatch/reception handler from a given
      * message filter
@@ -270,5 +315,6 @@ public class StateMachineComponentsTest extends AbstractStateMachineTest {
         assertEquals(1, receivedMessages.size(), "Error receiving messages");
         assertEquals(StringMessage.from("m1"), receivedMessages.get(0), "Received message mismatch");
     }
+
 
 }

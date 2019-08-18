@@ -23,10 +23,7 @@ import com.github.pnavais.machine.api.message.Message;
 import com.github.pnavais.machine.api.Transition;
 import com.github.pnavais.machine.api.transition.TransitionIndex;
 import com.github.pnavais.machine.model.State;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.*;
 
@@ -35,6 +32,7 @@ import java.util.*;
  */
 @Builder(toBuilder = true)
 @AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Setter
 public class StateTransitionPrinter<S extends State, M extends Message, T extends Transition<S,M>>  {

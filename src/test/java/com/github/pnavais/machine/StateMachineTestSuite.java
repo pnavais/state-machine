@@ -18,6 +18,7 @@ package com.github.pnavais.machine;
 
 import com.github.pnavais.machine.builder.StateMachineBuilderTest;
 import com.github.pnavais.machine.core.*;
+import com.github.pnavais.machine.exporter.DOTExporterTest;
 import org.junit.platform.runner.JUnitPlatform;
 import org.junit.platform.suite.api.IncludeEngines;
 import org.junit.platform.suite.api.SelectClasses;
@@ -33,6 +34,7 @@ import org.junit.runner.RunWith;
         StateMachineTraversalTest. class,
         StateTransitionCheckerTest.class,
         StateMachineMessagingTest.class,
-        StateMachineBuilderTest.class})
+        StateMachineBuilderTest.class,
+        DOTExporterTest.class})
 public class StateMachineTestSuite {
 }

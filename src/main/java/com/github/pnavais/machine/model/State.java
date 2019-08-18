@@ -15,10 +15,23 @@
  */
 package com.github.pnavais.machine.model;
 
+import lombok.Getter;
+import lombok.NonNull;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Optional;
+
 /**
- * The default implementation of the state
+ * The default implementation of the state.
+ * Contains an optional properties map to store generic state properties as
+ * attachments.
  */
 public class State extends AbstractState {
+
+    /** The optional properties attached to the state */
+    @Getter
+    private Map<String, String> properties;
 
     /**
      * Constructor with node name
@@ -37,6 +50,61 @@ public class State extends AbstractState {
      */
     public static StateBuilder from(String name) {
         return new StateBuilder().named(name);
+    }
+
+    /**
+     * Adds the property with the given key and value.
+     *
+     * @param key the name of the property to add.
+     * @param value the property value
+     * @return self for chaining purposes
+     */
+    public State addProperty(@NonNull String key, @NonNull String value) {
+        properties = Optional.ofNullable(properties).orElse(new LinkedHashMap<>());
+        properties.put(key, value);
+        return this;
+    }
+
+    /**
+     * Removes the property identified by the given key
+     * or discard the operation silently if not found.
+     *
+     * @param key the name of the property to remove
+     * @return self for chaining purposes
+     */
+    public State removeProperty(@NonNull String key) {
+        Optional.ofNullable(properties).ifPresent(props -> props.remove(key));
+        return this;
+    }
+
+    /**
+     * Retrieves the property identified by the given key
+     * or null if not found
+     *
+     * @param key the name of the property to remove
+     * @return the optional property
+     */
+    public Optional<String> getProperty(@NonNull String key) {
+        return Optional.ofNullable(properties).map(m -> m.get(key));
+    }
+
+    /**
+     * Checks whether the state contains the given property.
+     *
+     * @param key the key of the property
+     * @return true if the state has the property, false otherwise
+     */
+    public boolean hasProperty(@NonNull String key) {
+        return Optional.ofNullable(properties).map(props -> props.containsKey(key)).orElse(false);
+    }
+
+    /**
+     * Checks whether the state has properties or not
+     *
+     * @return true if state has properties, false otherwise
+     */
+    public boolean hasProperties() {
+        return (properties != null) && (!properties.isEmpty());
     }
 
     /**
@@ -68,6 +136,18 @@ public class State extends AbstractState {
          */
         public StateBuilder isFinal(boolean finalState) {
             this.instance.setFinal(finalState);
+            return this;
+        }
+
+        /**
+         * Adds a new property to the state.
+         *
+         * @param key the name of the property
+         * @param value the value of the property
+         * @return the state builder
+         */
+        public StateBuilder property(@NonNull String key, @NonNull String value) {
+            this.instance.addProperty(key, value);
             return this;
         }
 
