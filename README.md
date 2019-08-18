@@ -31,7 +31,7 @@ StateMachine stateMachine = StateMachine.newBuilder()
  
 Creates a new State Machine as per the following diagram : 
 
-![alt text](simple_graph.png "Simple graph diagram")
+![alt text](images/simple_graph.png "Simple graph diagram")
 
 When using the builder, the State Machine is automatically initialized using as current state the first node added (i.e "A" in the previous example).
 
@@ -126,7 +126,7 @@ In case the state is not recognized a NullStateException is raised.
   
   Which leads to the following diagram : 
   
-  ![alt text](manual_graph.png "Manual State machine creation graph diagram")
+  ![alt text](images/manual_graph.png "Manual State machine creation graph diagram")
   
 Please notice that the current state machine after manual creation must be specified manually 
 ```java
@@ -148,7 +148,7 @@ StateMachine stateMachine = StateMachine.newBuilder()
  
  Which is equivalent to the following state machine diagram : 
  
- ![alt text](graph_with_loops.png "Graph with loops")
+ ![alt text](images/graph_with_loops.png "Graph with loops")
  
  
 ### Initializiation using custom States
@@ -282,5 +282,5 @@ Which eventually can be later processed by the DOT tool to produce an image :
 dot -Tpng graph.gv -o graph.png
 ```
 
- ![alt text](exported_graph.png "Exported DOT graph")
+ ![alt text](images/exported_graph.png "Exported DOT graph")
  
