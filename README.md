@@ -182,15 +182,15 @@ Custom handlers can be specified globally or message-scoped to intercept transit
    
  #### Global filters
  
- Just add a "leaving" or "arriving" clause to the builder specified the handler to be executed on departure/arrival to the states involved in the current transition.
+ Just add a ```"leaving"``` or ```"arriving"``` clause to the builder specifying the handler to be executed on departure/arrival to the states involved in the current transition.
  
  ```java
  // Adds a global handler to filter any depature from state A
   StateMachineBuilder stateMachineBuilder = StateMachine.newBuilder()
                 .add(new StateTransition("A", "1","B"))
                 .add(new StateTransition("A", "2","C"))
-                .leaving("A").execute(c -> {
-                    messages.add(String.format("Departing from [%s] to [%s] on [%s]", c.getSource(), c.getTarget(),c.getMessage()));
+                .leaving("A").execute(context -> {
+                    messages.add(String.format("Departing from [%s] to [%s] on [%s]", context.getSource(), context.getTarget(),context.getMessage()));
                     return Status.PROCEED;
                 }).build();
  ```
