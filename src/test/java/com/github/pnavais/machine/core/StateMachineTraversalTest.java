@@ -20,7 +20,11 @@ import com.github.pnavais.machine.AbstractStateMachineTest;
 import com.github.pnavais.machine.StateMachine;
 import com.github.pnavais.machine.api.Status;
 import com.github.pnavais.machine.api.exception.NullStateException;
-import com.github.pnavais.machine.model.*;
+import com.github.pnavais.machine.api.message.Messages;
+import com.github.pnavais.machine.model.FilteredState;
+import com.github.pnavais.machine.model.State;
+import com.github.pnavais.machine.model.StateTransition;
+import com.github.pnavais.machine.model.StringMessage;
 import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
@@ -153,6 +157,18 @@ public class StateMachineTraversalTest extends AbstractStateMachineTest {
         assertNotNull(current, "Error retrieving current state");
         assertThat("Error retrieving", current.getName(), is("F"));
         assertTrue(loopComplete.get(), "Error checking self loop");
+    }
+
+    @Test
+    public void testStateMachineEmptyStateTraversal() {
+        StateMachine machine = StateMachine.newBuilder()
+                .from("A").to("B").build();
+
+        assertEquals("B", machine.next().getCurrent().getName(), "Error traversing machine with empty message");
+        machine.init();
+        assertEquals("B", machine.send(Messages.EMPTY).getCurrent().getName(), "Error traversing machine with empty message");
+        machine.init();
+        assertEquals("A", machine.send(Messages.ANY).getCurrent().getName(), "Error traversing machine with empty message");
     }
 
     /**

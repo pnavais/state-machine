@@ -18,6 +18,8 @@ package com.github.pnavais.machine.exporter;
 
 import com.github.pnavais.machine.AbstractStateMachineTest;
 import com.github.pnavais.machine.StateMachine;
+import com.github.pnavais.machine.api.exception.FileExportException;
+import com.github.pnavais.machine.api.message.Messages;
 import com.github.pnavais.machine.model.State;
 import com.github.pnavais.machine.util.ColorTranslator;
 import com.github.pnavais.machine.util.DOTExporter;
@@ -36,8 +38,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Contains the unit tests for the DOT Exporter
@@ -83,6 +84,34 @@ public class DOTExporterTest extends AbstractStateMachineTest {
         StateMachine machine = StateMachine.newBuilder()
                 .from("A").to("B").on("1")
                 .from("B").to("C").on("2").build();
+
+        String exported = DOTExporter.builder().build().export(machine);
+        assertNotNull(exported, "Error retrieving exported state machine contents");
+        assertThat("Error comparing exported output", expected, is(exported));
+    }
+
+    /**
+     * Exports a state machine with custom messages
+     * and checks the output.
+     */
+    @Test
+    public void testStateMachineWithMessagesExport() {
+
+        String expected = "digraph G {" + NL +
+                TB + "rankdir=\"LR\";" + NL +
+                TB + "A -> B [label=\"1\"];" + NL +
+                TB + "B -> C [label=\"2\"];" + NL +
+                TB + "B -> D" + NL +
+                TB + "B -> E [label=\"*\"];" + NL +
+                TB + "C -> C" + NL +
+                "}";
+
+        StateMachine machine = StateMachine.newBuilder()
+                .from("A").to("B").on("1")
+                .from("B").to("C").on("2")
+                .from("B").to("D")
+                .from("B").to("E").on(Messages.ANY)
+                .selfLoop("C").build();
 
         String exported = DOTExporter.builder().build().export(machine);
         assertNotNull(exported, "Error retrieving exported state machine contents");
@@ -178,7 +207,7 @@ public class DOTExporterTest extends AbstractStateMachineTest {
 
     /**
      * Exports a simple state machine
-     * with custom options and check the output
+     * with custom options to and output file
      */
     @Test
     public void testStateMachineFileExport() {
@@ -207,6 +236,46 @@ public class DOTExporterTest extends AbstractStateMachineTest {
         } catch (IOException e) {
             fail("Error reading output file");
         }
+    }
+
+    /**
+     * Tests the exception when export failed due to
+     * I/O issues.
+     */
+    @Test
+    public void testStateMachineFileExportFailure() {
+        StateMachine machine = StateMachine.newBuilder()
+                .from(State.from("A").build()).to("B").on("1").build();
+
+        Path outputPath = testFS.getPath("/tmp2/output.gv");
+
+        try {
+            DOTExporter.builder().build().exportToFile(machine, outputPath);
+            fail("Error testing export failure");
+        } catch (Exception e) {
+            assertEquals(e.getClass(), FileExportException.class, "Exception mismatch");
+        }
+
+    }
+
+    /**
+     * Tests the exception when export failed due to
+     * wrong output file.
+     */
+    @Test
+    public void testStateMachineFileExportToDirFailure() {
+        StateMachine machine = StateMachine.newBuilder()
+                .from(State.from("A").build()).to("B").on("1").build();
+
+        Path outputPath = testFS.getPath(TMP_DIR);
+
+        try {
+            DOTExporter.builder().build().exportToFile(machine, outputPath);
+            fail("Error testing export failure");
+        } catch (Exception e) {
+            assertEquals(e.getClass(), FileExportException.class, "Exception mismatch");
+        }
+
     }
 
     /**

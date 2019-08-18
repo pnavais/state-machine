@@ -423,7 +423,7 @@ public class StateMachineBuilder {
          * @param message the custom message to add
          * @return the initial builder
          */
-        private OnBuilder on(Message message) {
+        public OnBuilder on(Message message) {
             return new OnBuilder(builder, srcState, message, targetState);
         }
 

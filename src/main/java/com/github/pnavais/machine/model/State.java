@@ -108,6 +108,24 @@ public class State extends AbstractState {
     }
 
     /**
+     * Merges the information of the given state
+     * into the current instance.
+     * All incoming properties are added to the current
+     * ones potentially overriding existing values.
+     *
+     * @param state the state to merge
+     * @return the merged state instance
+     */
+    @Override
+    public AbstractState merge(AbstractState state) {
+        super.merge(state);
+        if ((state != null) && ((state instanceof State) && ((State)state).hasProperties())) {
+            ((State)state).getProperties().forEach(this::addProperty);
+        }
+        return this;
+    }
+
+    /**
      * A basic State builder
      */
     public static class StateBuilder {

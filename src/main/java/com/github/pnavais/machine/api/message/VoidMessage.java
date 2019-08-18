@@ -20,7 +20,9 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Supplier;
 
 /**
  * Represents an empty/null message
@@ -50,7 +52,7 @@ public class VoidMessage implements Message {
      * @param name    the name
      * @param payload the payload
      */
-    private VoidMessage(String name, Payload payload) {
+    private VoidMessage(String name,Payload payload) {
         this.name = name;
         this.messageId = UUID.randomUUID();
         this.payload = payload;
@@ -84,6 +86,12 @@ public class VoidMessage implements Message {
      */
     public static VoidMessage createWith(String name, Payload payload) {
         return new VoidMessage(name, payload);
+    }
+
+    @Override
+    public String toString() {
+        Object o = Optional.ofNullable(payload).map(Supplier::get).orElse(name);
+        return (o != null) ? o.toString() : null;
     }
 
 }

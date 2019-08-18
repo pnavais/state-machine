@@ -35,9 +35,7 @@ import com.github.pnavais.machine.model.StateTransition;
 import com.github.pnavais.machine.model.StringMessage;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -246,6 +244,27 @@ public class StateMachineComponentsTest extends AbstractStateMachineTest {
         });
 
         assertThat("Error obtaining non existing property", state.getProperty("prop" + 5), is(Optional.empty()));
+    }
+
+    @Test
+    public void testVoidMessagesRepresentation() {
+
+        Map<String, String> representations = new HashMap<>();
+
+        representations.put("null-Message", "Message [null] > [null]");
+        representations.put("null-Payload", "Payload [null] > [null]");
+        representations.put("EMPTY-Message", "Message [EMPTY] > [_]");
+        representations.put("EMPTY-Payload", "Payload [EMPTY] > [_]");
+        representations.put("ANY-Message", "Message [ANY] > [*]");
+        representations.put("ANY-Payload", "Payload [ANY] > [*]");
+
+        Arrays.asList(Messages.NULL, Messages.EMPTY, Messages.ANY).forEach(m -> {
+            String message = String.format("Message [%s] > [%s]",((VoidMessage) m).getName(), m.toString());
+            assertThat(representations.get(((VoidMessage) m).getName() + "-Message"), is(message));
+            String payload = String.format("Payload [%s] > [%s]",((VoidMessage) m).getName(), m.getPayload() != null ? m.getPayload().get() : null);
+            assertThat(representations.get(((VoidMessage) m).getName() + "-Payload"), is(payload));
+
+        });
     }
 
     /**

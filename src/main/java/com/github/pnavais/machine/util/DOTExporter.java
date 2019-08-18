@@ -20,6 +20,7 @@ import com.github.pnavais.machine.StateMachine;
 import com.github.pnavais.machine.api.exception.FileExportException;
 import com.github.pnavais.machine.api.exporter.Exporter;
 import com.github.pnavais.machine.api.message.Message;
+import com.github.pnavais.machine.api.message.Messages;
 import com.github.pnavais.machine.model.State;
 import lombok.*;
 import lombok.extern.java.Log;
@@ -156,8 +157,28 @@ public class DOTExporter implements Exporter<String, State, Message, StateMachin
      */
     private void appendTransitions(StateMachine stateMachine, StringBuilder builder) {
         stateMachine.getAllTransitions().forEach(t ->
-                builder.append(TB).append(String.format("%s -> %s [label=\"%s\"];", t.getOrigin().getName(), t.getTarget().getName(), t.getMessage()))
+                builder.append(TB).append(String.format("%s -> %s", t.getOrigin().getName(), t.getTarget().getName()))
+                        .append(formatMessage(t.getMessage()))
                         .append(NL));
+    }
+
+    /**
+     * Retrieves the formatted representation of the message
+     * depending on its nature and contents.
+     *
+     * @param m the message
+     * @return the formatted representation of the message.
+     */
+    private String formatMessage(Message m) {
+        String formattedMessage = null;
+        if (m.equals(Messages.ANY)) {
+            formattedMessage = "*";
+        } else if ((!m.equals(Messages.EMPTY)) && (!m.equals(Messages.NULL))) {
+            Object payload = (m.getPayload() != null) ? m.getPayload().get() : null;
+            formattedMessage = (payload == null) ? m.toString() : payload.toString();
+        }
+
+        return (formattedMessage == null) ? "" : " [label=\""+formattedMessage+"\"];";
     }
 
     /**
@@ -192,6 +213,9 @@ public class DOTExporter implements Exporter<String, State, Message, StateMachin
      */
     @Override
     public void exportToFile(@NonNull StateMachine stateMachine, @NonNull Path outputFile) {
+        if (Files.isDirectory(outputFile)) {
+            throw new FileExportException("Cannot write to [" + outputFile + "]");
+        }
         try (BufferedWriter writer = Files.newBufferedWriter(outputFile, StandardCharsets.UTF_8)) {
             writer.write(export(stateMachine));
         } catch (IOException ex) {

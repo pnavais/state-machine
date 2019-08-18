@@ -55,7 +55,6 @@ public class StateMachineCoreTest extends AbstractStateMachineTest {
         assertEquals("1", machine.getTransitions("A").iterator().next().getMessage().getPayload().get(), "Transition message retrieval mismatch");
     }
 
-
     @Test
     public void testStateAddToFinalState() {
         StateMachine machine = new StateMachine();
