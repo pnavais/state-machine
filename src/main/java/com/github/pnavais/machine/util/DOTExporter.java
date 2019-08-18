@@ -76,6 +76,9 @@ public class DOTExporter implements Exporter<String, State, Message, StateMachin
     /** The default color for final states */
     public static final String DEFAULT_FINAL_COLOR = "#C2B3FF";
 
+    /** The default color for current state */
+    public static final String DEFAULT_CURRENT_COLOR = "#1122DD";
+
     /** The file system to use when locating paths */
     @Builder.Default
     private FileSystem fileSystem = FileSystems.getDefault();
@@ -94,6 +97,13 @@ public class DOTExporter implements Exporter<String, State, Message, StateMachin
 
     /** Use HSB colors in the output format. (Defaults to RGB) */
     private boolean useHSB;
+
+    /** Show current status in different color */
+    private boolean showCurrent;
+
+    /** The color for final states */
+    @Builder.Default
+    private Color currentStateColor = Color.decode(DEFAULT_CURRENT_COLOR);
 
     /**
      * Export the current contents of the state machine
@@ -128,11 +138,18 @@ public class DOTExporter implements Exporter<String, State, Message, StateMachin
             String prefix = TB + s.getName() + " [";
 
             if ((s.isFinal() && (!s.hasProperty("color")))) {
-                builder.append(prefix).append("style=\"filled\", color=\"").append(toOutputColor(getFinalStateColor())).append("\"");
+                builder.append(prefix).append("style=\"filled\", fillcolor=\"").append(toOutputColor(getFinalStateColor())).append("\"");
+                prefix = "";
+            }
+
+            if (isShowCurrent() && (s.equals(stateMachine.getCurrent())) && (!s.hasProperty("color"))) {
+                prefix = prefix.equals("") ? ", " : prefix;
+                builder.append(prefix).append("color=\"").append(toOutputColor(getCurrentStateColor())).append("\"");
                 prefix = "";
             }
 
             if (s.hasProperties()) {
+                prefix = prefix.equals("") ? ", " : prefix;
                 builder.append(prefix);
                 prefix = "";
                 final String[] finalPrefix = { prefix };
@@ -146,7 +163,6 @@ public class DOTExporter implements Exporter<String, State, Message, StateMachin
                 builder.append("];").append(NL);
             }
         }
-
     }
 
     /**
@@ -190,8 +206,6 @@ public class DOTExporter implements Exporter<String, State, Message, StateMachin
     private String toOutputColor(Color color) {
         return (isUseHSB()) ? ColorTranslator.toHSBColor(color) : ColorTranslator.toRGBColor(color);
     }
-
-
 
     /**
      * Export the current contents of the state machine

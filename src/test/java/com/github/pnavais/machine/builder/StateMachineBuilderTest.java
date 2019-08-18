@@ -447,4 +447,46 @@ public class StateMachineBuilderTest extends AbstractStateMachineTest {
         assertThat("Error obtaining messages size", messages.size(), is(1));
         assertThat("Messages mismatch", messages.get(0), is("Departing from [A] to [B] on [1]"));
     }
+
+
+    /**
+     * Tests the initialization of the State Machine
+     * from a builder using global filters.
+     */
+    @Test
+    public void testGlobalFilteringOnEmptyMessages() {
+        AtomicInteger counter = new AtomicInteger();
+
+        StateMachineBuilder stateMachineBuilder = StateMachine.newBuilder().
+                from("A").to("B").leaving("A").execute(c -> {
+                    counter.getAndIncrement();
+                    return Status.PROCEED;
+                }).
+                from("B").to("C")
+                .arriving("B").execute(c -> {
+                    counter.getAndIncrement();
+                    counter.getAndIncrement();
+                    return Status.PROCEED;
+        });
+
+        StateMachine stateMachine = stateMachineBuilder.build();
+        State current = stateMachine.next().getCurrent();
+        assertThat("Error obtaining current state", current.getName(), is("B"));
+        assertThat("Error executing arriving and leaving handlers", counter.get(), is(3));
+
+        stateMachineBuilder.from("C").to("D").leaving(new State("C")).execute(c -> {
+                    counter.getAndDecrement();
+                    return Status.PROCEED;
+                }).from("D").to("E").arriving(new State("D")).execute(c -> {
+                    counter.getAndDecrement();
+                    counter.getAndDecrement();
+                    return Status.PROCEED;
+        });
+
+        stateMachine = stateMachineBuilder.build();
+        stateMachine.setCurrent("C");
+        current = stateMachine.next().next().getCurrent();
+        assertThat("Error obtaining current state", current.getName(), is("E"));
+        assertThat("Error executing arriving and leaving handlers", counter.get(), is(0));
+    }
 }

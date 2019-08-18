@@ -128,7 +128,7 @@ public class DOTExporterTest extends AbstractStateMachineTest {
         String expected = "digraph G {" + NL +
                 TB + "rankdir=\"LR\";" + NL +
                 TB + "A [shape=\"box\"];" + NL +
-                TB + "C [style=\"filled\", color=\""+DOTExporter.DEFAULT_FINAL_COLOR+"\"];" + NL +
+                TB + "C [style=\"filled\", fillcolor=\""+DOTExporter.DEFAULT_FINAL_COLOR+"\"];" + NL +
                 TB + "A -> B [label=\"1\"];" + NL +
                 TB + "B -> C [label=\"2\"];" + NL +
                 "}";
@@ -151,13 +151,13 @@ public class DOTExporterTest extends AbstractStateMachineTest {
 
         Color color = Color.decode("#FF22FF");
 
-        String expected = "digraph TestGraph {" + NL +
-                TB +"rankdir=\"TB\";" + NL +
-                TB +"A [shape=\"box\"];" + NL +
-                TB +"C [style=\"filled\", color=\""+ ColorTranslator.toHSBColor(color) +"\"];" + NL +
-                TB +"A -> B [label=\"1\"];" + NL +
-                TB +"B -> C [label=\"2\"];" + NL +
-                "}";
+        String expected = "digraph TestGraph {" + NL
+                + TB + "rankdir=\"TB\";" + NL
+                + TB + "A [color=\"0.8333, 0.8667, 1.0000\", shape=\"box\"];" + NL
+                + TB + "C [style=\"filled\", fillcolor=\"0.8333, 0.8667, 1.0000\"];" + NL
+                + TB + "A -> B [label=\"1\"];" + NL
+                + TB + "B -> C [label=\"2\"];" + NL
+                + "}";
 
         StateMachine machine = StateMachine.newBuilder()
                 .from(State.from("A").property("shape", "box").build()).to("B").on("1")
@@ -165,8 +165,10 @@ public class DOTExporterTest extends AbstractStateMachineTest {
 
         String exported = DOTExporter.builder()
                 .useHSB(true)
+                .showCurrent(true)
                 .graphName("TestGraph")
                 .finalStateColor(color)
+                .currentStateColor(color)
                 .rankDir(DOTExporter.RankDir.TB)
                 .build().export(machine);
 
@@ -185,7 +187,7 @@ public class DOTExporterTest extends AbstractStateMachineTest {
 
         String expected = "digraph G {" + NL +
                 TB + "rankdir=\"LR\";" + NL +
-                TB + "C [style=\"filled\", color=\""+ ColorTranslator.toHSBColor(color) +"\"];" + NL +
+                TB + "C [style=\"filled\", fillcolor=\""+ ColorTranslator.toHSBColor(color) +"\"];" + NL +
                 TB + "A -> B [label=\"1\"];" + NL +
                 TB + "A -> C [label=\"2\"];" + NL +
                 "}";

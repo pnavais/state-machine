@@ -428,6 +428,52 @@ public class StateMachineBuilder {
         }
 
         /**
+         * Initializes the builder to add a global
+         * filter for departures for the state
+         * specified by the given name.
+         *
+         * @param stateName the state name
+         * @return the filter builder
+         */
+        public FilterBuilder leaving(String stateName) {
+            return on(Messages.EMPTY).builder().leaving(new State(stateName));
+        }
+
+        /**
+         * Initializes the builder to add a global
+         * filter for departures for the given state.
+         *
+         * @param state the state
+         * @return the filter builder
+         */
+        public FilterBuilder leaving(State state) {
+            return on(Messages.EMPTY).builder().leaving(state);
+        }
+
+        /**
+         * Initializes the builder to add a global
+         * filter for arrivals for the state
+         * specified by the given name.
+         *
+         * @param stateName the state name
+         * @return the filter builder
+         */
+        public FilterBuilder arriving(String stateName) {
+            return on(Messages.EMPTY).builder().arriving(new State(stateName));
+        }
+
+        /**
+         * Initializes the builder to add a global
+         * filter for arrivals for the given state.
+         *
+         * @param state the state
+         * @return the filter builder
+         */
+        public FilterBuilder arriving(State state) {
+            return on(Messages.EMPTY).builder().arriving(state);
+        }
+
+        /**
          * Adds a filtering function for triggering messages from origin state
          * of the transition by transforming the current origin state into
          * a {@link FilteredState}.
