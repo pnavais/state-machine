@@ -276,7 +276,7 @@ StateMachine stateMachine = StateMachine.newBuilder()
 DOTExporter.builder().build().exportToFile(stateMachine, "graph.gv");
 ```
 
-Which eventually can be later processed by the DOT tool to produce and image :
+Which eventually can be later processed by the DOT tool to produce an image :
 
 ```
 dot -Tpng graph.gv -o graph.png
