@@ -108,13 +108,16 @@ stateMachine.getNext("4")  // --> B
 In case the current state does not support the message sent, the latter will be silently ignored and thus no transition will be made.
 Be aware that an **empty message is not similar to a wildcard message** (i.e. Messages.EMPTY != Messages.ANY) and thus a transition defined with no message is only triggered by an empty message.
 
-The state can be initialized to any existing state at any time : 
+The current state can be set to any existing state at any time : 
 ```java
 stateMachine.setCurrent("A");
+// OR
+stateMachine.setCurrent(new State("A"));
+
 State next = stateMachine.getNext("3"); // --> C
 ```
 
-In case the state is not recognized a NullStateException is raised.
+In case the given state is not recognized a NullStateException is raised.
  
  ## Advanced usage
    
