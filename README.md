@@ -118,7 +118,7 @@ In case the state is not recognized a NullStateException is raised.
  
  ## Advanced usage
    
- ### Initializiation using State Transitions
+ ### Initialization using State Transitions
  
  State transitions can be used directly when building the machine :
  ```java
