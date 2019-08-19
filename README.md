@@ -125,7 +125,7 @@ In case the state is not recognized a NullStateException is raised.
  StateMachine stateMachine = StateMachine.newBuilder().add(new StateTransition("A", "1", "B")).build();
  ```
  
-  ### Initializiation without the Builder
+  ### Initialization without the Builder
   
   The State Machine can also be initialized directly without the builder fluent language this way : 
   
