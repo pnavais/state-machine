@@ -21,7 +21,7 @@ package com.github.pnavais.machine.api;
  * classes interested in merging its current
  * state (i.e. model) with a given Node one.
  *
- * @param <N>
+ * @param <N> the type of node
  */
 public interface Mergeable<N extends Node> {
 

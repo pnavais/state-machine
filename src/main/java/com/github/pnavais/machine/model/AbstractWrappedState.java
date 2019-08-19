@@ -16,68 +16,72 @@
 
 package com.github.pnavais.machine.model;
 
-import com.github.pnavais.machine.api.AbstractNode;
-import com.github.pnavais.machine.api.Mergeable;
+import lombok.Getter;
+import lombok.NonNull;
 
 /**
- * An state represents an arbitrary node in a state machine
- * containing its transitions.
+ * This class is intended to contain the actual State
+ * instance in order to be stored in a state machine.
+ * The wrapped instance can be modified at any time
+ * allowing references in the state machine to still
+ * point to the wrapper.
  */
-public abstract class AbstractState extends AbstractNode implements Mergeable<AbstractState> {
+public abstract class AbstractWrappedState extends State {
 
-    /** Flag to control whether the state is final or not */
-    private boolean finalState;
+    /** The target State. */
+    @Getter
+    protected State state;
 
     /**
-     * Constructor with node name
+     * Constructor with the state to wrap
      *
-     * @param name the name of the node
+     * @param state the state to wrap
      */
-    public AbstractState(String name) {
-        super(name);
+    public AbstractWrappedState(@NonNull State state) {
+        super(state.getName());
+        this.state = state;
     }
 
+    /**
+     * Retrieves the name of the state
+     * @return the state's name
+     */
     @Override
-    public boolean equals(Object o) {
-        return super.equals(o);
-    }
-
-    @Override
-    public int hashCode() {
-        return super.hashCode();
+    public String getName() {
+        return this.state.getName();
     }
 
     /**
      * Sets whether the state is
      * final or not.
+     *
      * @param finalState the final state flag
      */
+    @Override
     public void setFinal(boolean finalState) {
-        this.finalState = finalState;
+        this.state.setFinal(finalState);
     }
 
     /**
      * Retrieves the final state condition
      * flag. If final, no further transitions
      * can be allowed from this state.
+     *
      * @return the final state flag
      */
+    @Override
     public boolean isFinal() {
-        return this.finalState;
+        return this.state.isFinal();
     }
 
-    /**
-     * Merges the information of the given state
-     * into the current instance.
-     *
-     * @param state the state to merge
-     * @return the merged state instance
-     */
     @Override
-    public AbstractState merge(AbstractState state) {
-        if (state != null) {
-            finalState = (state.isFinal() || finalState);
-        }
-        return this;
+    public boolean equals(Object o) {
+        return state.equals(o);
     }
+
+    @Override
+    public int hashCode() {
+        return state.hashCode();
+    }
+
 }

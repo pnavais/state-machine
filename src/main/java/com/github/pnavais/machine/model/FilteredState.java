@@ -16,6 +16,7 @@
 
 package com.github.pnavais.machine.model;
 
+import com.github.pnavais.machine.api.AbstractNode;
 import com.github.pnavais.machine.api.Status;
 import com.github.pnavais.machine.api.filter.FunctionMessageFilter;
 import com.github.pnavais.machine.api.message.Message;
@@ -104,7 +105,7 @@ public class FilteredState extends AbstractFilteredState {
      * @return the merged state
      */
     @Override
-    public AbstractState merge(AbstractState state) {
+    public AbstractNode merge(AbstractNode state) {
         super.merge(state);
         if (state instanceof FilteredState) {
             // Add or override dispatch/reception handlers mappings from the given state

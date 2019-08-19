@@ -15,6 +15,7 @@
  */
 package com.github.pnavais.machine.model;
 
+import com.github.pnavais.machine.api.AbstractNode;
 import lombok.Getter;
 import lombok.NonNull;
 
@@ -27,7 +28,7 @@ import java.util.Optional;
  * Contains an optional properties map to store generic state properties as
  * attachments.
  */
-public class State extends AbstractState {
+public class State extends AbstractNode {
 
     /** The optional properties attached to the state */
     @Getter
@@ -117,7 +118,7 @@ public class State extends AbstractState {
      * @return the merged state instance
      */
     @Override
-    public AbstractState merge(AbstractState state) {
+    public AbstractNode merge(AbstractNode state) {
         super.merge(state);
         if ((state != null) && ((state instanceof State) && ((State)state).hasProperties())) {
             ((State)state).getProperties().forEach(this::addProperty);

@@ -23,13 +23,16 @@ import java.util.UUID;
 /**
  * Represents an arbitrary node of a given directed graph
  */
-public abstract class AbstractNode implements Node {
+public abstract class AbstractNode implements Node, Mergeable<AbstractNode>  {
 
     /** The shorthand name associated to the node */
     protected String name;
 
     /** The identifier of the node */
     protected final UUID id;
+
+    /** Flag to control whether the node is final or not */
+    private boolean finalState;
 
     /**
      * Constructor with node name
@@ -51,6 +54,25 @@ public abstract class AbstractNode implements Node {
     }
 
     /**
+     * Sets whether the state is
+     * final or not.
+     * @param finalState the final state flag
+     */
+    public void setFinal(boolean finalState) {
+        this.finalState = finalState;
+    }
+
+    /**
+     * Retrieves the final state condition
+     * flag. If final, no further transitions
+     * can be allowed from this state.
+     * @return the final state flag
+     */
+    public boolean isFinal() {
+        return this.finalState;
+    }
+
+    /**
      * Retrieves the name of the node
      *
      * @return the name of the node
@@ -58,6 +80,21 @@ public abstract class AbstractNode implements Node {
     @Override
     public String getName() {
         return name;
+    }
+
+    /**
+     * Merges the information of the given node
+     * into the current instance.
+     *
+     * @param node the node to merge
+     * @return the merged node instance
+     */
+    @Override
+    public AbstractNode merge(AbstractNode node) {
+        if (node != null) {
+            finalState = (node.isFinal() || finalState);
+        }
+        return this;
     }
 
     @Override
