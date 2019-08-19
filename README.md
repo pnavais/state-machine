@@ -230,7 +230,7 @@ In this case, the lambda function will only be executed when the "1" message is 
  
  ### Custom messages
  
-State Machine supports by default an special implementation of the ```Message``` interface i.e. ```StringMessage``` which only contains a message identifier as payload but any special Message can be specied.
+State Machine supports by default an special implementation of the ```Message``` interface i.e. ```StringMessage``` which only contains a message identifier as payload but any special Message can be specified.
 
 The following example specifies a Message with a custom payload : 
 
