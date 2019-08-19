@@ -277,7 +277,8 @@ state.removeProperty("prop");       // To remove it
 
 ### Pruning orphan states
 
-If for some reason an state cannot be reached by any transition it is considered orphan.
+If for some reason an state cannot be reached by any transition it is considered orphan.Taking into account the previous statement, be aware that a state only reacheable through a self loop is not deemed orphan.
+
 Consider the following state machine : 
 ```java
 StateMachine machine = StateMachine.newBuilder()
