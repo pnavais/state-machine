@@ -39,7 +39,7 @@ import java.util.stream.Collectors;
  * the source of the transition and as key another map containing
  * the association between messages and destination states.
  *<p>
- * For example, the transition [ A -- m --> B ] would be stored in a map
+ * For example, the transition [ A -- m --&gt; B ] would be stored in a map
  * as represented in the table below :
  * </p>
  * <pre>
