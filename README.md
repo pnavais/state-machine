@@ -310,7 +310,8 @@ machine.remove("B"); // --> State D not reachable
  ### Merging states
  
 As already mentioned previously, in case a new state to be added to the State Machine already exists, the information of both states (existing and new) is merged automatically. This implies preserving the final state value and copying/overriding properties and message filters (if any).
- 
+The behaviour of the merge functionality can be overriden or implemented through the Mergeable interface.
+
  ### Exporting to GraphViz DOT language format
  
  A very basic DOT exporter is also provided allowing to export a given State Machine to the DOT language : 
