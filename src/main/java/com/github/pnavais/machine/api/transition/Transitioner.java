@@ -175,6 +175,8 @@ public interface Transitioner<N extends Node, M extends Message, T extends Trans
      * Remove orphan nodes.
      * i.e. With no transitions and involved in no
      * other node transitions.
+     *
+     * @return the list of removed nodes
      */
     List<N> prune();
 }

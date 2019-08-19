@@ -38,35 +38,35 @@ import java.util.stream.Collectors;
  * This transition index is implemented as a map using as key
  * the source of the transition and as key another map containing
  * the association between messages and destination states.
- * <p><p>
+ *<p>
  * For example, the transition [ A -- m --> B ] would be stored in a map
  * as represented in the table below :
- * </p></p>
+ * </p>
  * <pre>
  * Key    | Transitions
  * --------------------
- * A      | [ m ->  B ]
+ * A      | [ m -&gt;  B ]
  * B      | []
  * </pre>
  * It is important to note that target states will be also stored
  * as key in the transitions map.
  *
- * In case a new transition from A is added , [ A --- n ---> C ] ,
+ * In case a new transition from A is added , [ A --- n ---&gt; C ] ,
  * the transitions would be updated as :
  * <pre>
  * Key    | Transitions
  * --------------------
- * A      | [ m ->  B,  n ->  C ]
+ * A      | [ m -&gt;  B,  n -&gt;  C ]
  * B      | []
  * C      | []
  * </pre>
  *
  * In case a transition is added from this state using
- * the same message [ A --- m ---> C, the transition map would be updated as follows :
+ * the same message [ A --- m ---&gt; C, the transition map would be updated as follows :
  * <pre>
  * Key    | Transitions
  * --------------------
- * A      | [ m ->  C,  n ->  C ]
+ * A      | [ m -&gt;  C,  n -&gt;  C ]
  * B      | []
  * C      | []
  * </pre>
@@ -269,7 +269,7 @@ public class StateTransitionMap implements TransitionIndex<State, Message, State
     }
 
     /**
-     * Clear all states & transitions from the map
+     * Clear all states and transitions from the map
      */
     @Override
     public void clear() {

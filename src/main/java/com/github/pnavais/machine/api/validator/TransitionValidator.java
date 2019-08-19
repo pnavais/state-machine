@@ -46,6 +46,8 @@ public interface TransitionValidator<N extends Node, M extends Message, T extend
      * @param transition    the transition to check
      * @param transitionIndex the transition index
      * @param operation the operation to accomplish
+     *
+     * @return the validation result
      */
     ValidationResult validate(T transition, TransitionIndex<N,M,T> transitionIndex, Operation operation);
 

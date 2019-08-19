@@ -3,7 +3,7 @@
 
     <groupId>org.payball</groupId>
     <artifactId>state-machine</artifactId>
-    <version>1.0.1-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>state-machine</name>

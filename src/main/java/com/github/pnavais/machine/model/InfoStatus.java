@@ -51,6 +51,7 @@ public class InfoStatus {
      *
      * @param status the status
      * @param event the originating event
+     * @return the {@link InfoStatus} instance
      */
     public static InfoStatus from(@NonNull Status status, @NonNull Event event) {
         return new InfoStatus(status, event);

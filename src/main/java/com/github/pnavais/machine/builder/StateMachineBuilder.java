@@ -479,6 +479,7 @@ public class StateMachineBuilder {
          * a {@link FilteredState}.
          *
          * @param handler the handler function to execute when leaving origin
+         * @return the {@link OnBuilder} instance
          */
         public OnBuilder leaving(Function<StateContext, Status> handler) {
             return on(Messages.EMPTY).leaving(handler);
@@ -490,6 +491,7 @@ public class StateMachineBuilder {
          * a {@link FilteredState}.
          *
          * @param handler the handler function to execute when arriving target
+         * @return the {@link OnBuilder} instance
          */
         public OnBuilder arriving(@NonNull Function<StateContext, Status> handler) {
             return on(Messages.EMPTY).arriving(handler);
@@ -536,6 +538,7 @@ public class StateMachineBuilder {
          * a {@link FilteredState}.
          *
          * @param handler the handler function to execute when leaving origin
+         * @return the {@link OnBuilder} instance
          */
         public OnBuilder leaving(Function<StateContext, Status> handler) {
             if (!(srcState instanceof AbstractFilteredState)) {
@@ -551,6 +554,7 @@ public class StateMachineBuilder {
          * a {@link FilteredState}.
          *
          * @param handler the handler function to execute when arriving target
+         * @return the {@link OnBuilder} instance
          */
         public OnBuilder arriving(@NonNull Function<StateContext, Status> handler) {
             if (!(targetState instanceof AbstractFilteredState)) {

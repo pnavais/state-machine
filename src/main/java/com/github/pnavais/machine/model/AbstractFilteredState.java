@@ -54,6 +54,7 @@ public abstract class AbstractFilteredState extends AbstractWrappedState impleme
     /**
      * Sets the reception handler for the given message
      *
+     * @param message the message
      * @param receptionHandler the reception handler
      */
     public abstract void setReceptionHandler(Message message, Function<StateContext, Status> receptionHandler);
@@ -68,6 +69,7 @@ public abstract class AbstractFilteredState extends AbstractWrappedState impleme
     /**
      * Sets the dispatch handler for the given message
      *
+     * @param message the message
      * @param dispatchHandler the dispatch handler
      */
     public abstract void setDispatchHandler(Message message, Function<StateContext, Status> dispatchHandler);

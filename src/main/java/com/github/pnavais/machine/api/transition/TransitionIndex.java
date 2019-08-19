@@ -76,7 +76,7 @@ public interface TransitionIndex<N extends Node, M extends Message, T extends Tr
     void removeAllTransitions();
 
     /**
-     * Removes all nodes & transitions
+     * Removes all nodes and transitions
      */
     void clear();
 
@@ -145,6 +145,8 @@ public interface TransitionIndex<N extends Node, M extends Message, T extends Tr
      * Remove orphan nodes from the index
      * (i.e. Nodes that are not connected to other nodes
      * by any transition)
+     *
+     * @return the list of removed nodes
      */
     List<N> prune();
 

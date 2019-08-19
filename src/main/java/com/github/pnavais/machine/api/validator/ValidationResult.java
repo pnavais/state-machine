@@ -46,6 +46,9 @@ public class ValidationResult {
 
     /**
      * Creates an invalid result from a given exception
+     *
+     * @param e the exception
+     * @return the validation result
      */
     public static ValidationResult from(@NonNull RuntimeException e) {
         return ValidationResult.builder().valid(false).description(e.getMessage()).exception(e).build();
@@ -61,8 +64,10 @@ public class ValidationResult {
     }
 
     /**
-     * Creates an unsuccessful validation result
+     * Creates an unsuccessful validation result with
+     * the given message.
      *
+     * @param message the message.
      * @return unsuccessful validation result
      */
     public static ValidationResult fail(String message) {
