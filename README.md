@@ -259,6 +259,38 @@ State state = new State("A");
 state.addProperty("prop", "value"); // To add the property with the given value
 state.removeProperty("prop");       // To remove it
 ```
+
+### Pruning orphan states
+
+If for some reason an state cannot be reached by any transition it is considered orphan.
+Consider the following state machine : 
+```java
+StateMachine machine = StateMachine.newBuilder()
+                .from("A").to("B").on("1")
+                .from("A").to("C").on("2")
+                .from("B").to("D").on("3").build();
+```
+
+Which is initially represented by :
+
+![alt text](images/orphan_graph.png "Graph before orphan states")
+ 
+When removing state B, state D is considered orphan : 
+```java
+machine.remove("B"); // --> State D not reachable
+```
+
+![alt text](images/orphan_graph1.png "Graph with orphan states")
+
+ To automatically remove orphan states do the following : 
+ 
+ ```java
+ machine.prune();
+ ```
+ 
+ leading to : 
+ 
+![alt text](images/orphan_graph2.png "Graph after pruning")
   
  ### Merging states
  
