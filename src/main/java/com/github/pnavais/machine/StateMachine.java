@@ -15,7 +15,7 @@
  */
 package com.github.pnavais.machine;
 
-import com.github.pnavais.machine.api.*;
+import com.github.pnavais.machine.api.Status;
 import com.github.pnavais.machine.api.exception.NullStateException;
 import com.github.pnavais.machine.api.message.Envelope;
 import com.github.pnavais.machine.api.message.Event;

@@ -16,9 +16,9 @@
 package com.github.pnavais.machine.api.filter;
 
 import com.github.pnavais.machine.api.AbstractNode;
+import com.github.pnavais.machine.api.Status;
 import com.github.pnavais.machine.api.message.Message;
 import com.github.pnavais.machine.api.message.Messages;
-import com.github.pnavais.machine.api.Status;
 import lombok.Getter;
 import lombok.NonNull;
 

@@ -17,7 +17,10 @@ package com.github.pnavais.machine.utils;
 
 import com.github.pnavais.machine.api.message.Message;
 import com.github.pnavais.machine.model.State;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.io.PrintStream;
 import java.util.Optional;

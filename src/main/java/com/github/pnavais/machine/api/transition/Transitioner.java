@@ -15,9 +15,9 @@
  */
 package com.github.pnavais.machine.api.transition;
 
-import com.github.pnavais.machine.api.message.Message;
 import com.github.pnavais.machine.api.Node;
 import com.github.pnavais.machine.api.Transition;
+import com.github.pnavais.machine.api.message.Message;
 
 import java.util.Collection;
 import java.util.List;

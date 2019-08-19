@@ -16,7 +16,8 @@
 
 package com.github.pnavais.machine.api.transition;
 
-import com.github.pnavais.machine.api.*;
+import com.github.pnavais.machine.api.Node;
+import com.github.pnavais.machine.api.Status;
 import com.github.pnavais.machine.api.message.Envelope;
 import com.github.pnavais.machine.api.message.Message;
 

@@ -17,12 +17,12 @@
 package com.github.pnavais.machine.impl;
 
 import com.github.pnavais.machine.api.AbstractNode;
-import com.github.pnavais.machine.api.message.Message;
 import com.github.pnavais.machine.api.Transition;
 import com.github.pnavais.machine.api.exception.IllegalTransitionException;
 import com.github.pnavais.machine.api.exception.NullTransitionException;
 import com.github.pnavais.machine.api.exception.TransitionInitializationException;
 import com.github.pnavais.machine.api.exception.ValidationException;
+import com.github.pnavais.machine.api.message.Message;
 import com.github.pnavais.machine.api.transition.TransitionIndex;
 import com.github.pnavais.machine.api.validator.TransitionValidator;
 import com.github.pnavais.machine.api.validator.ValidationResult;

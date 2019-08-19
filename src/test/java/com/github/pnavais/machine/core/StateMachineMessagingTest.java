@@ -18,10 +18,10 @@ package com.github.pnavais.machine.core;
 
 import com.github.pnavais.machine.AbstractStateMachineTest;
 import com.github.pnavais.machine.StateMachine;
-import com.github.pnavais.machine.api.message.Messages;
-import com.github.pnavais.machine.api.message.Payload;
 import com.github.pnavais.machine.api.Status;
 import com.github.pnavais.machine.api.filter.MessageFilter;
+import com.github.pnavais.machine.api.message.Messages;
+import com.github.pnavais.machine.api.message.Payload;
 import com.github.pnavais.machine.model.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

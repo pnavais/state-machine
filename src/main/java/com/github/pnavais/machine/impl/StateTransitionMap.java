@@ -15,9 +15,9 @@
  */
 package com.github.pnavais.machine.impl;
 
-import com.github.pnavais.machine.api.message.Message;
 import com.github.pnavais.machine.api.exception.NullStateException;
 import com.github.pnavais.machine.api.exception.ValidationException;
+import com.github.pnavais.machine.api.message.Message;
 import com.github.pnavais.machine.api.transition.TransitionIndex;
 import com.github.pnavais.machine.api.validator.TransitionValidator;
 import com.github.pnavais.machine.api.validator.ValidationResult;

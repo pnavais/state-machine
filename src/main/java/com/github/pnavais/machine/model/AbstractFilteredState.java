@@ -19,7 +19,6 @@ package com.github.pnavais.machine.model;
 import com.github.pnavais.machine.api.Status;
 import com.github.pnavais.machine.api.filter.MessageFilter;
 import com.github.pnavais.machine.api.message.Message;
-import com.github.pnavais.machine.api.message.Messages;
 import lombok.NonNull;
 
 import java.util.function.Function;

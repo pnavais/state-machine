@@ -17,7 +17,8 @@ package com.github.pnavais.machine.api;
 
 import com.github.pnavais.machine.api.message.Envelope;
 import com.github.pnavais.machine.api.message.Message;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 import java.util.Objects;
 

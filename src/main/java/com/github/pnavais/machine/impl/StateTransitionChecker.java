@@ -16,10 +16,10 @@
 
 package com.github.pnavais.machine.impl;
 
+import com.github.pnavais.machine.api.Status;
 import com.github.pnavais.machine.api.message.Envelope;
 import com.github.pnavais.machine.api.message.Event;
 import com.github.pnavais.machine.api.message.Message;
-import com.github.pnavais.machine.api.Status;
 import com.github.pnavais.machine.api.transition.TransitionChecker;
 import com.github.pnavais.machine.model.AbstractFilteredState;
 import com.github.pnavais.machine.model.State;

@@ -19,9 +19,12 @@ package com.github.pnavais.machine.core;
 import com.github.pnavais.machine.AbstractStateMachineTest;
 import com.github.pnavais.machine.StateMachine;
 import com.github.pnavais.machine.api.AbstractNode;
-import com.github.pnavais.machine.api.message.Message;
 import com.github.pnavais.machine.api.exception.TransitionInitializationException;
-import com.github.pnavais.machine.model.*;
+import com.github.pnavais.machine.api.message.Message;
+import com.github.pnavais.machine.model.FilteredState;
+import com.github.pnavais.machine.model.State;
+import com.github.pnavais.machine.model.StateTransition;
+import com.github.pnavais.machine.model.StringMessage;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
