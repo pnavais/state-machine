@@ -19,9 +19,24 @@
         <img src="https://sonarcloud.io/api/project_badges/measure?project=org.payball:state-machine&metric=alert_status"
              alt="Quality Gate"/>
     </a>
+    <a href="https://maven-badges.herokuapp.com/maven-central/com.github.pnavais/state-machine">
+	    <img src="https://maven-badges.herokuapp.com/maven-central/com.github.pnavais/state-machine/badge.svg" 
+	         alt="Maven Central">
+    </a>
 </p>
 
 <p align="center"><sup><strong>Generic State Machine implementation for Java 8+</strong></sup></p>
+
+## Maven Repository
+
+You can pull the library from central maven repository, just add these to your pom.xml file:
+```xml
+<dependency>
+  <groupId>com.github.pnavais</groupId>
+  <artifactId>state-machine</artifactId>
+  <version>1.0.0</version>
+</dependency>
+```
 
 ## Basic usage
 
