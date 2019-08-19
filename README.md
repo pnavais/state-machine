@@ -213,7 +213,7 @@ Custom handlers can be specified globally or message-scoped to intercept transit
                 }).build();
  ```
  
-In this case, the lambda function specified when leaving state A will be executed for any message received. The transition can be either accepted/rejected depending on the supplied Status (predefined PROCEED/ABORT or custom with a given valid status).
+In this case, the lambda function specified when leaving state A will be executed for any message received. The transition can be either accepted/rejected depending on the supplied Status (predefined PROCEED/ABORT or custom with a given valid boolean status flag).
  
 #### Message-scoped filters
  
