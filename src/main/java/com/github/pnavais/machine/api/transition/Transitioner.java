@@ -126,6 +126,7 @@ public interface Transitioner<N extends Node, M extends Message, T extends Trans
      * Sends an empty message to the transitioner triggering
      * a potential transition in case the current node
      * supports empty messages.
+     * @return the {@link Transitioner} instance for chaining purposes
      */
     Transitioner<N, M, T> next();
 
