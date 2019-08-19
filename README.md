@@ -244,15 +244,15 @@ StateMachine stateMachine = StateMachine.newBuilder()
         }).build();
 
 stateMachine.init();
-stateMachine.send(message).getCurrent(); // Counter >> 100 (The integer payload)
+stateMachine.send(message).getCurrent(); // Counter >> 100 (The integer payload) , current state -> B
 
 stateMachine.init();
-System.out.println(stateMachine.next().getCurrent()); // Counter >> _ (Empty payload)
+System.out.println(stateMachine.next().getCurrent()); // Counter >> _ (Empty payload) , current state -> C
 ```
  
  ### Custom properties
  
-State instances can optionally contain any arbitrary String property attached to them (this is specially useful when exporting the state machine to an output format.
+State instances can optionally contain any arbitrary String property attached to them (this is specially useful when exporting the state machine to an output format).
 
 ```java
 State state = new State("A");
