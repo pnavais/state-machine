@@ -20,6 +20,7 @@ import com.github.pnavais.machine.builder.StateMachineBuilderTest;
 import com.github.pnavais.machine.core.*;
 import com.github.pnavais.machine.exporter.DOTExporterTest;
 import com.github.pnavais.machine.exporter.YAMLExporterTest;
+import com.github.pnavais.machine.importer.YAMLImporterTest;
 import org.junit.platform.runner.JUnitPlatform;
 import org.junit.platform.suite.api.IncludeEngines;
 import org.junit.platform.suite.api.SelectClasses;
@@ -37,6 +38,7 @@ import org.junit.runner.RunWith;
         StateMachineMessagingTest.class,
         StateMachineBuilderTest.class,
         DOTExporterTest.class,
-        YAMLExporterTest.class})
+        YAMLExporterTest.class,
+        YAMLImporterTest.class})
 public class StateMachineTestSuite {
 }

@@ -31,6 +31,9 @@ import java.util.Collection;
  */
 public abstract class AbstractStateMachineTest {
 
+    /** The system's new line character */
+    protected static final String NL = System.lineSeparator();
+
     /** The state printer */
     private static StateTransitionPrintOptions<State, Message> statePrinterOptions;
 

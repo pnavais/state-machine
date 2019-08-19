@@ -22,7 +22,6 @@ import com.github.pnavais.machine.api.message.Messages;
 import com.github.pnavais.machine.model.State;
 import org.junit.jupiter.api.Test;
 
-import java.awt.*;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -50,15 +49,18 @@ public class YAMLExporterTest extends AbstractExporterTest {
     public void testSimpleStateMachineExport() {
 
         String expected = "states:" + NL +
-                "    - name: \"A\"" + NL +
-                "    - name: \"B\"" + NL +
-                "    - name: \"C\"" + NL +
+                "    - state:" + NL +
+                "        name: \"A\"" + NL +
+                "    - state:" + NL +
+                "        name: \"B\"" + NL +
+                "    - state:" + NL +
+                "        name: \"C\"" + NL +
                 "transitions:" + NL +
-                "    transition:" + NL +
+                "    - transition:" + NL +
                 "        source: \"A\"" + NL +
                 "        target: \"B\"" + NL +
                 "        message: \"1\"" + NL +
-                "    transition:" + NL +
+                "    - transition:" + NL +
                 "        source: \"B\"" + NL +
                 "        target: \"C\"" + NL +
                 "        message: \"2\"";
@@ -68,7 +70,6 @@ public class YAMLExporterTest extends AbstractExporterTest {
                 .from("B").to("C").on("2").build();
 
         String exported = YAMLExporter.builder().build().export(machine);
-        System.out.println(exported);
         assertNotNull(exported, "Error retrieving exported state machine contents");
         assertThat("Error comparing exported output", exported, is(expected));
     }
@@ -81,28 +82,33 @@ public class YAMLExporterTest extends AbstractExporterTest {
     public void testStateMachineWithMessagesExport() {
 
         String expected = "states:" + NL +
-                "    - name: \"A\"" + NL +
-                "    - name: \"B\"" + NL +
-                "    - name: \"C\"" + NL +
-                "    - name: \"D\"" + NL +
-                "    - name: \"E\"" + NL +
+                "    - state:" + NL +
+                "        name: \"A\"" + NL +
+                "    - state:" + NL +
+                "        name: \"B\"" + NL +
+                "    - state:" + NL +
+                "        name: \"C\"" + NL +
+                "    - state:" + NL +
+                "        name: \"D\"" + NL +
+                "    - state:" + NL +
+                "        name: \"E\"" + NL +
                 "transitions:" + NL +
-                "    transition:" + NL +
+                "    - transition:" + NL +
                 "        source: \"A\"" + NL +
                 "        target: \"B\"" + NL +
                 "        message: \"1\"" + NL +
-                "    transition:" + NL +
+                "    - transition:" + NL +
                 "        source: \"B\"" + NL +
                 "        target: \"C\"" + NL +
                 "        message: \"2\"" + NL +
-                "    transition:" + NL +
+                "    - transition:" + NL +
                 "        source: \"B\"" + NL +
                 "        target: \"D\"" + NL +
-                "    transition:" + NL +
+                "    - transition:" + NL +
                 "        source: \"B\"" + NL +
                 "        target: \"E\"" + NL +
                 "        any: \"true\"" + NL +
-                "    transition:" + NL +
+                "    - transition:" + NL +
                 "        source: \"C\"" + NL +
                 "        target: \"C\"";
 
@@ -114,7 +120,7 @@ public class YAMLExporterTest extends AbstractExporterTest {
                 .selfLoop("C").build();
 
         String exported = YAMLExporter.builder().build().export(machine);
-        System.out.println(exported+"|");
+
         assertNotNull(exported, "Error retrieving exported state machine contents");
         assertThat("Error comparing exported output", exported, is(expected));
     }
@@ -127,18 +133,21 @@ public class YAMLExporterTest extends AbstractExporterTest {
     public void testStateMachineWithPropertiesExport() {
 
         String expected = "states:" + NL +
-                "    - name: \"A\"" + NL +
-                "        properties:" + NL +
-                "            shape: \"box\"" + NL +
-                "    - name: \"B\"" + NL +
-                "    - name: \"C\"" + NL +
-                "        final : \"true\"" + NL +
+                "    - state:" + NL +
+                "        name: \"A\"" + NL +
+                "            properties:" + NL +
+                "                shape: \"box\"" + NL +
+                "    - state:" + NL +
+                "        name: \"B\"" + NL +
+                "    - state:" + NL +
+                "        name: \"C\"" + NL +
+                "            final : \"true\"" + NL +
                 "transitions:" + NL +
-                "    transition:" + NL +
+                "    - transition:" + NL +
                 "        source: \"A\"" + NL +
                 "        target: \"B\"" + NL +
                 "        message: \"1\"" + NL +
-                "    transition:" + NL +
+                "    - transition:" + NL +
                 "        source: \"B\"" + NL +
                 "        target: \"C\"" + NL +
                 "        message: \"2\"";
@@ -148,6 +157,7 @@ public class YAMLExporterTest extends AbstractExporterTest {
                 .from("B").to(State.from("C").isFinal(true).build()).on("2").build();
 
         String exported = YAMLExporter.builder().build().export(machine);
+
         assertNotNull(exported, "Error retrieving exported state machine contents");
         assertThat("Error comparing exported output", exported, is(expected));
     }
@@ -160,19 +170,22 @@ public class YAMLExporterTest extends AbstractExporterTest {
     public void testStateMachineWithCustomPropertiesExport() {
 
         String expected = "states:" + NL +
-                "  - name: \"A\"" + NL +
-                "    current : \"true\"" + NL +
-                "    properties:" + NL +
-                "      shape: \"box\"" + NL +
-                "  - name: \"B\"" + NL +
-                "  - name: \"C\"" + NL +
-                "    final : \"true\"" + NL +
+                "  - state:" + NL +
+                "    name: \"A\"" + NL +
+                "      current : \"true\"" + NL +
+                "      properties:" + NL +
+                "        shape: \"box\"" + NL +
+                "  - state:" + NL +
+                "    name: \"B\"" + NL +
+                "  - state:" + NL +
+                "    name: \"C\"" + NL +
+                "      final : \"true\"" + NL +
                 "transitions:" + NL +
-                "  transition:" + NL +
+                "  - transition:" + NL +
                 "    source: \"A\"" + NL +
                 "    target: \"B\"" + NL +
                 "    message: \"1\"" + NL +
-                "  transition:" + NL +
+                "  - transition:" + NL +
                 "    source: \"B\"" + NL +
                 "    target: \"C\"" + NL +
                 "    message: \"2\"";
@@ -197,20 +210,20 @@ public class YAMLExporterTest extends AbstractExporterTest {
      */
     @Test
     public void testStateMachineManualExport() {
-
-        Color color = Color.decode("#FFFFFF");
-
         String expected = "states:" + NL +
-                "  - name: \"A\"" + NL +
-                "  - name: \"B\"" + NL +
-                "  - name: \"C\"" + NL +
-                "    final : \"true\"" + NL +
+                "  - state:" + NL +
+                "    name: \"A\"" + NL +
+                "  - state:" + NL +
+                "    name: \"B\"" + NL +
+                "  - state:" + NL +
+                "    name: \"C\"" + NL +
+                "      final : \"true\"" + NL +
                 "transitions:" + NL +
-                "  transition:" + NL +
+                "  - transition:" + NL +
                 "    source: \"A\"" + NL +
                 "    target: \"B\"" + NL +
                 "    message: \"1\"" + NL +
-                "  transition:" + NL +
+                "  - transition:" + NL +
                 "    source: \"A\"" + NL +
                 "    target: \"C\"" + NL +
                 "    message: \"2\"";
@@ -235,10 +248,12 @@ public class YAMLExporterTest extends AbstractExporterTest {
     public void testStateMachineFileExport() {
 
         String expected = "states:" + NL +
-                "    - name: \"A\"" + NL +
-                "    - name: \"B\"" + NL +
+                "    - state:" + NL +
+                "        name: \"A\"" + NL +
+                "    - state:" + NL +
+                "        name: \"B\"" + NL +
                 "transitions:" + NL +
-                "    transition:" + NL +
+                "    - transition:" + NL +
                 "        source: \"A\"" + NL +
                 "        target: \"B\"" + NL +
                 "        message: \"1\"";

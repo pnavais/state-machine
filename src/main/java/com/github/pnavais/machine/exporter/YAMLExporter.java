@@ -116,18 +116,20 @@ public class YAMLExporter extends AbstractStatesExporter<String, State, Message,
         Map<State, Map<Message, State>> transitions = stateMachine.getTransitionsIndex().getTransitionsAsMap();
         for (State s : transitions.keySet()) {
             builder.append(marginSize)
-                    .append("- name: ")
+                    .append("- state:").append(NL);
+            printMargin(builder, 2);
+            builder.append("name: ")
                     .append("\"")
                     .append(s.getName())
                     .append("\"").append(NL);
 
             if (isShowCurrent() && s.equals(stateMachine.getCurrent())) {
-                printMargin(builder, 2);
+                printMargin(builder, 3);
                 builder.append("current : \"true\"").append(NL);
             }
 
             if (s.isFinal()) {
-                printMargin(builder, 2);
+                printMargin(builder, 3);
                 builder.append("final : \"true\"").append(NL);
             }
             appendNodeProperties(builder, s);
@@ -150,7 +152,7 @@ public class YAMLExporter extends AbstractStatesExporter<String, State, Message,
 
         transitions.keySet().forEach(source ->
                 transitions.get(source).forEach((message, target) -> {
-                    builder.append(NL).append(getMarginSize()).append("transition:")
+                    builder.append(NL).append(getMarginSize()).append("- transition:")
                             .append(NL);
                     printMargin(builder, 2);
                     builder.append("source: ");
@@ -197,10 +199,10 @@ public class YAMLExporter extends AbstractStatesExporter<String, State, Message,
      */
     private void appendNodeProperties(StringBuilder builder, State state) {
         if (state.hasProperties()) {
-            printMargin(builder, 2);
+            printMargin(builder, 3);
             builder.append("properties:").append(NL);
             state.getProperties().forEach((k, v) -> {
-                printMargin(builder, 3);
+                printMargin(builder, 4);
                 builder.append(formatKey(k)).append(":").append(" \"");
                 builder.append(v).append("\"").append(NL);
             });

@@ -36,8 +36,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 @Log
 public abstract class AbstractExporterTest extends AbstractStateMachineTest {
 
-    /** The system's new line character */
-    protected static final String NL = System.lineSeparator();
 
     /** The tabulator character */
     protected static final char TB = '\t';
