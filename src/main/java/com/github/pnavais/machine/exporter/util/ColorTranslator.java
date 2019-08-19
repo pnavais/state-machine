@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package com.github.pnavais.machine.util;
+package com.github.pnavais.machine.exporter.util;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;

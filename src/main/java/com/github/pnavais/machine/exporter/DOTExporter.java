@@ -14,25 +14,18 @@
  *  limitations under the License.
  */
 
-package com.github.pnavais.machine.util;
+package com.github.pnavais.machine.exporter;
 
 import com.github.pnavais.machine.StateMachine;
-import com.github.pnavais.machine.api.exception.FileExportException;
-import com.github.pnavais.machine.api.exporter.Exporter;
 import com.github.pnavais.machine.api.message.Message;
 import com.github.pnavais.machine.api.message.Messages;
+import com.github.pnavais.machine.exporter.util.ColorTranslator;
 import com.github.pnavais.machine.model.State;
 import lombok.*;
 import lombok.extern.java.Log;
 
 import java.awt.*;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Map;
 
 /**
@@ -43,10 +36,8 @@ import java.util.Map;
 @Log
 @Getter
 @Setter
-@Builder(toBuilder=true)
-@AllArgsConstructor
 @NoArgsConstructor
-public class DOTExporter implements Exporter<String, State, Message, StateMachine> {
+public class DOTExporter extends AbstractStatesExporter<String, State, Message, StateMachine> {
 
     /**
      * The possible Rank direction of the grapth
@@ -67,43 +58,25 @@ public class DOTExporter implements Exporter<String, State, Message, StateMachin
         }
     }
 
-    /** The system's new line character */
-    private static final String NL = System.lineSeparator();
-
-    /** The tabulator character */
-    private static final char TB = '\t';
-
-    /** The default color for final states */
-    public static final String DEFAULT_FINAL_COLOR = "#C2B3FF";
-
-    /** The default color for current state */
-    public static final String DEFAULT_CURRENT_COLOR = "#1122DD";
-
-    /** The file system to use when locating paths */
-    @Builder.Default
-    private FileSystem fileSystem = FileSystems.getDefault();
-
-    /** The direction of the graph */
-    @Builder.Default
+    /** The graph direction */
     private RankDir rankDir = RankDir.LR;
 
-    /** The name of the graph */
-    @Builder.Default
-    private String graphName = "G";
-
-    /** The color for final states */
-    @Builder.Default
-    private Color finalStateColor = Color.decode(DEFAULT_FINAL_COLOR);
-
-    /** Use HSB colors in the output format. (Defaults to RGB) */
-    private boolean useHSB;
-
-    /** Show current status in different color */
-    private boolean showCurrent;
-
-    /** The color for final states */
-    @Builder.Default
-    private Color currentStateColor = Color.decode(DEFAULT_CURRENT_COLOR);
+    /**
+     * All arguments constructor
+     *
+     * @param fileSystem the filesystem
+     * @param graphName the graph name
+     * @param finalStateColor the final state color
+     * @param useHSB the flag to control exporting using HSB color format
+     * @param showCurrent the flag to control annotating current status
+     * @param currentStateColor the current state color
+     * @param rankDir the graph direction
+     */
+    @Builder
+    public DOTExporter(FileSystem fileSystem, String graphName, Color finalStateColor, boolean useHSB, boolean showCurrent, Color currentStateColor, RankDir rankDir) {
+        super(fileSystem, graphName, finalStateColor, useHSB, showCurrent, currentStateColor);
+        setRankDir((rankDir != null) ? rankDir : this.rankDir);
+    }
 
     /**
      * Export the current contents of the state machine
@@ -166,6 +139,21 @@ public class DOTExporter implements Exporter<String, State, Message, StateMachin
             builder.append(prefix).append("color=\"").append(toOutputColor(getCurrentStateColor())).append("\"");
             prefix = "";
         }
+
+        // Add final label (ignored by DOT)
+        if (state.isFinal()) {
+            prefix = prefix.equals("") ? ", " : prefix;
+            builder.append(prefix).append("final=\"true\"");
+            prefix = "";
+        }
+
+        // Add current label (ignored by DOT)
+        if (isShowCurrent() && state.equals(stateMachine.getCurrent())) {
+            prefix = prefix.equals("") ? ", " : prefix;
+            builder.append(prefix).append("current=\"true\"");
+            prefix = "";
+        }
+
         return prefix;
     }
 
@@ -233,32 +221,5 @@ public class DOTExporter implements Exporter<String, State, Message, StateMachin
         return (isUseHSB()) ? ColorTranslator.toHSBColor(color) : ColorTranslator.toRGBColor(color);
     }
 
-    /**
-     * Export the current contents of the state machine
-     * to the DOT language to the given file path.
-     *
-     * @param stateMachine the state machine to export
-     * @param outputFile the output file path
-     */
-    public void exportToFile(@NonNull StateMachine stateMachine, @NonNull String outputFile) {
-        exportToFile(stateMachine, getFileSystem().getPath(outputFile));
-    }
-
-    /**
-     * Export the current contents of the state machine
-     * to the DOT language to the given file path.
-     *
-     * @param stateMachine the state machine to export
-     * @param outputFile the output file path
-     */
-    @Override
-    public void exportToFile(@NonNull StateMachine stateMachine, @NonNull Path outputFile) {
-        try (BufferedWriter writer = Files.newBufferedWriter(outputFile, StandardCharsets.UTF_8)) {
-            writer.write(export(stateMachine));
-        } catch (IOException ex) {
-            log.throwing(getClass().getSimpleName(), "exportToFile", ex);
-            throw new FileExportException("Error exporting output file", ex);
-        }
-    }
 
 }

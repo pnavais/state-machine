@@ -19,7 +19,6 @@ package com.github.pnavais.machine.exporter;
 import com.github.pnavais.machine.StateMachine;
 import com.github.pnavais.machine.api.exception.FileExportException;
 import com.github.pnavais.machine.api.message.Messages;
-import com.github.pnavais.machine.exporter.util.ColorTranslator;
 import com.github.pnavais.machine.model.State;
 import org.junit.jupiter.api.Test;
 
@@ -34,13 +33,13 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Contains the unit tests for the DOT Exporter
+ * Contains the unit tests for the YAML Exporter
  */
-public class DOTExporterTest extends AbstractExporterTest {
+public class YAMLExporterTest extends AbstractExporterTest {
 
     @Override
     protected String getOutputDirectory() {
-        return testFS.getSeparator() + "dot_files" + testFS.getSeparator();
+        return testFS.getSeparator() + "yml_files" + testFS.getSeparator();
     }
 
     /**
@@ -50,17 +49,26 @@ public class DOTExporterTest extends AbstractExporterTest {
     @Test
     public void testSimpleStateMachineExport() {
 
-        String expected = "digraph G {" + NL +
-                TB + "rankdir=\"LR\";" + NL +
-                TB + "A -> B [label=\"1\"];" + NL +
-                TB + "B -> C [label=\"2\"];" + NL +
-                "}";
+        String expected = "states:" + NL +
+                "    - name: \"A\"" + NL +
+                "    - name: \"B\"" + NL +
+                "    - name: \"C\"" + NL +
+                "transitions:" + NL +
+                "    transition:" + NL +
+                "        source: \"A\"" + NL +
+                "        target: \"B\"" + NL +
+                "        message: \"1\"" + NL +
+                "    transition:" + NL +
+                "        source: \"B\"" + NL +
+                "        target: \"C\"" + NL +
+                "        message: \"2\"";
 
         StateMachine machine = StateMachine.newBuilder()
                 .from("A").to("B").on("1")
                 .from("B").to("C").on("2").build();
 
-        String exported = DOTExporter.builder().build().export(machine);
+        String exported = YAMLExporter.builder().build().export(machine);
+        System.out.println(exported);
         assertNotNull(exported, "Error retrieving exported state machine contents");
         assertThat("Error comparing exported output", exported, is(expected));
     }
@@ -72,14 +80,31 @@ public class DOTExporterTest extends AbstractExporterTest {
     @Test
     public void testStateMachineWithMessagesExport() {
 
-        String expected = "digraph G {" + NL +
-                TB + "rankdir=\"LR\";" + NL +
-                TB + "A -> B [label=\"1\"];" + NL +
-                TB + "B -> C [label=\"2\"];" + NL +
-                TB + "B -> D" + NL +
-                TB + "B -> E [label=\"*\"];" + NL +
-                TB + "C -> C" + NL +
-                "}";
+        String expected = "states:" + NL +
+                "    - name: \"A\"" + NL +
+                "    - name: \"B\"" + NL +
+                "    - name: \"C\"" + NL +
+                "    - name: \"D\"" + NL +
+                "    - name: \"E\"" + NL +
+                "transitions:" + NL +
+                "    transition:" + NL +
+                "        source: \"A\"" + NL +
+                "        target: \"B\"" + NL +
+                "        message: \"1\"" + NL +
+                "    transition:" + NL +
+                "        source: \"B\"" + NL +
+                "        target: \"C\"" + NL +
+                "        message: \"2\"" + NL +
+                "    transition:" + NL +
+                "        source: \"B\"" + NL +
+                "        target: \"D\"" + NL +
+                "    transition:" + NL +
+                "        source: \"B\"" + NL +
+                "        target: \"E\"" + NL +
+                "        any: \"true\"" + NL +
+                "    transition:" + NL +
+                "        source: \"C\"" + NL +
+                "        target: \"C\"";
 
         StateMachine machine = StateMachine.newBuilder()
                 .from("A").to("B").on("1")
@@ -88,7 +113,8 @@ public class DOTExporterTest extends AbstractExporterTest {
                 .from("B").to("E").on(Messages.ANY)
                 .selfLoop("C").build();
 
-        String exported = DOTExporter.builder().build().export(machine);
+        String exported = YAMLExporter.builder().build().export(machine);
+        System.out.println(exported+"|");
         assertNotNull(exported, "Error retrieving exported state machine contents");
         assertThat("Error comparing exported output", exported, is(expected));
     }
@@ -99,20 +125,29 @@ public class DOTExporterTest extends AbstractExporterTest {
      */
     @Test
     public void testStateMachineWithPropertiesExport() {
-        
-        String expected = "digraph G {" + NL +
-                TB + "rankdir=\"LR\";" + NL +
-                TB + "A [shape=\"box\"];" + NL +
-                TB + "C [style=\"filled\", fillcolor=\""+DOTExporter.DEFAULT_FINAL_COLOR+"\", final=\"true\"];" + NL +
-                TB + "A -> B [label=\"1\"];" + NL +
-                TB + "B -> C [label=\"2\"];" + NL +
-                "}";
-        
+
+        String expected = "states:" + NL +
+                "    - name: \"A\"" + NL +
+                "        properties:" + NL +
+                "            shape: \"box\"" + NL +
+                "    - name: \"B\"" + NL +
+                "    - name: \"C\"" + NL +
+                "        final : \"true\"" + NL +
+                "transitions:" + NL +
+                "    transition:" + NL +
+                "        source: \"A\"" + NL +
+                "        target: \"B\"" + NL +
+                "        message: \"1\"" + NL +
+                "    transition:" + NL +
+                "        source: \"B\"" + NL +
+                "        target: \"C\"" + NL +
+                "        message: \"2\"";
+
         StateMachine machine = StateMachine.newBuilder()
                 .from(State.from("A").property("shape", "box").build()).to("B").on("1")
                 .from("B").to(State.from("C").isFinal(true).build()).on("2").build();
 
-        String exported = DOTExporter.builder().build().export(machine);
+        String exported = YAMLExporter.builder().build().export(machine);
         assertNotNull(exported, "Error retrieving exported state machine contents");
         assertThat("Error comparing exported output", exported, is(expected));
     }
@@ -124,27 +159,32 @@ public class DOTExporterTest extends AbstractExporterTest {
     @Test
     public void testStateMachineWithCustomPropertiesExport() {
 
-        Color color = Color.decode("#FF22FF");
-
-        String expected = "digraph TestGraph {" + NL
-                + TB + "rankdir=\"TB\";" + NL
-                + TB + "A [color=\"0.8333, 0.8667, 1.0000\", current=\"true\", shape=\"box\"];" + NL
-                + TB + "C [style=\"filled\", fillcolor=\"0.8333, 0.8667, 1.0000\", final=\"true\"];" + NL
-                + TB + "A -> B [label=\"1\"];" + NL
-                + TB + "B -> C [label=\"2\"];" + NL
-                + "}";
+        String expected = "states:" + NL +
+                "  - name: \"A\"" + NL +
+                "    current : \"true\"" + NL +
+                "    properties:" + NL +
+                "      shape: \"box\"" + NL +
+                "  - name: \"B\"" + NL +
+                "  - name: \"C\"" + NL +
+                "    final : \"true\"" + NL +
+                "transitions:" + NL +
+                "  transition:" + NL +
+                "    source: \"A\"" + NL +
+                "    target: \"B\"" + NL +
+                "    message: \"1\"" + NL +
+                "  transition:" + NL +
+                "    source: \"B\"" + NL +
+                "    target: \"C\"" + NL +
+                "    message: \"2\"";
 
         StateMachine machine = StateMachine.newBuilder()
                 .from(State.from("A").property("shape", "box").build()).to("B").on("1")
                 .from("B").to(State.from("C").isFinal(true).build()).on("2").build();
 
-        String exported = DOTExporter.builder()
-                .useHSB(true)
+        String exported = YAMLExporter.builder()
                 .showCurrent(true)
                 .graphName("TestGraph")
-                .finalStateColor(color)
-                .currentStateColor(color)
-                .rankDir(DOTExporter.RankDir.TB)
+                .marginSize(YAMLExporter.MarginSize.TWO_SP)
                 .build().export(machine);
 
         assertNotNull(exported, "Error retrieving exported state machine contents");
@@ -160,22 +200,28 @@ public class DOTExporterTest extends AbstractExporterTest {
 
         Color color = Color.decode("#FFFFFF");
 
-        String expected = "digraph G {" + NL +
-                TB + "rankdir=\"LR\";" + NL +
-                TB + "C [style=\"filled\", fillcolor=\""+ ColorTranslator.toHSBColor(color) +"\", final=\"true\"];" + NL +
-                TB + "A -> B [label=\"1\"];" + NL +
-                TB + "A -> C [label=\"2\"];" + NL +
-                "}";
-
+        String expected = "states:" + NL +
+                "  - name: \"A\"" + NL +
+                "  - name: \"B\"" + NL +
+                "  - name: \"C\"" + NL +
+                "    final : \"true\"" + NL +
+                "transitions:" + NL +
+                "  transition:" + NL +
+                "    source: \"A\"" + NL +
+                "    target: \"B\"" + NL +
+                "    message: \"1\"" + NL +
+                "  transition:" + NL +
+                "    source: \"A\"" + NL +
+                "    target: \"C\"" + NL +
+                "    message: \"2\"";
 
         StateMachine machine = StateMachine.newBuilder()
                 .from(State.from("A").build()).to("B").on("1")
                 .from("A").to(State.from("C").isFinal(true).build()).on("2").build();
 
-        DOTExporter dotExporter = new DOTExporter();
-        dotExporter.setUseHSB(true);
-        dotExporter.setFinalStateColor(color);
-        String exported = dotExporter.export(machine);
+        YAMLExporter yamlExporter = new YAMLExporter();
+        yamlExporter.setMarginSize(YAMLExporter.MarginSize.TWO_SP);
+        String exported = yamlExporter.export(machine);
 
         assertNotNull(exported, "Error retrieving exported state machine contents");
         assertThat("Error comparing exported output", exported, is(expected));
@@ -187,20 +233,24 @@ public class DOTExporterTest extends AbstractExporterTest {
      */
     @Test
     public void testStateMachineFileExport() {
-        
-        String expected = "digraph G {" + NL +
-                TB + "rankdir=\"LR\";" + NL +
-                TB + "A -> B [label=\"1\"];" + NL +
-                "}";
+
+        String expected = "states:" + NL +
+                "    - name: \"A\"" + NL +
+                "    - name: \"B\"" + NL +
+                "transitions:" + NL +
+                "    transition:" + NL +
+                "        source: \"A\"" + NL +
+                "        target: \"B\"" + NL +
+                "        message: \"1\"";
 
         StateMachine machine = StateMachine.newBuilder()
                 .from(State.from("A").build()).to("B").on("1").build();
 
-        Path outputPath = testFS.getPath(getOutputDirectory()+"output.gv");
+        Path outputPath = testFS.getPath(getOutputDirectory()+"output.yml");
 
-        DOTExporter exporter = DOTExporter.builder().fileSystem(testFS).build();
+        YAMLExporter exporter = YAMLExporter.builder().fileSystem(testFS).build();
         exporter.exportToFile(machine, outputPath);
-        exporter.exportToFile(machine, getOutputDirectory()+"output2.gv");
+        exporter.exportToFile(machine, getOutputDirectory()+"output2.yml");
         String exported = exporter.export(machine);
 
         try {
@@ -223,15 +273,14 @@ public class DOTExporterTest extends AbstractExporterTest {
         StateMachine machine = StateMachine.newBuilder()
                 .from(State.from("A").build()).to("B").on("1").build();
 
-        Path outputPath = testFS.getPath("/tmp2/output.gv");
+        Path outputPath = testFS.getPath("/tmp2/output.yml");
 
         try {
-            DOTExporter.builder().build().exportToFile(machine, outputPath);
+            YAMLExporter.builder().build().exportToFile(machine, outputPath);
             fail("Error testing export failure");
         } catch (Exception e) {
             assertEquals(e.getClass(), FileExportException.class, "Exception mismatch");
         }
-
     }
 
     /**
@@ -246,7 +295,7 @@ public class DOTExporterTest extends AbstractExporterTest {
         Path outputPath = testFS.getPath(getOutputDirectory());
 
         try {
-            DOTExporter.builder().build().exportToFile(machine, outputPath);
+            YAMLExporter.builder().build().exportToFile(machine, outputPath);
             fail("Error testing export failure");
         } catch (Exception e) {
             assertEquals(e.getClass(), FileExportException.class, "Exception mismatch");
