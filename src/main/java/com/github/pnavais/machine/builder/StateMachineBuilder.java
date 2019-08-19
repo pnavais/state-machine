@@ -22,6 +22,7 @@ import com.github.pnavais.machine.api.message.Message;
 import com.github.pnavais.machine.api.message.Messages;
 import com.github.pnavais.machine.impl.StateTransitionMap;
 import com.github.pnavais.machine.model.*;
+import lombok.Getter;
 import lombok.NonNull;
 
 import java.util.ArrayList;
@@ -633,7 +634,11 @@ public class StateMachineBuilder {
      * A simple wrapper for states allowing
      * to switch the current stored instance.
      */
-    private static class WrappedState extends AbstractWrappedState {
+    private static class WrappedState extends State {
+
+        /** The wrapped instance */
+        @Getter
+        private State state;
 
         /**
          * Constructor with the state to wrap
@@ -641,7 +646,8 @@ public class StateMachineBuilder {
          * @param state the state to wrap
          */
         public WrappedState(@NonNull State state) {
-            super(state);
+            super(state.getName());
+            this.state = state;
         }
 
         /**
@@ -662,6 +668,7 @@ public class StateMachineBuilder {
         public void setState(@NonNull State state) {
             this.state = state;
         }
+
     }
 
     /**

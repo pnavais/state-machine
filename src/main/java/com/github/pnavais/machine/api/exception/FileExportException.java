@@ -23,16 +23,6 @@ public class FileExportException extends RuntimeException {
 
     /**
      * Creates the exception using the given message
-     * description.
-     *
-     * @param message the message description
-     */
-    public FileExportException(String message) {
-        super(message);
-    }
-
-    /**
-     * Creates the exception using the given message
      * description and wrapping the actual exception
      *
      * @param message the message description

@@ -19,6 +19,7 @@ package com.github.pnavais.machine.model;
 import com.github.pnavais.machine.api.Status;
 import com.github.pnavais.machine.api.filter.MessageFilter;
 import com.github.pnavais.machine.api.message.Message;
+import lombok.Getter;
 import lombok.NonNull;
 
 import java.util.function.Function;
@@ -26,15 +27,20 @@ import java.util.function.Function;
 /**
  * Base class for all Message filter state decorators
  */
-public abstract class AbstractFilteredState extends AbstractWrappedState implements MessageFilter<State, StateContext> {
-    
+public abstract class AbstractFilteredState extends State implements MessageFilter<State, StateContext> {
+
+    /** The target State. */
+    @Getter
+    protected State state;
+
     /**
      * Constructor with the state to wrap
      *
      * @param state the state to wrap
      */
     public AbstractFilteredState(@NonNull State state) {
-        super(state);
+        super(state.getName());
+        this.state = state;
     }
 
     /**
@@ -85,6 +91,38 @@ public abstract class AbstractFilteredState extends AbstractWrappedState impleme
     }
 
     /**
+     * Retrieves the name of the state
+     * @return the state's name
+     */
+    @Override
+    public String getName() {
+        return this.state.getName();
+    }
+
+    /**
+     * Sets whether the state is
+     * final or not.
+     *
+     * @param finalState the final state flag
+     */
+    @Override
+    public void setFinal(boolean finalState) {
+        this.state.setFinal(finalState);
+    }
+
+    /**
+     * Retrieves the final state condition
+     * flag. If final, no further transitions
+     * can be allowed from this state.
+     *
+     * @return the final state flag
+     */
+    @Override
+    public boolean isFinal() {
+        return this.state.isFinal();
+    }
+
+    /**
      * Intercepts a message to be received from the
      * given origin.
      *
@@ -95,7 +133,6 @@ public abstract class AbstractFilteredState extends AbstractWrappedState impleme
     public Status onReceive(StateContext context) {
         return getMessageFilter().onReceive(context);
     }
-
 
     @Override
     public boolean equals(Object o) {

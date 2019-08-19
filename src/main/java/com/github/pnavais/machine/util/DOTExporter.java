@@ -137,32 +137,58 @@ public class DOTExporter implements Exporter<String, State, Message, StateMachin
         for (State s : transitions.keySet()) {
             String prefix = TB + s.getName() + " [";
 
-            if ((s.isFinal() && (!s.hasProperty("color")))) {
-                builder.append(prefix).append("style=\"filled\", fillcolor=\"").append(toOutputColor(getFinalStateColor())).append("\"");
-                prefix = "";
-            }
-
-            if (isShowCurrent() && (s.equals(stateMachine.getCurrent())) && (!s.hasProperty("color"))) {
-                prefix = prefix.equals("") ? ", " : prefix;
-                builder.append(prefix).append("color=\"").append(toOutputColor(getCurrentStateColor())).append("\"");
-                prefix = "";
-            }
-
-            if (s.hasProperties()) {
-                prefix = prefix.equals("") ? ", " : prefix;
-                builder.append(prefix);
-                prefix = "";
-                final String[] finalPrefix = { prefix };
-                s.getProperties().keySet().stream().map(k -> k + "=\"" + s.getProperties().get(k) + "\"").forEachOrdered(p -> {
-                    builder.append(finalPrefix[0]).append(p);
-                    finalPrefix[0] = ", ";
-                });
-            }
+            prefix = formatCurrentNodeAttributes(stateMachine, builder, s, prefix);
+            prefix = formatNodeProperties(builder, s, prefix);
 
             if (prefix.equals("")) {
                 builder.append("];").append(NL);
             }
         }
+    }
+
+    /**
+     * Format current node colors depending on its attributes
+     *
+     * @param stateMachine the state machine
+     * @param builder      the builder
+     * @param state        the state
+     * @param prefix       the prefix
+     * @return the properties as a string
+     */
+    private String formatCurrentNodeAttributes(StateMachine stateMachine, StringBuilder builder, State state, String prefix) {
+        if ((state.isFinal() && (!state.hasProperty("color")))) {
+            builder.append(prefix).append("style=\"filled\", fillcolor=\"").append(toOutputColor(getFinalStateColor())).append("\"");
+            prefix = "";
+        }
+
+        if (isShowCurrent() && (state.equals(stateMachine.getCurrent())) && (!state.hasProperty("color"))) {
+            prefix = prefix.equals("") ? ", " : prefix;
+            builder.append(prefix).append("color=\"").append(toOutputColor(getCurrentStateColor())).append("\"");
+            prefix = "";
+        }
+        return prefix;
+    }
+
+    /**
+     * Appends the node internal properties.
+     *
+     * @param builder the builder
+     * @param state   the state
+     * @param prefix  the prefix
+     * @return the string
+     */
+    private String formatNodeProperties(StringBuilder builder, State state, String prefix) {
+        if (state.hasProperties()) {
+            prefix = prefix.equals("") ? ", " : prefix;
+            builder.append(prefix);
+            prefix = "";
+            final String[] finalPrefix = { prefix };
+            state.getProperties().keySet().stream().map(k -> k + "=\"" + state.getProperties().get(k) + "\"").forEachOrdered(p -> {
+                builder.append(finalPrefix[0]).append(p);
+                finalPrefix[0] = ", ";
+            });
+        }
+        return prefix;
     }
 
     /**
@@ -227,9 +253,6 @@ public class DOTExporter implements Exporter<String, State, Message, StateMachin
      */
     @Override
     public void exportToFile(@NonNull StateMachine stateMachine, @NonNull Path outputFile) {
-        if (Files.isDirectory(outputFile)) {
-            throw new FileExportException("Cannot write to [" + outputFile + "]");
-        }
         try (BufferedWriter writer = Files.newBufferedWriter(outputFile, StandardCharsets.UTF_8)) {
             writer.write(export(stateMachine));
         } catch (IOException ex) {
