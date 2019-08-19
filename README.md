@@ -131,10 +131,11 @@ In case the state is not recognized a NullStateException is raised.
   
   ![alt text](images/manual_graph.png "Manual State machine creation graph diagram")
   
-Please notice that the current state machine after manual creation must be specified manually 
+Please notice that the current state of the machine after manual creation must be specified manually 
 ```java
-stateMachine.init(); // --> Initializes to the first state added to the machine (i.e. a)
-stateMachine.setCurrent("b");
+stateMachine.init();          // --> Initializes to the first state added to the machine (i.e. a)
+// OR
+stateMachine.setCurrent("b"); // --> Sets the current state explicitly
 ```
   
  ### Self loops
