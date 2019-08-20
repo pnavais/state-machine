@@ -244,38 +244,15 @@ public class YAMLImporter implements Importer<String, State, Message, StateMachi
      * @return the built State
      */
     private Optional<State> processState(ListIterator<String> iterator) {
+        StateAggregator aggregator = new StateAggregator(iterator);
+        Optional<State> state = processWithAggregator(aggregator, "- state:");
 
-        // Creates an aggregator to process State input lines
-        StateAggregator stateAggregator = new StateAggregator();
-
-        // Retrieve current section margin
-        String previous = iterator.previous();
-        int sectionMargin = getLineMargin(previous);
-        int previousMargin = sectionMargin;
-        iterator.next();
-
-        while (iterator.hasNext()) {
-            String line = iterator.next();
-            int currentMargin = getLineMargin(line);
-
-            // Exit if new state or change of section
-            if (line.matches("^[\\s]+- state:") || currentMargin <= sectionMargin) {
-                iterator.previous();
-                break;
-            }
-
-            // Check indentation
-            checkMarginOutOfBounds(previousMargin, line, iterator.previousIndex()+1);
-
-            stateAggregator.process(line);
-            previousMargin = currentMargin;
+        // Updates the current state if needed
+        if (aggregator.hasCurrentState()) {
+            currentState = state.orElse(currentState);
         }
-
-        // Updates the current state if found
-        Optional<State> state = stateAggregator.getState();
-        currentState = stateAggregator.hasCurrentState() ? state.orElse(currentState) : currentState;
-
-        return stateAggregator.getState();
+        
+        return state;
     }
 
     /**
@@ -285,8 +262,21 @@ public class YAMLImporter implements Importer<String, State, Message, StateMachi
      * @return the built State transition
      */
     private Optional<StateTransition> processStateTransition(ListIterator<String> iterator) {
+        StateTransitionAggregator aggregator = new StateTransitionAggregator(iterator);
+        return processWithAggregator(aggregator, "- transition:");
+    }
 
-        StateTransitionAggregator stateTransitionAggregator = new StateTransitionAggregator();
+    /**
+     * Process a block until next section is found using the given aggregator.
+     *
+     * @param aggregator the aggregator
+     * @param nextSection the next section
+     * @param <T> the type of product to generate
+     * @return the generated product or null on errors
+     */
+    private <T> Optional<T> processWithAggregator(Aggregator<T> aggregator, String nextSection) {
+
+        ListIterator<String> iterator = aggregator.getIterator();
 
         // Retrieve current section margin
         String previous = iterator.previous();
@@ -299,7 +289,7 @@ public class YAMLImporter implements Importer<String, State, Message, StateMachi
             int currentMargin = getLineMargin(line);
 
             // Exit on change of indentation , new transition is found
-            if (line.matches("^[\\s]+- transition:") || currentMargin <= sectionMargin) {
+            if (line.matches("^[\\s]"+nextSection) || currentMargin <= sectionMargin) {
                 iterator.previous();
                 break;
             }
@@ -307,11 +297,11 @@ public class YAMLImporter implements Importer<String, State, Message, StateMachi
             // Check indentation
             checkMarginOutOfBounds(previousMargin, line, iterator.previousIndex()+1);
 
-            stateTransitionAggregator.process(line);
+            aggregator.process(line);
             previousMargin = currentMargin;
         }
 
-        return stateTransitionAggregator.getTransition();
+        return aggregator.getProduct();
     }
 
     /**
@@ -366,7 +356,7 @@ public class YAMLImporter implements Importer<String, State, Message, StateMachi
     /**
      * Process a given State entry in string format
      */
-    private static class StateAggregator {
+    private static class StateAggregator implements Aggregator<State> {
 
         /** Flag to control if properties follows */
         private boolean addProps;
@@ -376,11 +366,15 @@ public class YAMLImporter implements Importer<String, State, Message, StateMachi
 
         private State.StateBuilder stateBuilder;
 
+        @Getter
+        private ListIterator<String> iterator;
+
         /**
          * The constructor
          */
-        StateAggregator() {
-             stateBuilder = new State.StateBuilder();
+        StateAggregator(ListIterator<String> iterator) {
+            this.iterator = iterator;
+            this.stateBuilder = new State.StateBuilder();
         }
 
         /**
@@ -389,7 +383,8 @@ public class YAMLImporter implements Importer<String, State, Message, StateMachi
          *
          * @param stateLine the line to be processed
          */
-        void process(String stateLine) {
+        @Override
+        public void process(String stateLine) {
             // Parse name, final status and properties map
             String[] prop = parseProperty(stateLine);
             if (prop[0].equals("name")) {
@@ -411,7 +406,8 @@ public class YAMLImporter implements Importer<String, State, Message, StateMachi
          *
          * @return the state or null if not possible to build
          */
-        Optional<State> getState() {
+        @Override
+        public Optional<State> getProduct() {
             return Optional.ofNullable(stateBuilder.build());
         }
 
@@ -422,7 +418,7 @@ public class YAMLImporter implements Importer<String, State, Message, StateMachi
          * @return true if state is final an valid, false otherwise
          */
         boolean hasCurrentState() {
-            return current && getState().isPresent();
+            return current && getProduct().isPresent();
         }
     }
 
@@ -430,7 +426,7 @@ public class YAMLImporter implements Importer<String, State, Message, StateMachi
     /**
      * Process a given State Transition entry in string format
      */
-    private static class StateTransitionAggregator {
+    private static class StateTransitionAggregator implements Aggregator<StateTransition> {
 
         /** The source of the transition */
         private State origin;
@@ -441,11 +437,15 @@ public class YAMLImporter implements Importer<String, State, Message, StateMachi
         /** The message */
         private Message message;
 
+        @Getter
+        private ListIterator<String> iterator;
+
         /**
          * Default constructor
          */
-        StateTransitionAggregator() {
-             message = Messages.EMPTY;
+        StateTransitionAggregator(ListIterator<String> iterator) {
+            this.iterator = iterator;
+            this.message = Messages.EMPTY;
         }
 
         /**
@@ -454,7 +454,8 @@ public class YAMLImporter implements Importer<String, State, Message, StateMachi
          *
          * @param transitionLine the line to be processed
          */
-        void process(String transitionLine) {
+        @Override
+        public void process(String transitionLine) {
             // Parse origin, target and message
             String[] prop = parseProperty(transitionLine);
             if (prop[0].equals("source")) {
@@ -474,7 +475,8 @@ public class YAMLImporter implements Importer<String, State, Message, StateMachi
          *
          * @return the transition or null if not possible to build
          */
-        Optional<StateTransition> getTransition() {
+        @Override
+        public Optional<StateTransition> getProduct() {
             Optional<StateTransition> transition = Optional.empty();
 
             if ((origin != null) && (target != null)) {
@@ -483,5 +485,34 @@ public class YAMLImporter implements Importer<String, State, Message, StateMachi
             return transition;
         }
 
+    }
+
+    /**
+     * Interface for all item aggregators
+     */
+    private interface Aggregator<T> {
+
+        /**
+         * Process the given line
+         *
+         * @param line the line
+         */
+        void process(String line);
+
+        /**
+         * Retrieves the product
+         * processed by the aggregator.
+         *
+         * @return the processed product or null on errors
+         */
+        Optional<T> getProduct();
+
+        /**
+         * Retrieves the list iterator associated
+         * with the aggregator.
+         *
+         * @return the list iterator
+         */
+        ListIterator<String> getIterator();
     }
 }
