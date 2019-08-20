@@ -117,7 +117,7 @@ public class YAMLExporter extends AbstractStatesExporter<String, State, Message,
         for (State s : transitions.keySet()) {
             builder.append(marginSize)
                     .append("- state:").append(NL);
-            printMargin(builder, 2);
+            printMargin(builder, 3);
             builder.append("name: ")
                     .append("\"")
                     .append(s.getName())
@@ -125,12 +125,12 @@ public class YAMLExporter extends AbstractStatesExporter<String, State, Message,
 
             if (isShowCurrent() && s.equals(stateMachine.getCurrent())) {
                 printMargin(builder, 3);
-                builder.append("current : \"true\"").append(NL);
+                builder.append("current: \"true\"").append(NL);
             }
 
             if (s.isFinal()) {
                 printMargin(builder, 3);
-                builder.append("final : \"true\"").append(NL);
+                builder.append("final: \"true\"").append(NL);
             }
             appendNodeProperties(builder, s);
         }
@@ -154,12 +154,12 @@ public class YAMLExporter extends AbstractStatesExporter<String, State, Message,
                 transitions.get(source).forEach((message, target) -> {
                     builder.append(NL).append(getMarginSize()).append("- transition:")
                             .append(NL);
-                    printMargin(builder, 2);
+                    printMargin(builder, 3);
                     builder.append("source: ");
                     builder.append("\"")
                             .append(source.getName())
                             .append("\"").append(NL);
-                    printMargin(builder, 2);
+                    printMargin(builder, 3);
                     builder.append("target: ");
                     builder.append("\"")
                             .append(target.getName())
@@ -179,7 +179,7 @@ public class YAMLExporter extends AbstractStatesExporter<String, State, Message,
         if ((!message.equals(Messages.EMPTY)) && (message.toString() != null))
         {
             builder.append(NL);
-            printMargin(builder, 2);
+            printMargin(builder, 3);
             if (message.equals(Messages.ANY)) {
                 builder.append("any: \"true\"");
             } else {
