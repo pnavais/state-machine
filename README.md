@@ -16,7 +16,7 @@
 	     alt="License" >
     </a>     
     <a href="https://sonarcloud.io/dashboard/index/org.payball:state-machine">
-        <img src="https://sonarcloud.io/api/project_badges/measure?project=org.payball:state-machine&metric=alert_status"
+        <img src="https://sonarcloud.io/api/project_badges/measure?project=com.github.pnavais:state-machine&metric=alert_status"
              alt="Quality Gate"/>
     </a>
     <a href="https://img.shields.io/maven-central/v/com.github.pnavais/state-machine">
