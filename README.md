@@ -15,7 +15,7 @@
 	<img src="https://img.shields.io/github/license/pnavais/state-machine"
 	     alt="License" >
     </a>     
-    <a href="https://sonarcloud.io/dashboard/index/org.payball:state-machine">
+    <a href="https://sonarcloud.io/dashboard/index/com.github.pnavais:state-machine">
         <img src="https://sonarcloud.io/api/project_badges/measure?project=com.github.pnavais:state-machine&metric=alert_status"
              alt="Quality Gate"/>
     </a>
