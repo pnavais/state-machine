@@ -9,19 +9,19 @@
     </a>
     <a href='https://coveralls.io/github/pnavais/state-machine?branch=master'>
 	    <img src='https://coveralls.io/repos/github/pnavais/state-machine/badge.svg?branch=master'
-		 alt='Coverage Status' />
+		 alt='Coverage Status'/>
     </a>
     <a href="/https://img.shields.io/github/license/pnavais/state-machine">
 	<img src="https://img.shields.io/github/license/pnavais/state-machine"
-	     alt="License" >
+	     alt="License"/>
     </a>     
     <a href="https://sonarcloud.io/dashboard/index/com.github.pnavais:state-machine">
         <img src="https://sonarcloud.io/api/project_badges/measure?project=com.github.pnavais:state-machine&metric=alert_status"
              alt="Quality Gate"/>
     </a>
-    <a href="https://img.shields.io/maven-central/v/com.github.pnavais/state-machine">
-	  <img alt="Maven Central" src="https://img.shields.io/maven-central/v/com.github.pnavais/state-machine"/>
-    </a>
+    <a href="https://maven-badges.herokuapp.com/maven-central/com.github.pnavais/state-machine"><img src="https://img.shields.io/maven-central/v/com.github.pnavais/state-machine"
+             alt="Maven Central"/></a>
+	
 </p>
 
 <p align="center"><sup><strong>Generic State Machine implementation for Java 8+</strong></sup></p>
@@ -33,7 +33,7 @@ You can pull the library from central maven repository, just add these to your p
 <dependency>
   <groupId>com.github.pnavais</groupId>
   <artifactId>state-machine</artifactId>
-  <version>1.0.0</version>
+  <version>1.1.0</version>
 </dependency>
 ```
 
