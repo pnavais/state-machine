@@ -4,12 +4,12 @@
 
 <p align="center">
     <a href="https://travis-ci.org/pnavais/state-machine">
-        <img src="https://img.shields.io/travis/pnavais/state-machine.svg"
+        <img src="https://travis-ci.org/pnavais/state-machine.svg?branch=master"
              alt="Build Status"/>
     </a>
-    <a href="https://coveralls.io/github/pnavais/state-machine?branch=master">
-        <img src="https://img.shields.io/coveralls/pnavais/state-machine.svg"
-             alt="Coverage"/>
+    <a href='https://coveralls.io/github/pnavais/state-machine?branch=master'>
+	    <img src='https://coveralls.io/repos/github/pnavais/state-machine/badge.svg?branch=master'
+		 alt='Coverage Status' />
     </a>
     <a href="/https://img.shields.io/github/license/pnavais/state-machine">
 	<img src="https://img.shields.io/github/license/pnavais/state-machine"
@@ -207,7 +207,7 @@ Custom handlers can be specified globally or message-scoped to intercept transit
  
  ```java
  // Adds a global handler to filter any depature from state A
-  StateMachineBuilder stateMachineBuilder = StateMachine.newBuilder()
+  StateMachine stateMachine = StateMachine.newBuilder()
                 .add(new StateTransition("A", "1","B"))
                 .add(new StateTransition("A", "2","C"))
                 .leaving("A").execute(context -> {
