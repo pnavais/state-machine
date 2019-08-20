@@ -19,7 +19,7 @@
         <img src="https://sonarcloud.io/api/project_badges/measure?project=com.github.pnavais:state-machine&metric=alert_status"
              alt="Quality Gate"/>
     </a>
-    <a href="https://img.shields.io/maven-central/v/com.github.pnavais/state-machine">
+    <a href=https://maven-badges.herokuapp.com/maven-central/com.github.pnavais/state-machine">
 	  <img alt="Maven Central" src="https://img.shields.io/maven-central/v/com.github.pnavais/state-machine"/>
     </a>
 </p>
