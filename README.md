@@ -120,6 +120,72 @@ State next = stateMachine.getNext("3"); // --> C
 In case the given state is not recognized a NullStateException is raised.
  
  ## Advanced usage
+ 
+ ### Importing from files
+ 
+ State machines can be created by loading them from a YAML specification file as shown in the following example.
+ Consider this simplistic state machine YAML specification representing some docker commands : 
+ 
+ ```yml
+ states:
+ - state:
+     name: "Initial"
+ - state:
+     name: "Created"
+     current: "true"
+     properties: 
+       color: "#7B8DBD"
+ - state:
+     name: "Running"     
+     properties:
+       style: "filled"
+       fillcolor: "#95AF82"
+ - state:
+     name: "Stopped"
+     properties:
+       style: "filled"
+       fillcolor: "#B19186"
+ - state:
+     name: "Paused"
+     properties:
+       style: "filled"
+       fillcolor: "#D3C09F"
+transitions:
+  - transition:
+      source:  "Initial"
+      target:  "Created"
+      message: "docker create"
+  - transition:
+      source:  "Created"
+      target:  "Running"
+      message: "docker start"
+  - transition:
+      source:  "Running"
+      target:  "Stopped"
+      message: "docker stop"
+  - transition:
+      source:  "Stopped"
+      target:  "Running"
+      message: "docker start"
+  - transition:
+      source:  "Running"
+      target:  "Paused"
+      message: "docker pause"
+  - transition:
+      source:  "Paused"
+      target:  "Running"
+      message: "docker unpause"
+ ```
+  
+  This YAML file can be later imported with :
+ 
+ ```java
+ StateMachine dockerMachine = YAMLImporter.builder().build().parseFile("docker-machine.yml");
+ ```
+ 
+ Which eventually leads to the following graph : 
+ 
+ ![alt text](images/docker_graph.png "Docker state machine after import") 
    
  ### Initialization using State Transitions
  
@@ -140,8 +206,7 @@ In case the given state is not recognized a NullStateException is raised.
   stateMachine.add(new StateTransition("c", "0.6", "b"));
   stateMachine.add(new StateTransition("c", "0.6", "e"));
   stateMachine.add(new StateTransition("e", "0.1", "e"));
-  stateMachine.add(new StateTransition("e", "0.7", "b"));
-  
+  stateMachine.add(new StateTransition("e", "0.7", "b"));  
   ```
   
   Which leads to the following diagram : 
