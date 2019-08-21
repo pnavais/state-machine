@@ -121,7 +121,7 @@ In case the given state is not recognized a NullStateException is raised.
  
  ## Advanced usage
  
- ### Importing from files
+ ### Importing from files (>=1.1.0)
  
  State machines can be created by loading a YAML specification file as shown in the following example.
  Consider this simplistic state machine YAML specification representing some docker commands : 
