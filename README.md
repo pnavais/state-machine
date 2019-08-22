@@ -11,7 +11,7 @@
 	    <img src='https://coveralls.io/repos/github/pnavais/state-machine/badge.svg?branch=master'
 		 alt='Coverage Status'/>
     </a>
-    <a href="/https://img.shields.io/github/license/pnavais/state-machine">
+    <a href="https://img.shields.io/github/license/pnavais/state-machine">
 	<img src="https://img.shields.io/github/license/pnavais/state-machine"
 	     alt="License"/>
     </a>     
