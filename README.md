@@ -203,7 +203,6 @@ transitions:
   
   stateMachine.add(new StateTransition("a", "0.2", "b"));
   stateMachine.add(new StateTransition("a", "0.4", "c"));
-  stateMachine.add(new StateTransition("c", "0.6", "b"));
   stateMachine.add(new StateTransition("c", "0.6", "e"));
   stateMachine.add(new StateTransition("e", "0.1", "e"));
   stateMachine.add(new StateTransition("e", "0.7", "b"));  
