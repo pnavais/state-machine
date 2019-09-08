@@ -33,7 +33,7 @@ You can pull the library from central maven repository, just add these to your p
 <dependency>
   <groupId>com.github.pnavais</groupId>
   <artifactId>state-machine</artifactId>
-  <version>1.1.0</version>
+  <version>1.2.0</version>
 </dependency>
 ```
 
