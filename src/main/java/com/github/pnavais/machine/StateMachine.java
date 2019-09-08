@@ -16,6 +16,7 @@
 package com.github.pnavais.machine;
 
 import com.github.pnavais.machine.api.Status;
+import com.github.pnavais.machine.api.Transition;
 import com.github.pnavais.machine.api.exception.NullStateException;
 import com.github.pnavais.machine.api.message.Envelope;
 import com.github.pnavais.machine.api.message.Event;
@@ -33,6 +34,7 @@ import lombok.NonNull;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * The State Machine contains a simple map of Transitions between
@@ -381,6 +383,20 @@ public class StateMachine implements Transitioner<State, Message, StateTransitio
     @Override
     public Collection<StateTransition> getTransitions(String stateName) {
         return transitionsIndex.getTransitions(stateName);
+    }
+
+    /**
+     * Retrieves the adjacent states i.e. the states
+     * that can be reached from the given state
+     * by any transition.
+     *
+     * @param stateName the state's name
+     * @return the adjacent states
+     */
+    @Override
+    public Collection<State> getSiblings(String stateName) {
+        return transitionsIndex.getTransitions(stateName)
+                .stream().map(Transition::getTarget).collect(Collectors.toList());
     }
 
     /**

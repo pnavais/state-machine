@@ -54,6 +54,16 @@ public class State extends AbstractNode {
     }
 
     /**
+     * Static factory method to create the State with name.
+     *
+     * @param name the name of the state
+     * @return the state builder
+     */
+    public static State named(String name) {
+        return new State(name);
+    }
+
+    /**
      * Adds the property with the given key and value.
      *
      * @param key the name of the property to add.

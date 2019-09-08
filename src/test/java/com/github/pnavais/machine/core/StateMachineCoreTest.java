@@ -316,6 +316,19 @@ public class StateMachineCoreTest extends AbstractStateMachineTest {
         assertEquals(0, machine.getTransitions("A").size(), "Error retrieving transitions");
     }
 
+    @Test
+    public void testRetrieveStateSiblings() {
+        StateMachine machine = new StateMachine();
+
+        machine.add(new StateTransition(new State("A"), new StringMessage("1"), new State("B")));
+        machine.add(new StateTransition(new State("A"), new StringMessage("2"), new State("C")));
+        machine.add(new StateTransition(new State("B"), new StringMessage("2"), new State("C")));
+
+        Collection<State> siblings = machine.getSiblings("A");
+        assertNotNull(siblings, "Error obtaining state siblings");
+        assertEquals(2, siblings.size());
+        assertThat("Error obtaining state siblings", siblings, containsInAnyOrder(State.named("B"), State.named("C")));
+    }
 
     /**
      * Expect wrong transition and check that the initialization

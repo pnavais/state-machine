@@ -157,6 +157,16 @@ public interface Transitioner<N extends Node, M extends Message, T extends Trans
     Collection<T> getTransitions(String nodeName);
 
     /**
+     * Retrieves the adjacent nodes i.e. the nodes
+     * that can be reached from the given node
+     * by any transition.
+     *
+     * @param nodeName the node's name
+     * @return the adjacent nodes
+     */
+    Collection<N> getSiblings(String nodeName);
+
+    /**
      * Retrieves all state transitions currently
      * defined.
      *

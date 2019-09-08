@@ -108,7 +108,7 @@ public class DOTExporter extends AbstractStatesExporter<String, State, Message, 
     private void appendNodesDescription(StateMachine stateMachine, StringBuilder builder) {
         Map<State, Map<Message, State>> transitions = stateMachine.getTransitionsIndex().getTransitionsAsMap();
         for (State s : transitions.keySet()) {
-            String prefix = TB + s.getName() + " [";
+            String prefix = TB + formatNodeName(s.getName()) + " [";
 
             prefix = formatCurrentNodeAttributes(stateMachine, builder, s, prefix);
             prefix = formatNodeProperties(builder, s, prefix);
@@ -187,7 +187,7 @@ public class DOTExporter extends AbstractStatesExporter<String, State, Message, 
      */
     private void appendTransitions(StateMachine stateMachine, StringBuilder builder) {
         stateMachine.getAllTransitions().forEach(t ->
-                builder.append(TB).append(String.format("%s -> %s", t.getOrigin().getName(), t.getTarget().getName()))
+                builder.append(TB).append(String.format("%s -> %s", formatNodeName(t.getOrigin().getName()), formatNodeName(t.getTarget().getName())))
                         .append(formatMessage(t.getMessage()))
                         .append(NL));
     }
@@ -221,5 +221,14 @@ public class DOTExporter extends AbstractStatesExporter<String, State, Message, 
         return (isUseHSB()) ? ColorTranslator.toHSBColor(color) : ColorTranslator.toRGBColor(color);
     }
 
+    /**
+     * Format the node name
+     *
+     * @param nodeName the node name
+     * @return the formatted node name
+     */
+    private String formatNodeName(String nodeName) {
+        return nodeName.contains(" ") ? '"' + nodeName + '"' : nodeName;
+    }
 
 }

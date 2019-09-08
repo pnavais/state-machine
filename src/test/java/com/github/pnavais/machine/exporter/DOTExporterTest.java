@@ -253,4 +253,19 @@ public class DOTExporterTest extends AbstractExporterTest {
         }
     }
 
+    @Test
+    public void testStateMachineWithWhiteSpaces() {
+        String expected = "digraph G {" + NL +
+                TB + "rankdir=\"LR\";" + NL +
+                TB + "\"State A\" -> \"State B\" [label=\"Message 1\"];" + NL +
+                "}";
+
+        StateMachine machine = StateMachine.newBuilder()
+                .from(State.from("State A").build()).to("State B").on("Message 1").build();
+
+        String exportedString = DOTExporter.builder().build().export(machine);
+        assertThat("Error comparing exported output", expected, is (exportedString));
+
+    }
+
 }
