@@ -127,54 +127,54 @@ In case the given state is not recognized a NullStateException is raised.
  Consider this simplistic state machine YAML specification representing some docker commands : 
  
  ```yml
- states:
- - state:
-     name: "Initial"
- - state:
-     name: "Created"
-     current: "true"
-     properties: 
-       color: "#7B8DBD"
- - state:
-     name: "Running"     
-     properties:
-       style: "filled"
-       fillcolor: "#95AF82"
- - state:
-     name: "Stopped"
-     properties:
-       style: "filled"
-       fillcolor: "#B19186"
- - state:
-     name: "Paused"
-     properties:
-       style: "filled"
-       fillcolor: "#D3C09F"
+states:
+	- state:
+		name: "Initial"
+	- state:
+		name: "Created"
+		current: "true"
+		properties: 
+			color: "#7B8DBD"
+	- state:
+		name: "Running"     
+		properties:
+			style: "filled"
+			fillcolor: "#95AF82"
+	- state:
+		name: "Stopped"
+		properties:
+			style: "filled"
+			fillcolor: "#B19186"
+	- state:
+		name: "Paused"
+		properties:
+			style: "filled"
+			fillcolor: "#D3C09F"
 transitions:
-  - transition:
-      source:  "Initial"
-      target:  "Created"
-      message: "docker create"
-  - transition:
-      source:  "Created"
-      target:  "Running"
-      message: "docker start"
-  - transition:
-      source:  "Running"
-      target:  "Stopped"
-      message: "docker stop"
-  - transition:
-      source:  "Stopped"
-      target:  "Running"
-      message: "docker start"
-  - transition:
-      source:  "Running"
-      target:  "Paused"
-      message: "docker pause"
-  - transition:
-      source:  "Paused"
-      target:  "Running"
-      message: "docker unpause"
+	- transition:
+		source:  "Initial"
+		target:  "Created"
+		message: "docker create"
+	- transition:
+		source:  "Created"
+		target:  "Running"
+		message: "docker start"
+	- transition:
+		source:  "Running"
+		target:  "Stopped"
+		message: "docker stop"
+	- transition:
+		source:  "Stopped"
+		target:  "Running"
+		message: "docker start"
+	- transition:
+		source:  "Running"
+		target:  "Paused"
+		message: "docker pause"
+	- transition:
+		source:  "Paused"
+		target:  "Running"
+		message: "docker unpause"
  ```
   
   This YAML file can be later imported with :
