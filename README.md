@@ -236,7 +236,7 @@ StateMachine stateMachine = StateMachine.newBuilder()
  ![alt text](images/graph_with_loops.png "Graph with loops")
  
  
-### Initializiation using custom States
+### Initialization using custom States
 
 ```java
 State initialState = new State("A");
