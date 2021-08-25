@@ -101,7 +101,7 @@ Wildcard messages are used as fallback if the state does not support a direct tr
 
 ```java
 stateMachine.getNext("3"); // --> C
-stateMachine.init();      // --> A again
+stateMachine.init();       // --> A again
 stateMachine.getNext("4")  // --> B
 ```
 
