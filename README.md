@@ -15,8 +15,8 @@
 	<img src="https://img.shields.io/github/license/pnavais/state-machine"
 	     alt="License"/>
     </a>     
-    <a href="https://sonarcloud.io/dashboard/index/com.github.pnavais:state-machine">
-        <img src="https://sonarcloud.io/api/project_badges/measure?project=com.github.pnavais:state-machine&metric=alert_status"
+    <a href="https://sonarcloud.io/summary/new_code?id=pnavais_state-machine">    
+        <img src="https://sonarcloud.io/api/project_badges/measure?project=pnavais_state-machine&metric=alert_status"
              alt="Quality Gate"/>
     </a>
     <a href="https://maven-badges.herokuapp.com/maven-central/com.github.pnavais/state-machine"><img src="https://img.shields.io/maven-central/v/com.github.pnavais/state-machine"
