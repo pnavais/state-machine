@@ -24,7 +24,7 @@
 	
 </p>
 
-<p align="center"><sup><strong>Generic State Machine implementation for Java 11+</strong></sup></p>
+<p align="center"><sup><strong>Generic State Machine implementation for Java 8+</strong></sup></p>
 
 ## Maven Repository
 
