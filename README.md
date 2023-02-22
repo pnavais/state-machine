@@ -3,8 +3,8 @@
 </p>
 
 <p align="center">
-    <a href="https://travis-ci.org/pnavais/state-machine">
-        <img src="https://travis-ci.org/pnavais/state-machine.svg?branch=master"
+    <a href="https://github.com/pnavais/state-machine/actions/workflows/maven-publish/badge.svg)">
+        <img src="https://github.com/pnavais/state-machine/actions/workflows/maven-publish/badge.svg"
              alt="Build Status"/>
     </a>
     <a href='https://coveralls.io/github/pnavais/state-machine?branch=master'>
