@@ -41,4 +41,4 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
         #run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=pnavais_state-machine
-        run: mvn -B verify jacoco:report coveralls:report org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=pnavais_state-machine
+        run: mvn -B verify jacoco:report coveralls:report org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=pnavais_state-machine -DrepoToken=${{ secrets.COVERALLS_TOKEN }}
