@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-    <a href="https://github.com/pnavais/state-machine/actions/workflows/maven-publish.yml/badge.svg">
+    <a href="https://github.com/pnavais/state-machine/actions?query=workflows/maven-publish.yml">
         <img src="https://github.com/pnavais/state-machine/actions/workflows/maven-publish.yml/badge.svg"
              alt="Build Status"/>
     </a>
