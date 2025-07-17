@@ -1,8 +1,13 @@
+<style>    
+   #no-underline a {  
+      text-decoration: none; /* Remove underline from links */  
+   }  
+</style> 
 <p align="center">
     <img src="images/logo.png"/>
 </p>
 
-<p align="center">
+<p id="no-underline" align="center">
     <a href="https://github.com/pnavais/state-machine/actions?query=workflows/maven-publish.yml">
         <img src="https://github.com/pnavais/state-machine/actions/workflows/maven-publish.yml/badge.svg"
              alt="Build Status"/>
