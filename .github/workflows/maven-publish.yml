@@ -38,6 +38,6 @@ jobs:
       - name: Publish coverage to Coveralls  
         env:  
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }} 
+          COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_TOKEN }} 
         run: mvn org.eluder.coveralls:coveralls-maven-plugin:report  
         
