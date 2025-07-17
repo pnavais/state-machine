@@ -21,14 +21,11 @@ import com.github.pnavais.machine.core.*;
 import com.github.pnavais.machine.exporter.DOTExporterTest;
 import com.github.pnavais.machine.exporter.YAMLExporterTest;
 import com.github.pnavais.machine.importer.YAMLImporterTest;
-import org.junit.platform.runner.JUnitPlatform;
-import org.junit.platform.suite.api.IncludeEngines;
 import org.junit.platform.suite.api.SelectClasses;
+import org.junit.platform.suite.api.Suite;
 import org.junit.platform.suite.api.SuiteDisplayName;
-import org.junit.runner.RunWith;
 
-@RunWith(JUnitPlatform.class)
-@IncludeEngines("junit-jupiter")
+@Suite
 @SuiteDisplayName("State Machine tests")
 @SelectClasses({StateMachineComponentsTest.class,
         StateTransitionMapTest.class,
