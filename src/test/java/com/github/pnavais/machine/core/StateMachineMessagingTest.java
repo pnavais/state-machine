@@ -42,7 +42,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class StateMachineMessagingTest extends AbstractStateMachineTest {
 
     /** The buffer containing cumulative departure/arrival messages */
-    private List<String> messageBuffer = new ArrayList<>();
+    private final List<String> messageBuffer = new ArrayList<>();
 
     @BeforeEach
     public void initialize() {
@@ -55,7 +55,7 @@ public class StateMachineMessagingTest extends AbstractStateMachineTest {
         Collection<StateTransition> transitions = machine.getAllTransitions();
         assertNotNull(transitions, "Error retrieving initial state");
         transitions.forEach(stateTransition -> {
-            assertTrue(stateTransition.getOrigin() instanceof AbstractFilteredState, "Error obtaining transition origin filtered class");
+            assertInstanceOf(AbstractFilteredState.class, stateTransition.getOrigin(), "Error obtaining transition origin filtered class");
             MessageFilter<State, StateContext> messageFilter = ((AbstractFilteredState) stateTransition.getOrigin()).getMessageFilter();
             assertNotNull(messageFilter, "Error retrieving message filter");
         });
@@ -222,7 +222,7 @@ public class StateMachineMessagingTest extends AbstractStateMachineTest {
 
         // Add a redirection state depending on the message
         FilteredState stateRedirect = new FilteredState(new State("F"));
-        assertEquals(stateRedirect.getState(), new State("F"), "Error wrapping state");
+        assertEquals(new State("F"), stateRedirect.getState(), "Error wrapping state");
         stateRedirect.setReceptionHandler(c -> c.getMessage().getPayload().get().equals("8") ? Status.forward(StringMessage.from("8")) : Status.PROCEED);
 
         machine.add(new StateTransition(new State("A"), Messages.ANY, stateRedirect));
@@ -353,11 +353,11 @@ public class StateMachineMessagingTest extends AbstractStateMachineTest {
      * +--------+-----------------------------------------+
      * </pre>
      *
-     * Additionally adds a mapped message filter for the departure from A on ANY (*) message
+     * Additionally, adds a mapped message filter for the departure from A on ANY (*) message
      * , another one for the departure/reception from/in B on ANY and 2 messages
      * respectively and a last simple function filter  for the departure/reception from/in D.
      * In case of reception in B, the operation is only accepted if the payload message
-     * is composed of a boolean value evaluating to true.
+     * is composed of a boolean value evaluated to true.
      *
      * @return the test machine
      */

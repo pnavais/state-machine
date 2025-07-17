@@ -79,20 +79,12 @@ public class StateMachineComponentsTest extends AbstractStateMachineTest {
         TransitionValidator<State, Message, StateTransition> validator =
                 (transition, transitionIndex, operation) -> ValidationResult.fail("Test validator");
 
-        ValidationResult result = validator.validate(null, null, TransitionValidator.Operation.ADD);
-        assertNotNull(result, "Error executing validator");
-        assertNotNull(result.getDescription(), "Error obtaining validation result description");
-        assertNull(result.getException(), "Error obtaining validation result exception");
-
         StateTransitionMap transitionMap = new StateTransitionMap(validator);
 
-        try {
-            transitionMap.add(new StateTransition("A", new StringMessage("1"), "B"));
-            fail("Validation failed");
-        } catch (Exception e) {
-            assertTrue(e instanceof ValidationException, "Validation exception mismatch");
-            assertEquals(result.getDescription(), e.getMessage(), "Error obtaining exception description");
-        }
+        ValidationException exception = assertThrows(ValidationException.class, () ->
+                        transitionMap.add(new StateTransition("A", new StringMessage("1"), "B")),
+                "Validation exception mismatch");
+        assertEquals("Test validator", exception.getMessage(), "Error obtaining exception description");
     }
 
     @Test
@@ -112,19 +104,12 @@ public class StateMachineComponentsTest extends AbstractStateMachineTest {
     @Test
     public void testNullFunctionMessageFilter() {
         FunctionMessageFilter<State, StateContext> messageFilter = new FunctionMessageFilter<>();
-        try {
-            messageFilter.setDispatchHandler(Messages.ANY, null);
-            fail("Error setting null dispatch handler");
-        } catch (Exception e) {
-            assertTrue(e instanceof NullPointerException, "Exception class mismatch");
-        }
-
-        try {
-            messageFilter.setReceptionHandler(Messages.ANY, null);
-            fail("Error setting null reception handler");
-        } catch (Exception e) {
-            assertTrue(e instanceof NullPointerException, "Exception class mismatch");
-        }
+        assertThrows(NullPointerException.class,
+                () -> messageFilter.setDispatchHandler(Messages.ANY, null),
+                "Error setting null dispatch handler");
+        assertThrows(NullPointerException.class,
+                () -> messageFilter.setReceptionHandler(Messages.ANY, null),
+                "Error setting null reception handler");
     }
 
     @Test
@@ -134,7 +119,7 @@ public class StateMachineComponentsTest extends AbstractStateMachineTest {
 
         Function<StateContext, Status> handler = context -> {
             receivedMessages.add(context.getMessage());
-            State state = (context.getEvent()== Event.ARRIVAL) ? context.getSource() : context.getTarget();
+            State state = (context.getEvent() == Event.ARRIVAL) ? context.getSource() : context.getTarget();
             return state.getName().equals("B") ? Status.ABORT : Status.PROCEED;
         };
 
@@ -142,11 +127,9 @@ public class StateMachineComponentsTest extends AbstractStateMachineTest {
         messageFilter.setReceptionHandler(StringMessage.from("m1"), handler);
 
         testMessageFilter(messageFilter,
-                messageFilter::onDispatch,
                 receivedMessages, Event.DEPARTURE);
 
         testMessageFilter(messageFilter,
-                messageFilter::onReceive,
                 receivedMessages, Event.ARRIVAL);
     }
 
@@ -194,7 +177,7 @@ public class StateMachineComponentsTest extends AbstractStateMachineTest {
                 .validity(false)
                 .build();
 
-        Function<StateContext,Status> abortHandler = context -> Status.ABORT;
+        Function<StateContext, Status> abortHandler = context -> Status.ABORT;
 
         messageFilter.setDispatchHandler(Messages.ANY, abortHandler);
         messageFilter.setDispatchHandler(StringMessage.from("A"), customHandler);
@@ -211,15 +194,15 @@ public class StateMachineComponentsTest extends AbstractStateMachineTest {
         State state = new State("A");
         assertFalse(state.hasProperties(), "Error obtaining properties count");
 
-        IntStream.range(1, 5).forEach(i -> state.addProperty("prop"+i, "value"+i));
+        IntStream.range(1, 5).forEach(i -> state.addProperty("prop" + i, "value" + i));
         assertTrue(state.hasProperties(), "Error obtaining properties count");
         assertThat("Error retrieving properties", state.getProperties().size(), is(4));
 
         IntStream.range(1, 5).forEach(i -> {
-            assertTrue(state.hasProperty("prop"+i), "Error obtaining property");
+            assertTrue(state.hasProperty("prop" + i), "Error obtaining property");
             Optional<String> property = state.getProperty("prop" + i);
             assertTrue((property.isPresent()), "Property cannot be empty");
-            assertThat("Property value mismatch", property.get(), is("value"+i));
+            assertThat("Property value mismatch", property.get(), is("value" + i));
         });
 
         assertThat("Error obtaining non existing property", state.getProperty("prop" + 5), is(Optional.empty()));
@@ -230,17 +213,17 @@ public class StateMachineComponentsTest extends AbstractStateMachineTest {
         State state = new State("A");
         assertFalse(state.hasProperties(), "Error obtaining properties count");
 
-        IntStream.range(1, 5).forEach(i -> state.addProperty("prop"+i, "value"+i));
+        IntStream.range(1, 5).forEach(i -> state.addProperty("prop" + i, "value" + i));
         assertTrue(state.hasProperties(), "Error obtaining properties count");
         assertThat("Error retrieving properties", state.getProperties().size(), is(4));
 
         IntStream.range(1, 5).forEach(i -> {
-            state.removeProperty("prop"+i);
-            assertFalse(state.hasProperty("prop"+i), "Error removing property");
+            state.removeProperty("prop" + i);
+            assertFalse(state.hasProperty("prop" + i), "Error removing property");
             Optional<String> property = state.getProperty("prop" + i);
             assertFalse((property.isPresent()), "Property should be empty");
             assertThat("Error obtaining non existing property", property, is(Optional.empty()));
-            assertThat("Error removing property", state.getProperties().size(), is(4-i));
+            assertThat("Error removing property", state.getProperties().size(), is(4 - i));
         });
 
         assertThat("Error obtaining non existing property", state.getProperty("prop" + 5), is(Optional.empty()));
@@ -259,9 +242,9 @@ public class StateMachineComponentsTest extends AbstractStateMachineTest {
         representations.put("ANY-Payload", "Payload [ANY] > [*]");
 
         Arrays.asList(Messages.NULL, Messages.EMPTY, Messages.ANY).forEach(m -> {
-            String message = String.format("Message [%s] > [%s]",((VoidMessage) m).getName(), m.toString());
+            String message = String.format("Message [%s] > [%s]", ((VoidMessage) m).getName(), m);
             assertThat(representations.get(((VoidMessage) m).getName() + "-Message"), is(message));
-            String payload = String.format("Payload [%s] > [%s]",((VoidMessage) m).getName(), m.getPayload() != null ? m.getPayload().get() : null);
+            String payload = String.format("Payload [%s] > [%s]", ((VoidMessage) m).getName(), m.getPayload() != null ? m.getPayload().get() : null);
             assertThat(representations.get(((VoidMessage) m).getName() + "-Payload"), is(payload));
 
         });
@@ -270,11 +253,12 @@ public class StateMachineComponentsTest extends AbstractStateMachineTest {
     /**
      * Test the effects of removing a dispatch/reception handler from a given
      * message filter
-     * @param messageFilter the message filter
+     *
+     * @param messageFilter  the message filter
      * @param removalHandler the removal handler
-     * @param handler the dispatch/reception handler
-     * @param <S> the node type
-     * @param <F> the filter type
+     * @param handler        the dispatch/reception handler
+     * @param <S>            the node type
+     * @param <F>            the filter type
      */
     private <S extends State, C extends Context<S>, F extends MessageFilter<S, C>> void testRemovalOfMessageFilter(F messageFilter, BiConsumer<F, Message> removalHandler, Function<StateContext, Status> handler) {
         Status status = handler.apply(StateContext.builder().message(StringMessage.from("A")).build());
@@ -294,17 +278,16 @@ public class StateMachineComponentsTest extends AbstractStateMachineTest {
         removalHandler.accept(messageFilter, Messages.ANY);
         status = handler.apply(StateContext.builder().message(StringMessage.from("A")).build());
         assertNotNull(status, "Error obtaining status");
-        assertTrue(status.isValid(),"Status mismatch");
+        assertTrue(status.isValid(), "Status mismatch");
     }
 
     /**
      * Test messages filter message reception.
      *
      * @param messageFilter    the message filter
-     * @param handler          the handler
      * @param receivedMessages the received messages
      */
-    private void testMessageFilter(MessageFilter<State, StateContext> messageFilter, Function <StateContext, Status> handler, List<Message> receivedMessages, Event event) {
+    private void testMessageFilter(MessageFilter<State, StateContext> messageFilter, List<Message> receivedMessages, Event event) {
         receivedMessages.clear();
 
         // Generic function to handle arrival/departure

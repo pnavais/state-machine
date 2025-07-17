@@ -109,7 +109,7 @@ public class StateMachineBuilderTest extends AbstractStateMachineTest {
     }
 
     /**
-     * Tests self loops
+     * Tests self-loops
      */
     @Test
     public void testMachineBuilderInitWithSelfLoops() {
@@ -341,9 +341,7 @@ public class StateMachineBuilderTest extends AbstractStateMachineTest {
         StateMachineBuilder stateMachineBuilder = StateMachine.newBuilder()
                 .add(new StateTransition("A", "1","B"));
 
-        StateMachine stateMachine = stateMachineBuilder.build();
-
-        stateMachine = stateMachineBuilder
+        StateMachine stateMachine = stateMachineBuilder
                 .add(new StateTransition("A", "2", filteredStateB))
                 .build();
 

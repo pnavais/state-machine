@@ -19,6 +19,7 @@ package com.github.pnavais.machine.exporter;
 import com.github.pnavais.machine.AbstractStateMachineTest;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
+import lombok.NonNull;
 import lombok.extern.java.Log;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -82,15 +83,15 @@ public abstract class AbstractExporterTest extends AbstractStateMachineTest {
     protected static void removeDirectory(String dir) {
         Path testDir = testFS.getPath(dir);
         try {
-            Files.walkFileTree(testDir, new SimpleFileVisitor<Path>() {
+            Files.walkFileTree(testDir, new SimpleFileVisitor<>() {
                 @Override
-                public FileVisitResult visitFile(Path file, BasicFileAttributes attributes) throws IOException {
+                public @NonNull FileVisitResult visitFile(@NonNull Path file, @NonNull BasicFileAttributes attributes) throws IOException {
                     Files.deleteIfExists(file);
                     return FileVisitResult.CONTINUE;
                 }
 
                 @Override
-                public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                public @NonNull FileVisitResult postVisitDirectory(@NonNull Path dir, IOException exc) throws IOException {
                     Files.delete(dir);
                     return FileVisitResult.CONTINUE;
                 }

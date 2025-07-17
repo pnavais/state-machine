@@ -44,7 +44,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public class StateMachineCoreTest extends AbstractStateMachineTest {
 
-   @Test
+    @Test
     public void testAddingStates() {
         StateMachine machine = new StateMachine();
 
@@ -74,12 +74,7 @@ public class StateMachineCoreTest extends AbstractStateMachineTest {
 
         getStatePrinterBuilder().compactMode(true).build().printTransitions(machine.getTransitionsIndex());
 
-        try {
-            machine.add(new StateTransition(finalState, new StringMessage("1"), new State("C")));
-            fail("State Transition initialization mismatch");
-        } catch (Exception e) {
-            assertTrue(e instanceof TransitionInitializationException, "Exception mismatch");
-        }
+        assertThrows(TransitionInitializationException.class, () -> machine.add(new StateTransition(finalState, new StringMessage("1"), new State("C"))), "Exception mismatch");
     }
 
     @Test
@@ -156,7 +151,7 @@ public class StateMachineCoreTest extends AbstractStateMachineTest {
         assertEquals(3, machine.size(), "Error building state machine");
         assertNotNull(machine.getTransitions("A"), "Error retrieving transitions");
 
-        Arrays.asList("A", "B", "C" ).forEach(s -> {
+        Arrays.asList("A", "B", "C").forEach(s -> {
             Optional<State> sFound = machine.find(s);
             assertTrue(sFound.isPresent(), "Error retrieving state");
             assertEquals(s, sFound.get().getName(), "Error retrieving state");
@@ -170,7 +165,7 @@ public class StateMachineCoreTest extends AbstractStateMachineTest {
         assertEquals(3, machine.size(), "Error building state machine");
 
         AtomicInteger counter = new AtomicInteger(3);
-        Arrays.asList("A", "B", "C" ).forEach(s -> {
+        Arrays.asList("A", "B", "C").forEach(s -> {
             Optional<State> sFound = machine.find(s);
             assertTrue(sFound.isPresent(), "Error retrieving state");
             assertEquals(s, sFound.get().getName(), "Error retrieving state");
@@ -188,7 +183,7 @@ public class StateMachineCoreTest extends AbstractStateMachineTest {
         assertEquals(3, machine.size(), "Error building state machine");
 
         AtomicInteger counter = new AtomicInteger(3);
-        Arrays.asList(State.from("A").build(), State.from("B").build(), State.from("C" ).build()).forEach(s -> {
+        Arrays.asList(State.from("A").build(), State.from("B").build(), State.from("C").build()).forEach(s -> {
             machine.remove(s);
             assertEquals(counter.decrementAndGet(), machine.size(), "Error removing state");
         });
@@ -243,7 +238,7 @@ public class StateMachineCoreTest extends AbstractStateMachineTest {
         assertNotNull(orphanStates, "Error obtaining orphan states");
         assertThat("Orphan states size mismatch", orphanStates.size(), is(2));
         List<String> stateNames = orphanStates.stream().map(AbstractNode::getName).collect(Collectors.toList());
-        assertThat(stateNames, containsInAnyOrder("E", "F" ));
+        assertThat(stateNames, containsInAnyOrder("E", "F"));
 
         assertEquals(3, machine.size(), "Error removing orphan state");
 
@@ -331,7 +326,7 @@ public class StateMachineCoreTest extends AbstractStateMachineTest {
     }
 
     /**
-     * Expect wrong transition and check that the initialization
+     * Expects the wrong transition and check that the initialization
      * was not correct
      *
      * @param source  the source state
@@ -339,12 +334,7 @@ public class StateMachineCoreTest extends AbstractStateMachineTest {
      * @param target  the target state
      */
     private void expectWrongTransitionAndCheck(State source, Message message, State target, StateMachine stateMachine) {
-        try {
-            stateMachine.add(new StateTransition(source, message, target));
-            fail("State Machine initialization mismatch");
-        } catch (Exception e) {
-            assertTrue(e instanceof TransitionInitializationException, "Exception mismatch");
-        }
+        assertThrows(TransitionInitializationException.class, () -> stateMachine.add(new StateTransition(source, message, target)), "Exception mismatch");
     }
 
 }

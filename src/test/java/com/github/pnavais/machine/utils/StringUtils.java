@@ -31,25 +31,10 @@ public class StringUtils {
      *
      * @param c the string pattern to repeat
      * @param n the number of times to repeat
-     * @return
      */
     public static String expand(char c, int n) {
         StringBuffer buffer = new StringBuffer();
         IntStream.range(0, n).forEach(v -> buffer.append(c));
-        return buffer.toString();
-    }
-
-    /**
-     * Creates a string by repeating a given
-     * input pattern a number of times.
-     *
-     * @param s the string pattern to repeat
-     * @param n the number of times to repeat
-     * @return
-     */
-    public static String expand(String s, int n) {
-        StringBuffer buffer = new StringBuffer();
-        IntStream.range(0, n).forEach(v -> buffer.append(s));
         return buffer.toString();
     }
 
@@ -77,37 +62,6 @@ public class StringUtils {
         StringBuffer buffer = new StringBuffer(s);
         IntStream.range(0, n-s.length()).forEach( v -> buffer.append(p));
         return buffer.toString();
-    }
-
-    /**
-     * Apply a right padding to the given string using
-     * the provided character up to a certain length.
-     *
-     * @param s the string to pad
-     * @param p the padding character
-     * @param n the limit
-     *
-     * @return the padded string
-     */
-    public static String padLeft(String s, char p, int n) {
-        StringBuffer buffer = new StringBuffer();
-        IntStream.range(0, n-s.length()).forEach( v -> buffer.append(p));
-        return buffer.append(s).toString();
-    }
-
-    /**
-     * Surround the string with the provided
-     * character up to a certain length
-     *
-     * @param s the string to center
-     * @param p the padding character
-     * @param n the limit
-     *
-     * @return the padded string
-     */
-    public static String center(String s, char p, int n) {
-        int m = (int) Math.round((n-s.length())/2.0);
-        return padRight(padLeft(s, p, m+s.length()), p, n);
     }
 
     /**

@@ -67,14 +67,8 @@ public class StateMachineTraversalTest extends AbstractStateMachineTest {
     public void testSetUnavailableCurrentState() {
         StateMachine machine = createStateMachine();
         assertNull(machine.getCurrent(), "Current state should");
-        try {
-            machine.setCurrent("Z");
-            fail("Cannot set current state to unavailable one");
-            machine.setCurrent((State)null);
-            fail("Cannot set current state to null");
-        } catch (Exception e) {
-            assertTrue(e instanceof NullStateException, "Error setting current state");
-        }
+        assertThrows(NullStateException.class, () -> machine.setCurrent("Z"), "Error setting current state");
+        assertThrows(NullPointerException.class, () -> machine.setCurrent((State) null), "Error setting current state");
     }
 
     @Test

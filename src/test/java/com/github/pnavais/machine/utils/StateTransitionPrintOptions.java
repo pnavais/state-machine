@@ -63,13 +63,6 @@ public class StateTransitionPrintOptions<S extends State, M extends Message> {
     @Builder.Default private CellAlignment cellAlignment = CellAlignment.CENTER;
 
     /**
-     * Instantiates a new State transition print.
-     */
-    public StateTransitionPrintOptions() {
-        fillDefaults();
-    }
-
-    /**
      * Fills the default values for dependent fields not carried by the builder
      */
     public StateTransitionPrintOptions<S,M> fillDefaults() {

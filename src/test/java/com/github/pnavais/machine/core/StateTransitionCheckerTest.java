@@ -41,8 +41,8 @@ import static org.junit.jupiter.api.Assertions.*;
 public class StateTransitionCheckerTest extends AbstractStateMachineTest {
 
     /** The list of envelopes received */
-    private List<Envelope<State, Message>> envelopesArrival = new ArrayList<>();
-    private List<Envelope<State, Message>> envelopesDeparture = new ArrayList<>();
+    private final List<Envelope<State, Message>> envelopesArrival = new ArrayList<>();
+    private final List<Envelope<State, Message>> envelopesDeparture = new ArrayList<>();
 
     @BeforeEach
     public void initialize() {
@@ -71,7 +71,7 @@ public class StateTransitionCheckerTest extends AbstractStateMachineTest {
             assertEquals(departureStates[i], envelope.getOrigin().getName(), "Departure origin mismatch");
             assertEquals(arrivalStates[i], envelope.getTarget().getName(), "Departure origin mismatch");
             assertEquals(messages[i], envelope.getMessage().getPayload().get().toString(), "Message mismatch");
-            assertTrue(envelope instanceof SimpleEnvelope, "Error obtaining envelope instance");
+            assertInstanceOf(SimpleEnvelope.class, envelope, "Error obtaining envelope instance");
             assertEquals(stateTransitions, ((SimpleEnvelope) envelope).getTransitionIndex().getAllTransitions(), "Transition index mismatch");
             assertEquals(envelopesDeparture.get(i), envelopesArrival.get(i), "Envelops mismatch");
             assertEquals(envelopesDeparture.get(i).hashCode(), envelopesArrival.get(i).hashCode(), "Envelops mismatch");
@@ -86,7 +86,7 @@ public class StateTransitionCheckerTest extends AbstractStateMachineTest {
      * @return the test transition checker
      */
     private TransitionChecker<State, Message> createTransitionChecker() {
-        return new TransitionChecker<State, Message>() {
+        return new TransitionChecker<>() {
 
             /**
              * Validates the departure from the current state upon reception

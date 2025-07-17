@@ -109,7 +109,7 @@ public abstract class AbstractStateMachineTest {
 
     /**
      * Create the state transitions for the default
-     * test State Machine i.e :
+     * test State Machine i.e. :
      * <pre>
      *  +--------+---------+--------+
      *  | Source | Message | Target |

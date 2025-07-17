@@ -25,7 +25,6 @@ import org.junit.jupiter.api.Test;
 
 import java.awt.*;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -183,7 +182,7 @@ public class DOTExporterTest extends AbstractExporterTest {
 
     /**
      * Exports a simple state machine
-     * with custom options to and output file
+     * with custom options to and output a file
      */
     @Test
     public void testStateMachineFileExport() {
@@ -204,8 +203,8 @@ public class DOTExporterTest extends AbstractExporterTest {
         String exported = exporter.export(machine);
 
         try {
-            String outputTestFile = new String(Files.readAllBytes(outputPath), StandardCharsets.UTF_8);
-            String outputTestFile2 = new String(Files.readAllBytes(outputPath), StandardCharsets.UTF_8);
+            String outputTestFile = Files.readString(outputPath);
+            String outputTestFile2 = Files.readString(outputPath);
             assertThat("Error exporting to file", expected, is(outputTestFile));
             assertThat("Error exporting to file", exported, is(outputTestFile));
             assertThat("Error exporting to file", exported, is(outputTestFile2));
@@ -229,14 +228,14 @@ public class DOTExporterTest extends AbstractExporterTest {
             DOTExporter.builder().build().exportToFile(machine, outputPath);
             fail("Error testing export failure");
         } catch (Exception e) {
-            assertEquals(e.getClass(), FileExportException.class, "Exception mismatch");
+            assertEquals(FileExportException.class, e.getClass(), "Exception mismatch");
         }
 
     }
 
     /**
      * Tests the exception when export failed due to
-     * wrong output file.
+     * a wrong output file.
      */
     @Test
     public void testStateMachineFileExportToDirFailure() {
@@ -249,7 +248,7 @@ public class DOTExporterTest extends AbstractExporterTest {
             DOTExporter.builder().build().exportToFile(machine, outputPath);
             fail("Error testing export failure");
         } catch (Exception e) {
-            assertEquals(e.getClass(), FileExportException.class, "Exception mismatch");
+            assertEquals(FileExportException.class, e.getClass(), "Exception mismatch");
         }
     }
 

@@ -60,8 +60,8 @@ public class StateTransitionPrinter<S extends State, M extends Message, T extend
      *
      * @param transitionsMap the transitions
      */
-    public String printTransitions(TransitionIndex<S, M, T> transitionsMap) {
-        return printTransitions(transitionsMap, title, printOptions, compactMode);
+    public void printTransitions(TransitionIndex<S, M, T> transitionsMap) {
+        printTransitions(transitionsMap, title, printOptions, compactMode);
     }
 
     /**
@@ -70,12 +70,16 @@ public class StateTransitionPrinter<S extends State, M extends Message, T extend
      * print options.
      *
      * @param transitionsMap the transitions
-     * @param title the title of the table
-     * @param options the print options
-     * @param compactMode use compact mode
+     * @param title          the title of the table
+     * @param options        the print options
+     * @param compactMode    use compact mode
      */
-    public static <S extends State, M extends Message, T extends Transition<S,M>> String printTransitions(TransitionIndex<S, M, T> transitionsMap, String title, StateTransitionPrintOptions<S,M> options, boolean compactMode) {
-        return (compactMode) ? printCompact(title, transitionsMap, options) : printNormal(title, transitionsMap, options);
+    public static <S extends State, M extends Message, T extends Transition<S,M>> void printTransitions(TransitionIndex<S, M, T> transitionsMap, String title, StateTransitionPrintOptions<S,M> options, boolean compactMode) {
+        if ((compactMode)) {
+            printCompact(title, transitionsMap, options);
+        } else {
+            printNormal(title, transitionsMap, options);
+        }
     }
 
     /**
@@ -83,16 +87,14 @@ public class StateTransitionPrinter<S extends State, M extends Message, T extend
      * using the given title and transition
      * print options.
      *
-     * @param title the title of the table
+     * @param title          the title of the table
      * @param transitionsMap the transitions
-     * @param options the print options
+     * @param options        the print options
      */
-    public static <S extends State, M extends Message, T extends Transition<S,M>> String printNormal(String title, TransitionIndex<S, M, T> transitionsMap, StateTransitionPrintOptions<S,M> options) {
+    public static <S extends State, M extends Message, T extends Transition<S,M>> void printNormal(String title, TransitionIndex<S, M, T> transitionsMap, StateTransitionPrintOptions<S,M> options) {
         List<StateRow<S,M>> data = new ArrayList<>();
         if (transitionsMap != null) {
-            transitionsMap.getTransitionsAsMap().forEach((source, messageStateMap) -> messageStateMap.forEach((message, target) -> {
-                data.add(StateRow.<S,M>builder().source(source).message(message).target(target).build());
-            }));
+            transitionsMap.getTransitionsAsMap().forEach((source, messageStateMap) -> messageStateMap.forEach((message, target) -> data.add(StateRow.<S,M>builder().source(source).message(message).target(target).build())));
         }
 
         String renderedTable = TitledAsciiTable.getTable(title, data, Arrays.asList(
@@ -101,18 +103,17 @@ public class StateTransitionPrinter<S extends State, M extends Message, T extend
                 new AlignedColumn(options.getCellAlignment()).header("Target").with(stateRow -> options.getStateFormatter().apply(stateRow.getTarget()))));
 
         options.getOutput().println(renderedTable);
-        return renderedTable;
     }
 
     /**
      * Displays the transitions in a compact format with
      * a title and specific display options.
      *
-     * @param title the title of the table
+     * @param title          the title of the table
      * @param transitionsMap the transitions
-     * @param options the print options
+     * @param options        the print options
      */
-    private static <S extends State, M extends Message, T extends Transition<S,M>> String printCompact(String title, TransitionIndex<S, M, T> transitionsMap, StateTransitionPrintOptions<S,M> options) {
+    private static <S extends State, M extends Message, T extends Transition<S,M>> void printCompact(String title, TransitionIndex<S, M, T> transitionsMap, StateTransitionPrintOptions<S,M> options) {
         List<StateRow<S, M>> data = new ArrayList<>();
 
         if (transitionsMap != null) {
@@ -120,11 +121,10 @@ public class StateTransitionPrinter<S extends State, M extends Message, T extend
         }
         String renderedTable = TitledAsciiTable.getTable(title, data, Arrays.asList(
                 new AlignedColumn(options.getCellAlignment()).header("Source").with(stateRow -> options.getStateFormatter().apply(stateRow.getSource())),
-                new AlignedColumn(options.getCellAlignment()).header("Target").maxColumnWidth(options.getTableWidth()).with(stateRow -> StringUtils.formatMap(options.getMapFormatter(), stateRow.getTransitions()))));
+                new AlignedColumn(options.getCellAlignment()).header("Target").maxWidth(options.getTableWidth()).with(stateRow -> StringUtils.formatMap(options.getMapFormatter(), stateRow.getTransitions()))));
 
         options.getOutput().println(renderedTable);
 
-        return renderedTable;
     }
 
     /**
@@ -154,7 +154,7 @@ public class StateTransitionPrinter<S extends State, M extends Message, T extend
      */
     private static class AlignedColumn extends Column {
         /**
-         * Constructor with alignment option
+         * Constructor with an alignment option
          * @param cellAlignment the alignment option
          */
         public AlignedColumn(StateTransitionPrintOptions.CellAlignment cellAlignment) {

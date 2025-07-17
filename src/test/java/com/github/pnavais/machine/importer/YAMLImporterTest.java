@@ -37,7 +37,6 @@ import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.Optional;
 
-import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.*;
@@ -47,7 +46,9 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public class YAMLImporterTest extends AbstractStateMachineTest {
 
-    /** The test filesystem */
+    /**
+     * The test filesystem
+     */
     private FileSystem testFS = Jimfs.newFileSystem(Configuration.unix());
 
     @Test
@@ -61,7 +62,7 @@ public class YAMLImporterTest extends AbstractStateMachineTest {
 
     @Test
     public void testOnlyTransitionsParsing() {
-        String input =   "transitions:" + NL +
+        String input = "transitions:" + NL +
                 "  - transition:" + NL +
                 "      source: \"A\"" + NL +
                 "      target: \"B\"";
@@ -103,17 +104,17 @@ public class YAMLImporterTest extends AbstractStateMachineTest {
         String transitionInput = "states:" + NL +
                 "  - state:" + NL +
                 "     name: \"A\"" + NL +
-                "transitions:" +  NL +
+                "transitions:" + NL +
                 "  - transition:" + NL;
 
-        String source  = "      source: \"A\"" + NL;
-        String target  = "      target: \"B\"" + NL;
+        String source = "      source: \"A\"" + NL;
+        String target = "      target: \"B\"" + NL;
         String message = "      message: \"2\"" + NL;
 
-        testWrongInput(transitionInput+source);
-        testWrongInput(transitionInput+source+message);
-        testWrongInput(transitionInput+target);
-        testWrongInput(transitionInput+target+message);
+        testWrongInput(transitionInput + source);
+        testWrongInput(transitionInput + source + message);
+        testWrongInput(transitionInput + target);
+        testWrongInput(transitionInput + target + message);
     }
 
     @Test
@@ -174,7 +175,7 @@ public class YAMLImporterTest extends AbstractStateMachineTest {
         assertTrue(stateMachine.getTransitionsIndex().contains(new StateTransition("A", Messages.ANY, "B")));
         assertTrue(stateMachine.getTransitionsIndex().contains(new StateTransition("B", "2", "D")));
         assertTrue(stateMachine.getTransitionsIndex().contains(new StateTransition("B", Messages.EMPTY, "C")));
-        boolean[] finalStates = { false, false, true, true };
+        boolean[] finalStates = {false, false, true, true};
         final int[] i = {0};
         Arrays.asList("A", "B", "C", "D").forEach(s -> {
             Optional<State> state = stateMachine.find(s);
@@ -194,58 +195,55 @@ public class YAMLImporterTest extends AbstractStateMachineTest {
      * @param input the input
      */
     private void testWrongInput(String input) {
-        try {
+        assertThrows(YAMLParseException.class, () -> {
             YAMLImporter.builder().build().parse(input);
-            fail("Exception not raised");
-        } catch (Exception e) {
-            assertTrue("Error obtaining exception", e instanceof YAMLParseException);
-        }
+        }, "Error obtaining exception");
     }
 
-        /**
-         * Retrieves the YAML String representation
-         * of the States under test.
-         */
-        private String getInputStates() {
-            return "states:" + NL +
-                    "  - state:" + NL +
-                    "      name: \"A\"" + NL +
-                    "  - state:" + NL +
-                    "      name: \"B\"" + NL +
-                    "      current: \"true\"" + NL +
-                    "      properties:" + NL +
-                    "        color: \"#1122DD\"" + NL +
-                    "  - state:" + NL +
-                    "      name: \"D\"" + NL +
-                    "      final: \"true\"" + NL +
-                    "      properties:" + NL +
-                    "        style: \"filled\"" + NL +
-                    "        fillcolor: \"#C2B3FF\"" + NL +
-                    "  - state:" + NL +
-                    "      name: \"C\"" + NL +
-                    "      final: \"true\"" + NL +
-                    "      properties:" + NL +
-                    "        style: \"filled\"" + NL +
-                    "        fillcolor: \"#C2B3FF\"";
-        }
+    /**
+     * Retrieves the YAML String representation
+     * of the States under test.
+     */
+    private String getInputStates() {
+        return "states:" + NL +
+                "  - state:" + NL +
+                "      name: \"A\"" + NL +
+                "  - state:" + NL +
+                "      name: \"B\"" + NL +
+                "      current: \"true\"" + NL +
+                "      properties:" + NL +
+                "        color: \"#1122DD\"" + NL +
+                "  - state:" + NL +
+                "      name: \"D\"" + NL +
+                "      final: \"true\"" + NL +
+                "      properties:" + NL +
+                "        style: \"filled\"" + NL +
+                "        fillcolor: \"#C2B3FF\"" + NL +
+                "  - state:" + NL +
+                "      name: \"C\"" + NL +
+                "      final: \"true\"" + NL +
+                "      properties:" + NL +
+                "        style: \"filled\"" + NL +
+                "        fillcolor: \"#C2B3FF\"";
+    }
 
-        /**
-         * Retrieves the YAML String representation
-         * of the Transitions under test.
-         */
-        private String getInputTransitions() {
-            return "transitions:" + NL +
-                    "  - transition:" + NL +
-                    "      source: \"A\"" + NL +
-                    "      target: \"B\"" + NL +
-                    "      any: \"true\"" + NL +
-                    "  - transition:" + NL +
-                    "      source: \"B\"" + NL +
-                    "      target: \"D\"" + NL +
-                    "      message: \"2\"" + NL +
-                    "  - transition:" + NL +
-                    "      source: \"B\"" + NL +
-                    "      target: \"C\"";
-        }
+    /**
+     * Retrieves the YAML String representation
+     * of the Transitions under test.
+     */
+    private String getInputTransitions() {
+        return "transitions:" + NL +
+                "  - transition:" + NL +
+                "      source: \"A\"" + NL +
+                "      target: \"B\"" + NL +
+                "      any: \"true\"" + NL +
+                "  - transition:" + NL +
+                "      source: \"B\"" + NL +
+                "      target: \"D\"" + NL +
+                "      message: \"2\"" + NL +
+                "  - transition:" + NL +
+                "      source: \"B\"" + NL +
+                "      target: \"C\"";
+    }
 
 }

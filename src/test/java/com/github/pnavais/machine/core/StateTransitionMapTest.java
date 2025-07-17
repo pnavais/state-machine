@@ -123,19 +123,19 @@ public class StateTransitionMapTest extends AbstractStateMachineTest {
         transitionMap.add(new StateTransition("A", StringMessage.from("1"), "B"));
         transitionMap.add(new StateTransition("B", StringMessage.from("2"), "C"));
         assertEquals(3, transitionMap.size(), "Error adding transitions to the map");
-        try {
-            transitionMap.add(new StateTransition("C", StringMessage.from("3"), "D"));
-            fail("Validator mismatch");
-        } catch (Exception e) {
-            assertTrue(e instanceof ValidationException, "Validation exception mismatch");
-        } finally {
-            assertEquals(3, transitionMap.size(), "Error adding transitions to the map");
-            Arrays.asList("A", "B", "C").forEach(s -> {
-                Optional<State> state = transitionMap.find(s);
-                assertTrue(state.isPresent(), "Error retrieving state");
-                assertThat("State retrieved mismatch", state.get().getName(), is(s));
-            });
-        }
+
+        // Attempt to add a new StateTransition and assert a ValidationException is thrown
+        assertThrows(ValidationException.class, () -> transitionMap.add(new StateTransition("C", StringMessage.from("3"), "D")), "Validator mismatch");
+
+        // Ensure the transition map size remains unchanged
+        assertEquals(3, transitionMap.size(), "Error adding transitions to the map");
+
+        // Check if the expected states are present in the transition map
+        Arrays.asList("A", "B", "C").forEach(s -> {
+            Optional<State> state = transitionMap.find(s);
+            assertTrue(state.isPresent(), "Error retrieving state");
+            assertThat("State retrieved mismatch", state.get().getName(), is(s));
+        });
     }
 
     @Test
@@ -144,21 +144,7 @@ public class StateTransitionMapTest extends AbstractStateMachineTest {
         AtomicReference<TransitionValidator.FailurePolicy> policyRef = new AtomicReference<>(TransitionValidator.FailurePolicy.IGNORE);
 
         // Create a fail all validator just to test the policy
-        TransitionValidator<State, Message, StateTransition> validator = new TransitionValidator<State, Message, StateTransition>() {
-
-            @Override
-            public ValidationResult validate(StateTransition transition, TransitionIndex<State, Message, StateTransition> transitionIndex, TransitionValidator.Operation operation) {
-                return ValidationResult.fail("Validator disabled");
-            }
-
-            @Override
-            public FailurePolicy getFailurePolicy() {
-                return policyRef.get();
-            }
-        };
-
-        // Ignore the operation
-        StateTransitionMap transitionMap = new StateTransitionMap(validator);
+        StateTransitionMap transitionMap = getStateTransitionMap(policyRef);
         StateTransition transition = new StateTransition("A", StringMessage.from("1"), "B");
         transitionMap.add(transition);
         assertEquals(0, transitionMap.size(), "Map should be empty");
@@ -223,24 +209,39 @@ public class StateTransitionMapTest extends AbstractStateMachineTest {
         StateTransition aToB = new StateTransition("A", StringMessage.from("1"), "B");
         StateTransition bToC = new StateTransition("B", StringMessage.from("1"), "C");
         transitionMap.add(aToB);
-        try {
-            transitionMap.remove(bToC);
-            fail("Cannot remove unavailable transition");
-        } catch (Exception e) {
-            assertTrue(e instanceof IllegalTransitionException, "Exception mismatch");
-        }
-        try {
-            transitionMap.remove((StateTransition)null);
-            fail("Cannot remove null transition");
-        } catch (Exception e) {
-            assertTrue(e instanceof NullTransitionException, "Exception mismatch");
-        }
+        assertThrows(IllegalTransitionException.class, () -> transitionMap.remove(bToC), "Exception mismatch");
+        assertThrows(NullTransitionException.class, () -> transitionMap.remove((StateTransition) null), "Exception mismatch");
     }
 
 
     /**
-     * Creates a test state transition map with the following states :
+     * Creates a state transition map with a custom validator that always fails
+     * and ignores the operation.
      *
+     * @param policyRef the reference to the failure policy
+     * @return the state transition map
+     */
+    private static StateTransitionMap getStateTransitionMap(AtomicReference<TransitionValidator.FailurePolicy> policyRef) {
+        TransitionValidator<State, Message, StateTransition> validator = new TransitionValidator<>() {
+
+            @Override
+            public ValidationResult validate(StateTransition transition, TransitionIndex<State, Message, StateTransition> transitionIndex, Operation operation) {
+                return ValidationResult.fail("Validator disabled");
+            }
+
+            @Override
+            public FailurePolicy getFailurePolicy() {
+                return policyRef.get();
+            }
+        };
+
+        // Ignore the operation
+        return new StateTransitionMap(validator);
+    }
+
+    /**
+     * Creates a test state transition map with the following states :
+     * <p>
      *  +--------+---------+--------+
      *  | Source | Message | Target |
      *  +--------+---------+--------+
