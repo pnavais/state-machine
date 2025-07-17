@@ -62,6 +62,7 @@
         <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
         <maven-scm-provider-gitexe.version>2.1.0</maven-scm-provider-gitexe.version>
         <jetbrains-annotations.version>26.0.2</jetbrains-annotations.version>
+        <coveralls-maven-plugin.version>4.3.0</coveralls-maven-plugin.version>
     </properties>
 
     <dependencyManagement>
@@ -156,6 +157,27 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.eluder.coveralls</groupId>
+                <artifactId>coveralls-maven-plugin</artifactId>
+                <version>${coveralls-maven-plugin.version}</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>javax.xml.bind</groupId>
+                        <artifactId>jaxb-api</artifactId>
+                        <version>2.3.1</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.glassfish.jaxb</groupId>
+                        <artifactId>jaxb-runtime</artifactId>
+                        <version>2.3.1</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <repoToken>${env.COVERALLS_REPO_TOKEN}</repoToken>
+                </configuration>
             </plugin>
 
             <plugin>
