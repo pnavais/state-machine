@@ -2,20 +2,21 @@
     <img src="images/logo.png"/>
 </p>
 
+<div id="toc"> 
 <p align="center">
-    <a href="https://github.com/pnavais/state-machine/actions?query=workflows/maven-publish.yml" style="text-decoration: none;">
+    <a href="https://github.com/pnavais/state-machine/actions?query=workflows/maven-publish.yml">
         <img src="https://github.com/pnavais/state-machine/actions/workflows/maven-publish.yml/badge.svg"
              alt="Build Status"/>
     </a>
-    <a href='https://coveralls.io/github/pnavais/state-machine?branch=master' style="text-decoration: none;">
+    <a href='https://coveralls.io/github/pnavais/state-machine?branch=master'>
 	    <img src='https://coveralls.io/repos/github/pnavais/state-machine/badge.svg?branch=master'
 		 alt='Coverage Status'/>
     </a>
-    <a href="https://github.com/pnavais/state-machine/blob/master/LICENSE" style="text-decoration: none;">
+    <a href="https://github.com/pnavais/state-machine/blob/master/LICENSE">
 	<img src="https://img.shields.io/github/license/pnavais/state-machine"
 	     alt="License"/>
     </a>     
-    <a href="https://sonarcloud.io/summary/new_code?id=pnavais_state-machine" style="text-decoration: none;">    
+    <a href="https://sonarcloud.io/summary/new_code?id=pnavais_state-machine">    
         <img src="https://sonarcloud.io/api/project_badges/measure?project=pnavais_state-machine&metric=alert_status"
              alt="Quality Gate"/>
     </a>
@@ -23,6 +24,7 @@
              alt="Maven Central"/></a>
 	
 </p>
+</div>
 
 <p align="center"><sup><strong>Generic State Machine implementation for Java 8+</strong></sup></p>
 
