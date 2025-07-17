@@ -1,26 +1,21 @@
-<style>    
-   #no-underline a {  
-      text-decoration: none; /* Remove underline from links */  
-   }  
-</style> 
 <p align="center">
     <img src="images/logo.png"/>
 </p>
 
-<p id="no-underline" align="center">
-    <a href="https://github.com/pnavais/state-machine/actions?query=workflows/maven-publish.yml">
+<p align="center">
+    <a href="https://github.com/pnavais/state-machine/actions?query=workflows/maven-publish.yml" style="text-decoration: none;">
         <img src="https://github.com/pnavais/state-machine/actions/workflows/maven-publish.yml/badge.svg"
              alt="Build Status"/>
     </a>
-    <a href='https://coveralls.io/github/pnavais/state-machine?branch=master'>
+    <a href='https://coveralls.io/github/pnavais/state-machine?branch=master' style="text-decoration: none;">
 	    <img src='https://coveralls.io/repos/github/pnavais/state-machine/badge.svg?branch=master'
 		 alt='Coverage Status'/>
     </a>
-    <a href="https://github.com/pnavais/state-machine/blob/master/LICENSE">
+    <a href="https://github.com/pnavais/state-machine/blob/master/LICENSE" style="text-decoration: none;">
 	<img src="https://img.shields.io/github/license/pnavais/state-machine"
 	     alt="License"/>
     </a>     
-    <a href="https://sonarcloud.io/summary/new_code?id=pnavais_state-machine">    
+    <a href="https://sonarcloud.io/summary/new_code?id=pnavais_state-machine" style="text-decoration: none;">    
         <img src="https://sonarcloud.io/api/project_badges/measure?project=pnavais_state-machine&metric=alert_status"
              alt="Quality Gate"/>
     </a>
